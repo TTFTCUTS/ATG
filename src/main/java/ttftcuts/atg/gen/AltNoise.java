@@ -29,6 +29,10 @@ public class AltNoise {
 		}
 	}
 	
+	public AltNoise(long seed, double scale) {
+		this(seed, scale, scale, scale);
+	}
+	
 	public double noise(double x, double y, double z) {
 		x *= scalex;
 		y *= scaley;
@@ -215,25 +219,27 @@ public class AltNoise {
 	
 	public double jordanTurbulenceRaw(double x, double z, int octaves, double lacunarity, double gain0, double gain, double warp0, double warp, double damp0, double damp, double dampscale) {
 		double amp = gain0;
-		double scale = 1.0;
+		double scale = lacunarity;
 		double damped_amp = amp * gain;
+		double dsx = 1.0 / this.scalex;
+		double dsz = 1.0 / this.scalez;
 		
-		double[] n = this.derivative(x, 0, z);
+		double[] n = this.derivative(x * scale, 0, z * scale);
 		double sum = n[0]*n[0];
 		
-		double dsumx_warp = n[1] * n[0] * warp0;
-		double dsumz_warp = n[3] * n[0] * warp0;
+		double dsumx_warp = n[1] * n[0] * warp0 * dsx;
+		double dsumz_warp = n[3] * n[0] * warp0 * dsz;
 		
-		double dsumx_damp = n[1] * n[0] * damp0;
-		double dsumz_damp = n[3] * n[0] * damp0;
+		double dsumx_damp = n[1] * n[0] * damp0 * dsx;
+		double dsumz_damp = n[3] * n[0] * damp0 * dsz;
 		
-		for (int i=01; i<octaves; i++) {
-			n = this.derivative(x * scale + dsumx_warp, i * 688889, z * scale + dsumz_warp);
+		for (int i=1; i<octaves; i++) {
+			n = this.derivative(x*scale + dsumx_warp, i * 688889, z*scale + dsumz_warp);
 			sum += damped_amp * ((n[0] * n[0] * 1.5) + 0.1);
-			dsumx_warp += n[1] * n[0] * warp;
-			dsumz_warp += n[3] * n[0] * warp;
-			dsumx_damp += n[1] * n[0] * damp;
-			dsumz_damp += n[3] * n[0] * damp;
+			dsumx_warp += n[1] * n[0] * warp * dsx;
+			dsumz_warp += n[3] * n[0] * warp * dsz;
+			dsumx_damp += n[1] * n[0] * damp * dsx;
+			dsumz_damp += n[3] * n[0] * damp * dsz;
 			scale *= lacunarity;
 			amp *= gain;
 			damped_amp = amp * (1.0 - dampscale / (1.0 + dsumx_damp * dsumx_damp + dsumz_damp * dsumz_damp));

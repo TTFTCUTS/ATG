@@ -3,8 +3,10 @@ package ttftcuts.atg.gen.layer;
 import java.util.Random;
 
 import ttftcuts.atg.ATG;
+import ttftcuts.atg.gen.AltHeightNoise;
 import ttftcuts.atg.gen.AltNoise;
 import ttftcuts.atg.gen.HeightNoise;
+import ttftcuts.atg.gen.INoiseProvider;
 import ttftcuts.atg.gen.mod.GenModPlateau;
 
 public class ATGGenLayerHeight extends ATGGenLayer {
@@ -14,7 +16,7 @@ public class ATGGenLayerHeight extends ATGGenLayer {
 	private ATGGenLayerInland inland;
 	private ATGGenLayerRarity rarity;
 	
-	private HeightNoise heightNoise;
+	private INoiseProvider heightNoise;
 	
 	private AltNoise testnoise;
 	
@@ -31,9 +33,8 @@ public class ATGGenLayerHeight extends ATGGenLayer {
 		this.inland = inland;
 		this.rarity = rarity;
 		//this.image = image;
-		this.heightNoise = this.inland.getNoise(); 
-		
-		this.testnoise = new AltNoise(this.seed, 100,100,100);
+		//this.heightNoise = this.inland.getNoise(); 
+		this.heightNoise = new AltHeightNoise(this.rand.nextLong());
 		
 		this.offset = 0.0; //ATGMainConfig.genModHeight.getDouble(0.0);
 		this.multiplier = 1.0; //ATGMainConfig.genModHeightMult.getDouble(1.0);
@@ -61,11 +62,8 @@ public class ATGGenLayerHeight extends ATGGenLayer {
 		}
 		
 		return Math.max( 0.005, h*this.multiplier + this.offset );*/
-		
-		//double s = this.testnoise.swissTurbulence(x, z, 8, 2.0, 0.4, 0.15) * 0.5 * 0.5 + 0.25;
-		//double s = this.testnoise.noiseOctaves(x, 0, z, 4, 2.0, 0.5) * 0.6 + 0.25;
-		//double s = this.testnoise.jordanTurbulence(x, z, 8, 1.92, 0.8, 0.55, 0.4, 0.35, 1.0, 0.7, 1.0, 4, 0.25, 0.25, 0.5)*0.6 + 0.25;
-		double s = this.testnoise.jordanTurbulenceRaw(x, z, 8, 1.92, 0.8, 0.55, 0.4, 0.35, 1.0, 0.7, 1.0)*0.6 + 0.25;
+
+		double s = this.heightNoise.getHeight(x,z);
 		
 		//ATG.logger.info(s);
 		

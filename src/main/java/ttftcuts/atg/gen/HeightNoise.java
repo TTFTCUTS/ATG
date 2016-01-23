@@ -4,7 +4,7 @@ import java.util.Random;
 
 //import ttftcuts.atg.config.configfiles.ATGMainConfig;
 
-public class HeightNoise {
+public class HeightNoise implements INoiseProvider {
 	long seed;
 	Random rand;
 	ATGPerlin[] heightNoise;

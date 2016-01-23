@@ -174,12 +174,12 @@ public class ATGChunkProvider implements IChunkProvider {
             	
             	for (y = 0; y<256; y++) {
             		density = gen - y;
-            		/*if (y >= gen - noiseHeight*0.5 && y < gen + noiseHeight*0.5) {
+            		if (y >= gen - noiseHeight*0.5 && y < gen + noiseHeight*0.5) {
             			diff = 1 - (Math.abs(gen-y) / (noiseHeight*0.5));
             			factor = diff * diff * (3 - (2*diff));
             			heightfactor = Math.min(1.5, Math.max(0, y-(sealevel + 12)) / 60.0);
             			density += (this.mixForGeneration[y-gen + noiseHeight/2] * 255 * factor * heightfactor * heightfactor - 0.25) * biomeNoiseFactor;
-            		}*/
+            		}
             		
             		if (y < 255) {
             			if (density > 0) {
