@@ -1,0 +1,26 @@
+##gradle
+/.gradle
+/build
+/eclipse
+
+##ForgeGradle
+/run
+/out
+gradlew
+gradlew.bat
+
+## idea
+*.iml
+*.ipr
+*.iws
+
+## eclipse
+/.settings
+/.metadata
+/.classpath
+/.project
+/bin
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
+build.bat
+*.launch
