@@ -196,6 +196,8 @@ public class AltNoise {
 		double sum = 0.0;
 		double scale = 1.0;
 		double amp = 1.0;
+		double dsx = 1.0 / this.scalex;
+		double dsz = 1.0 / this.scalez;
 		
 		double dsumx = 0.0;
 		double dsumz = 0.0;
@@ -208,8 +210,8 @@ public class AltNoise {
 			//ATG.logger.info("deriv: "+n[0]+", ("+n[1]+","+n[2]+","+n[3]+")");
 			
 			sum += amp * (1.0 - Math.abs(n[0]));
-			dsumx += n[1] * amp * -n[0];
-			dsumz += n[3] * amp * -n[0];
+			dsumx += n[1] * amp * -n[0] * dsx;
+			dsumz += n[3] * amp * -n[0] * dsz;
 			scale *= lacunarity;
 			amp *= gain * Math.min(1.0, Math.max(0.0, sum));
 		}
@@ -284,6 +286,6 @@ public class AltNoise {
 		Vector3 grad = this.grad(ix, iy, iz);
 		Vector3 point = new Vector3(fx-ix, fy-iy, fz-iz);
 		
-		return grad.dot(point);
+		return grad.dot(point) * 2.12;
 	}
 }

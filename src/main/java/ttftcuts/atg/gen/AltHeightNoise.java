@@ -38,16 +38,16 @@ public class AltHeightNoise implements INoiseProvider {
 		volcano *= volcano * volcano;
 		volcano = Math.max(0.0, volcano);
 		
-		double swissbase = noise[2].swissTurbulence(x, z, 3, 2.0, 0.4, 0.15);// * 0.75;
+		double swissbase = noise[2].swissTurbulence(x, z, 4, 2.0, 0.4, 0.15) * 0.5;// * 0.75;
 		
 		double peak = noise[3].noiseOctaves(x, 1, z, 2, 2.0, 0.5) + 0.2;
 		
-		double sea = noise[4].noiseOctaves(x, 51, z, 5, 2.0, 0.5);
+		double sea = noise[4].noiseOctaves(x, 51, z, 3, 2.0, 0.5);
 		double continent = Math.max(0.0, sea * 2.0 - 1.0);
 		
 		double swiss = swissbase * swissbase * 1.3 - 0.2;
 		
-		double jordan = noise[5].jordanTurbulence(x, z, 3, 1.92, 0.8, 0.55, 0.4, 0.35, 1.0, 0.7, 1.0, 4, 0.15, 0.25, 0.5);
+		double jordan = noise[5].jordanTurbulence(x, z, 5, 1.92, 0.8, 0.55, 0.4, 0.35, 1.0, 0.7, 1.0, 4, 0.15, 0.25, 0.5);
 		double islejordan = noise[6].jordanTurbulence(x + 13847893, z, 3, 1.92, 0.8, 0.55, 0.4, 0.35, 1.0, 0.7, 1.0, 4, 0.15, 0.25, 0.5);
 		
 		double mountain = (swiss + (1.2-swiss*0.9)*jordan*0.275)*1.18;
