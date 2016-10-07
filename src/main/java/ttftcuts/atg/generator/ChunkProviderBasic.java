@@ -142,17 +142,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
     public Chunk provideChunk(int x, int z) {
         ChunkPrimer chunkprimer = new ChunkPrimer();
 
-        IBlockState iblockstate = Blocks.STONE.getDefaultState();
-        for (int iy = 0; iy < 64; ++iy)
-        {
-            for (int ix = 0; ix < 16; ++ix)
-            {
-                for (int iz = 0; iz < 16; ++iz)
-                {
-                    chunkprimer.setBlockState(ix, iy, iz, iblockstate);
-                }
-            }
-        }
+        this.fillChunk(x,z,chunkprimer);
 
         Biome[] biomes = this.world.getBiomeProvider().loadBlockGeneratorData((Biome[])null, x * 16, z * 16, 16, 16);
         this.replaceBiomeBlocks(x,z, chunkprimer, biomes);
@@ -170,6 +160,20 @@ public class ChunkProviderBasic implements IChunkGenerator {
 
         chunk.generateSkylightMap();
         return chunk;
+    }
+
+    public void fillChunk(int chunkX, int chunkZ, ChunkPrimer primer) {
+        IBlockState iblockstate = Blocks.STONE.getDefaultState();
+        for (int iy = 0; iy < 64; ++iy)
+        {
+            for (int ix = 0; ix < 16; ++ix)
+            {
+                for (int iz = 0; iz < 16; ++iz)
+                {
+                    primer.setBlockState(ix, iy, iz, iblockstate);
+                }
+            }
+        }
     }
 
     @Override
