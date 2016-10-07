@@ -10,6 +10,7 @@ gradlew
 gradlew.bat
 
 ## idea
+/.idea
 *.iml
 *.ipr
 *.iws

@@ -1,0 +1,16 @@
+[
+{
+  "modid": "atg",
+  "name": "Alternate Terrain Generation",
+  "description": "Provides an alternative to vanilla terrain generation.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["TTFTCUTS"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
