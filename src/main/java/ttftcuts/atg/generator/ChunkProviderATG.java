@@ -17,6 +17,25 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         super(world);
 
         testnoise = new NoiseGeneratorSimplex(world.rand);
+
+        CoreNoise test = new CoreNoise(1);
+
+        ATG.logger.info("M: "+test.getMoisture(100,100));
+        ATG.logger.info("M: "+test.getMoisture(100,100));
+        ATG.logger.info("T: "+test.getTemperature(100,100));
+        ATG.logger.info("H: "+test.getHeight(100,100));
+
+        ATG.logger.info("-----");
+
+        ATG.logger.info("H: "+test.getHeight(50,50));
+        ATG.logger.info("T: "+test.getTemperature(50,50));
+        ATG.logger.info("M: "+test.getMoisture(50,50));
+
+        ATG.logger.info("-----");
+
+        ATG.logger.info("T: "+test.getTemperature(20,20));
+        ATG.logger.info("H: "+test.getHeight(20,20));
+        ATG.logger.info("M: "+test.getMoisture(20,20));
     }
 
     @Override
