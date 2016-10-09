@@ -20,22 +20,21 @@ public class ChunkProviderATG extends ChunkProviderBasic {
 
         CoreNoise test = new CoreNoise(1);
 
-        ATG.logger.info("M: "+test.getMoisture(100,100));
-        ATG.logger.info("M: "+test.getMoisture(100,100));
-        ATG.logger.info("T: "+test.getTemperature(100,100));
-        ATG.logger.info("H: "+test.getHeight(100,100));
+        /*ATG.logger.info("collision test ###########################################################");
 
-        ATG.logger.info("-----");
+        test.collisions = 0;
 
-        ATG.logger.info("H: "+test.getHeight(50,50));
-        ATG.logger.info("T: "+test.getTemperature(50,50));
-        ATG.logger.info("M: "+test.getMoisture(50,50));
+        for (int x=-1024; x<1024; x++) {
+            for (int z=-1024; z<1024; z++) {
+                for (int cx = 0; cx <16; cx++) {
+                    for (int cz = 0; cz <16; cz++) {
+                        test.getHeight(x*16 + cx, z*16 + cz);
+                    }
+                }
+            }
+        }
 
-        ATG.logger.info("-----");
-
-        ATG.logger.info("T: "+test.getTemperature(20,20));
-        ATG.logger.info("H: "+test.getHeight(20,20));
-        ATG.logger.info("M: "+test.getMoisture(20,20));
+        ATG.logger.info("end collision test: "+test.collisions+" collisions ###########################################################");*/
     }
 
     @Override
