@@ -1,38 +1,48 @@
 package ttftcuts.atg.generator;
 
 import ttftcuts.atg.ATG;
+import ttftcuts.atg.noise.*;
+import ttftcuts.atg.util.MathUtil;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class CoreNoise {
-    public final long seed;
-    protected NoiseCache cache = new NoiseCache();
+    //------ Cache Fields ---------------------------------------------------------
 
+    protected NoiseCache cache = new NoiseCache();
     public int collisions = 0;
+
+
+
+    //------ Noise Fields ---------------------------------------------------------
+
+    public final long seed;
+
+    protected Noise ledges;
+    protected Noise lumps;
+    protected Noise ridges;
+    protected Noise oceans;
+    protected Noise dunes;
+
+    //------ Init ---------------------------------------------------------
 
     public CoreNoise(long seed) {
         this.seed = seed;
+
+        double scale = 100.0;
+
+        Random rand = new Random(seed);
+
+        this.ledges = new OctaveNoise(rand, scale * 5.0, 2);
+
+        this.lumps = new JordanTurbulence(rand, scale * 3.0, 6, 2.0, 0.8, 0.65, 0.4, 0.45, 1.0, 0.6, 1.0, 2, 0.15, 0.25, 0.5);
+        this.ridges = new RidgeNoise(rand, scale * 6.0, 5);
+
+        this.oceans = new OctaveNoise(rand, scale * 40.0, 4);
+        this.dunes = new DuneNoise(rand, scale * 0.3, 0.2);
     }
-
-    public NoiseCache.NoiseEntry getEntry(int x, int z) {
-        int coord = NoiseCache.coordHash(x,z);
-        if (!this.cache.containsKey(coord)) {
-            this.cache.put(coord, new NoiseCache.NoiseEntry(x,z));
-        }
-
-        NoiseCache.NoiseEntry vals = this.cache.get(coord);
-
-        if (vals.x != x || vals.z != z){
-            //ATG.logger.warn("Coord collision: ("+x+","+z+") vs ("+vals.x+","+vals.z+") at "+coord+", skipping cache.");
-            collisions++;
-            vals = new NoiseCache.NoiseEntry(x,z);
-        }
-
-        return vals;
-    }
-
-
 
     //------ Height ---------------------------------------------------------
 
@@ -43,12 +53,40 @@ public class CoreNoise {
         }
         return vals.height;
     }
+
     protected void generateHeight(NoiseCache.NoiseEntry vals) {
-        vals.height = 0.5;
-        //ATG.logger.info("Generate Height for "+vals.x+","+vals.z);
+        vals.height = 0.0;
+
+        double lump = lumps.getValue(vals.x,vals.z);
+        double ridge = ridges.getValue(vals.x,vals.z);
+        double ocean = oceans.getValue(vals.x,vals.z);
+
+        double islands = (lump*lump - 0.5) * 0.3 + 0.25 + (ocean+0.2) * 0.4;//0.3;
+
+        double ridgelayer = ridge * 0.45 + lump * (0.05 + ridge * 0.25);
+
+        vals.height += MathUtil.polymax(islands, ridgelayer * (ocean + 0.3), 0.2); // 0.15
+
+        if (vals.height <= 0.2) {
+            double abyss = dunes.getValue(vals.x,vals.z) * 0.05 + 0.08;
+            vals.height = MathUtil.polymax(vals.height, abyss, 0.1);
+        }
+
+        double ledge = Math.min(0.975, ledges.getValue(vals.x,vals.z) * 1.15);
+        ledge = ledge * ledge;
+
+        if (ledge > 0.375) {
+            double ledgefactor = Math.min(1.0, (ledge - 0.375) * 6.0);
+            double ledgelevel = vals.height;
+
+            ledgelevel = MathUtil.plateau(ledgelevel, 60,70,85, 2.0, false);
+            ledgelevel = MathUtil.plateau(ledgelevel, 85,100,110, 3.0, false);
+            ledgelevel = MathUtil.plateau(ledgelevel, 120,140,145, 3.0, false);
+            ledgelevel = MathUtil.plateau(ledgelevel, 50,64,66, 2.0, false);
+
+            vals.height = vals.height * (1-ledgefactor) + ledgelevel * ledgefactor;
+        }
     }
-
-
 
     //------ Temperature ---------------------------------------------------------
 
@@ -67,8 +105,6 @@ public class CoreNoise {
         //ATG.logger.info("Generate Temperature for "+vals.x+","+vals.z);
     }
 
-
-
     //------ Moisture ---------------------------------------------------------
 
     public double getMoisture(int x, int z) {
@@ -86,9 +122,24 @@ public class CoreNoise {
         //ATG.logger.info("Generate Moisture for "+vals.x+","+vals.z);
     }
 
+    //------ Cache ---------------------------------------------------------
 
+    public NoiseCache.NoiseEntry getEntry(int x, int z) {
+        int coord = NoiseCache.coordHash(x,z);
+        if (!this.cache.containsKey(coord)) {
+            this.cache.put(coord, new NoiseCache.NoiseEntry(x,z));
+        }
 
-    //------ Cache class ---------------------------------------------------------
+        NoiseCache.NoiseEntry vals = this.cache.get(coord);
+
+        if (vals.x != x || vals.z != z){
+            //ATG.logger.warn("Coord collision: ("+x+","+z+") vs ("+vals.x+","+vals.z+") at "+coord+", skipping cache.");
+            collisions++;
+            vals = new NoiseCache.NoiseEntry(x,z);
+        }
+
+        return vals;
+    }
 
     public static class NoiseCache extends LinkedHashMap<Integer,NoiseCache.NoiseEntry> {
 

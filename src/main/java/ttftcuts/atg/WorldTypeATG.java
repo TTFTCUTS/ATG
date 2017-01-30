@@ -26,7 +26,7 @@ public class WorldTypeATG extends WorldType {
 
     @Override
     public boolean isCustomizable() {
-        return true;
+        return false; // true! but no UI yet
     }
 
     @Override

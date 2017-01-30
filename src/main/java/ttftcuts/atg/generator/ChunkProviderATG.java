@@ -11,14 +11,12 @@ import ttftcuts.atg.ATG;
 import java.util.Arrays;
 
 public class ChunkProviderATG extends ChunkProviderBasic {
-    NoiseGeneratorSimplex testnoise;
+    CoreNoise noise;
 
     public ChunkProviderATG(World world) {
         super(world);
 
-        testnoise = new NoiseGeneratorSimplex(world.rand);
-
-        CoreNoise test = new CoreNoise(1);
+        noise = new CoreNoise(1);
 
         /*ATG.logger.info("collision test ###########################################################");
 
@@ -46,15 +44,20 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         //ATG.logger.info(Arrays.toString(this.depthBuffer));
         double scale = 1.0/100.0;
 
-        for (int ix = 0; ix < 16; ++ix)
+        int x,z,height,ix,iz,iy;
+
+        for (ix = 0; ix < 16; ++ix)
         {
-            for (int iz = 0; iz < 16; ++iz)
+            for (iz = 0; iz < 16; ++iz)
             {
-                double x = chunkX*16.0 + ix;
-                double z = chunkZ*16.0 + iz;
-                double n = testnoise.getValue(x*scale, z*scale);
-                int height = (int)Math.round(n*20 + 120);//(int)Math.round(this.depthBuffer[ix+iz*16] * 255);
-                for (int iy = 0; iy < height; ++iy)
+                x = chunkX*16 + ix;
+                z = chunkZ*16 + iz;
+                //double n = testnoise.getValue(x*scale, z*scale);
+                //int height = (int)Math.round(n*20 + 120);//(int)Math.round(this.depthBuffer[ix+iz*16] * 255);
+
+                height = (int)Math.floor(noise.getHeight(x,z) * 255);
+
+                for (iy = 0; iy < height; ++iy)
                 {
                     primer.setBlockState(ix, iy, iz, iblockstate);
                 }
