@@ -39,12 +39,15 @@ public class ChunkProviderATG extends ChunkProviderBasic {
     public void fillChunk(int chunkX, int chunkZ, ChunkPrimer primer) {
         //this.depthBuffer = testnoise.getRegion(depthBuffer, chunkX*16.0, chunkZ*16.0, 16,16, 0.0625, 0.0625,1.0);
 
-        IBlockState iblockstate = Blocks.STONE.getDefaultState();
+        IBlockState landblock = Blocks.STONE.getDefaultState();
+        IBlockState seablock = Blocks.WATER.getDefaultState();
 
         //ATG.logger.info(Arrays.toString(this.depthBuffer));
         double scale = 1.0/100.0;
 
-        int x,z,height,ix,iz,iy;
+        int x,z,water,height,limit,ix,iz,iy;
+
+        water = 63;
 
         for (ix = 0; ix < 16; ++ix)
         {
@@ -57,9 +60,15 @@ public class ChunkProviderATG extends ChunkProviderBasic {
 
                 height = (int)Math.floor(noise.getHeight(x,z) * 255);
 
-                for (iy = 0; iy < height; ++iy)
+                limit = Math.max(water, height);
+
+                for (iy = 0; iy < limit; ++iy)
                 {
-                    primer.setBlockState(ix, iy, iz, iblockstate);
+                    if (iy <= height) {
+                        primer.setBlockState(ix, iy, iz, landblock);
+                    } else {
+                        primer.setBlockState(ix, iy, iz, seablock);
+                    }
                 }
             }
         }
