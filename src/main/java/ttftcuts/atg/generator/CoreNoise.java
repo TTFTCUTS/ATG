@@ -57,44 +57,22 @@ public class CoreNoise {
         return vals.height;
     }
 
-    protected void generateHeight(NoiseCache.NoiseEntry vals) {
-        /*vals.height = 0.0;
-
-        double lump = lumps.getValue(vals.x,vals.z);
-        double ridge = ridges.getValue(vals.x,vals.z);
-        double ocean = oceans.getValue(vals.x,vals.z);
-
-        double islands = (lump*lump - 0.5) * 0.3 + 0.25 + (ocean+0.2) * 0.4;//0.3;
-
-        double ridgelayer = ridge * 0.45 + lump * (0.05 + ridge * 0.25);
-
-        vals.height += MathUtil.polymax(islands, ridgelayer * (ocean + 0.3), 0.2); // 0.15
-
-        if (vals.height <= 0.2) {
-            double abyss = dunes.getValue(vals.x,vals.z) * 0.05 + 0.08;
-            vals.height = MathUtil.polymax(vals.height, abyss, 0.1);
+    public double getInland(int x, int z) {
+        NoiseCache.NoiseEntry vals = this.getEntry(x,z);
+        if (vals.inland < 0) {
+            this.generateHeight(vals); // also sets inland
         }
+        return vals.inland;
+    }
 
-        double ledge = Math.min(0.975, ledges.getValue(vals.x,vals.z) * 1.15);
-        ledge = ledge * ledge;
-
-        if (ledge > 0.375) {
-            double ledgefactor = Math.min(1.0, (ledge - 0.375) * 6.0);
-            double ledgelevel = vals.height;
-
-            ledgelevel = MathUtil.plateau(ledgelevel, 60,70,85, 2.0, false);
-            ledgelevel = MathUtil.plateau(ledgelevel, 85,100,110, 3.0, false);
-            ledgelevel = MathUtil.plateau(ledgelevel, 120,140,145, 3.0, false);
-            ledgelevel = MathUtil.plateau(ledgelevel, 50,64,66, 2.0, false);
-
-            vals.height = vals.height * (1-ledgefactor) + ledgelevel * ledgefactor;
-        }*/
-
+    protected void generateHeight(NoiseCache.NoiseEntry vals) {
         vals.height = 0.0;
 
         double lump = lumps.getValue(vals.x,vals.z);
         double ridge = ridges.getValue(vals.x,vals.z);
         double ocean = oceans.getValue(vals.x,vals.z);
+
+        vals.inland = ocean;
 
         double islands = (lump*lump - 0.5) * 0.3 + 0.25 + (ocean+0.2) * 0.4;//0.3;
 
@@ -252,6 +230,7 @@ public class CoreNoise {
             public double height = -1;
             public double temperature = -1;
             public double moisture = -1;
+            public double inland = -1;
 
             public NoiseEntry(int x, int z) {
                 this.x = x;

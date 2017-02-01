@@ -36,7 +36,7 @@ public class WorldTypeATG extends WorldType {
 
     @Override
     public BiomeProvider getBiomeProvider(World world) {
-        return new BiomeProviderSingle(Biomes.PLAINS);
+        return new BiomeProviderATG(world);
     }
 
     @Override

@@ -11,7 +11,7 @@ import ttftcuts.atg.ATG;
 import java.util.Arrays;
 
 public class ChunkProviderATG extends ChunkProviderBasic {
-    CoreNoise noise;
+    public CoreNoise noise;
 
     public ChunkProviderATG(World world) {
         super(world);

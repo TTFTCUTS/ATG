@@ -2,10 +2,24 @@ package ttftcuts.atg.util;
 
 public abstract class MathUtil {
 
+    /**
+     * Returns num, clamped between upper and lower limits. Math.max(min, Math.min(max, num)).
+     * @param num Valume to clamp
+     * @param min Lower limit
+     * @param max Upper limit
+     * @return The clamped value
+     */
     public static double clamp(double num, double min, double max) {
         return Math.max(min, Math.min(max, num));
     }
 
+    /**
+     * Polynomial smoothed maximum of a and b. Equivalent to Math.max until the difference between the two values is less than div, where it has a smooth transition between the values.
+     * @param a First input
+     * @param b Second input
+     * @param div Smoothing threshold in absolute value
+     * @return The maximum value out of a and b, smoothed to avoid discontinuities
+     */
     public static double polymax(double a, double b, double div) {
         double h = clamp(0.5 + 0.5 * (b-a) / div, 0.0,1.0);
         return (b * h + a * (1.0-h)) + div * h * (1.0 - h);
