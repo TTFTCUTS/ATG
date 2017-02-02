@@ -17,7 +17,9 @@ import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.gen.layer.IntCache;
 import net.minecraft.world.storage.WorldInfo;
 import ttftcuts.atg.ATG;
+import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.util.GeneralUtil;
+import ttftcuts.atg.util.MathUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -31,14 +33,19 @@ public class BiomeProviderATG extends BiomeProvider {
     //------ Biome gen fields ---------------------------------------------------------
 
     protected World world;
+    protected Random fuzz;
+    public BiomeRegistry biomeRegistry;
 
     //------ Constructor ---------------------------------------------------------
 
     public BiomeProviderATG(World world)
     {
         this.world = world;
+        this.fuzz = new Random();
         this.biomeCache = new BiomeCache(this);
         this.biomesToSpawnIn = Lists.newArrayList(allowedBiomes);
+
+        this.biomeRegistry = new BiomeRegistry();
 
         // TODO: Set things based on the world info, like biome lists etc
     }
@@ -206,6 +213,7 @@ public class BiomeProviderATG extends BiomeProvider {
             w = weights.get(b);
             if (w > weight) {
                 best = b;
+                weight = w;
             }
         }
 
@@ -216,23 +224,103 @@ public class BiomeProviderATG extends BiomeProvider {
         Map<Biome, Double> weights = new HashMap<Biome, Double>();
 
         double height = corenoise.getHeight(x,z);
-        double temp = corenoise.getTemperature(x,z);
-        double moisture = corenoise.getMoisture(x,z);
+        double temp = corenoise.getTemperature(x,z) + this.getFuzz(x,z,345) * (6/256D);
+        temp = MathUtil.spreadRange(temp, 0.4, 1.5, -0.15);
+        double moisture = corenoise.getMoisture(x,z) + this.getFuzz(x,z,103) * (4/256D);
+        moisture = MathUtil.spreadRange(moisture, 0.4, 1.5, 0.07);
+        double inland = corenoise.getInland(x,z);
+        temp += Math.max(0, inland-0.5);
+        moisture -= Math.max(0, inland-0.5);
 
-        if (height > 192/255.0) {
-            weights.put(Biomes.ICE_MOUNTAINS, 1.0);
-        } else if (height > 128/255.0) {
-            weights.put(Biomes.EXTREME_HILLS, 1.0);
-        } else if (height > 66/255.0) {
-            weights.put(Biomes.PLAINS, 1.0);
-        } else if (height > 60/255.0) {
-            weights.put(Biomes.BEACH, 1.0);
-        } else if (height > 32/255.0) {
-            weights.put(Biomes.OCEAN, 1.0);
-        } else {
-            weights.put(Biomes.DEEP_OCEAN, 1.0);
+        double swamp = corenoise.getSwamp(x,z);
+
+        double fertility = this.getFertility(temp, moisture, height);
+
+        int sealevel = 63;
+
+        BiomeRegistry.EnumBiomeCategory category = BiomeRegistry.EnumBiomeCategory.LAND;
+
+        double heightfuzz = this.getFuzz(x,z,345) / 256D;
+
+        if(height - (heightfuzz * 0.5) < (sealevel-3)/256.0) {
+            category = BiomeRegistry.EnumBiomeCategory.OCEAN;
+        } else if (height < 0.29 && swamp > 0.0) {
+            category = BiomeRegistry.EnumBiomeCategory.SWAMP;
+        } else if (height < (sealevel+3)/256.0) {
+            category = BiomeRegistry.EnumBiomeCategory.BEACH;
         }
 
+        Map<String, BiomeRegistry.Group> biomeset = this.biomeRegistry.biomeGroups.get(category);
+
+        if (!biomeset.isEmpty()) {
+            double bh,bt,bm,bf,dt,dm,df,suitability;
+
+            for (BiomeRegistry.Group b : biomeset.values()) {
+                if (b == null || b.biomes.isEmpty()) {
+                    continue;
+                }
+
+                if (height + heightfuzz > b.maxHeight || height + heightfuzz < b.minHeight) {
+                    continue;
+                }
+
+                bh = b.height;
+                bt = b.temperature;
+                bm = b.moisture;
+
+                bt = MathUtil.spreadRange(bt, 0.4, 1.3, -0.3);
+                bm = MathUtil.spreadRange(bm, 0.4, 1.2, 0.07);
+
+                bf = getFertility(bt,bm,bh);
+
+                dt = 1-Math.abs(temp - bt);
+                dm = 1-Math.abs(moisture - bm);
+                df = 1-Math.abs(fertility - bf);
+
+                suitability = df * 0.5 + dt + dm;
+
+                weights.put(b.getBiome(0), suitability);
+            }
+        }
+
+
+        if(weights.isEmpty()) {
+            weights.put(category.fallback, 1.0);
+        }
+
+        //ATG.logger.info(weights);
+
         return weights;
+    }
+
+    private double getFuzz(int x, int z, int salt) {
+        double out = 0.0D;
+
+        int ox = 3847234;
+        int oz = 8362482;
+
+        long xm = x*ox;
+        long zm = z*oz;
+
+        this.fuzz.setSeed((xm^zm)+salt);
+        out += this.fuzz.nextDouble();
+
+        this.fuzz.setSeed(((xm+ox)^zm)+salt);
+        out += this.fuzz.nextDouble();
+
+        this.fuzz.setSeed(((xm-ox)^zm)+salt);
+        out += this.fuzz.nextDouble();
+
+        this.fuzz.setSeed((xm^(zm+oz))+salt);
+        out += this.fuzz.nextDouble();
+
+        this.fuzz.setSeed((xm^(zm-oz))+salt);
+        out += this.fuzz.nextDouble();
+
+        return (out*0.2 - 0.5);
+    }
+
+    private double getFertility(double temp, double moisture, double height) {
+        return Math.max(0, moisture * 1.15 - ( Math.abs( temp - 0.65 ) ) - ( height - 0.5 ) );
     }
 }

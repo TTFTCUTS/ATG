@@ -26,6 +26,9 @@ public class CoreNoise {
     protected Noise oceans;
     protected Noise dunes;
     protected Noise roughness;
+    protected Noise swamps;
+    protected Noise temperature;
+    protected Noise moisture;
 
     //------ Init ---------------------------------------------------------
 
@@ -45,6 +48,11 @@ public class CoreNoise {
         this.dunes = new DuneNoise(rand, scale * 0.3, 0.2);
         
         this.roughness = new OctaveNoise(rand, scale * 0.2, 3);
+
+        this.swamps = new OctaveNoise(rand, scale * 8.0, 4, 2.0, 0.75);
+
+        this.temperature = new TailoredNoise(rand, 1281,0.87, 119,0.07, 26,0.06);
+        this.moisture = new TailoredNoise(rand, 400,0.76, 243,0.16, 53,0.08);
     }
 
     //------ Height ---------------------------------------------------------
@@ -63,6 +71,14 @@ public class CoreNoise {
             this.generateHeight(vals); // also sets inland
         }
         return vals.inland;
+    }
+
+    public double getSwamp(int x, int z) {
+        NoiseCache.NoiseEntry vals = this.getEntry(x,z);
+        if (vals.swamp < 0) {
+            this.generateHeight(vals); // also sets swamp
+        }
+        return vals.swamp;
     }
 
     protected void generateHeight(NoiseCache.NoiseEntry vals) {
@@ -89,6 +105,28 @@ public class CoreNoise {
             vals.height = MathUtil.polymax(vals.height, abyss, 0.1);
         }
 
+        vals.swamp = 0.0;
+        if (vals.height >= 0.225 && vals.height < 0.3) {
+            double swamp = MathUtil.clamp(swamps.getValue(vals.x, vals.z) * 3.0, 0.0,1.0) + ocean * 0.5;
+            if (swamp > 0) {
+                if (vals.height < 0.25) {
+                    double factor = MathUtil.smoothrange(vals.height, 0.225, 0.25);
+                    swamp *= factor;
+                } else {
+                    double factor = MathUtil.smoothrange(vals.height, 0.25, 0.3);
+                    swamp *= 1 - factor;
+                }
+
+                if (swamp > 0) {
+                    double swamplevel = MathUtil.plateau(vals.height, 57,64,77, 5.0, false);
+
+                    vals.height = (1-swamp) * vals.height + swamp * swamplevel;
+                }
+
+                vals.swamp = Math.max(0.0, swamp);
+            }
+        }
+        
         double ledge1 = Math.min(0.975, ledges.getValue(-vals.x + 34273 ,vals.z + 86269) * 1.15);
         ledge1 = ledge1 * ledge1;
 
@@ -150,10 +188,15 @@ public class CoreNoise {
         return vals.temperature;
     }
     protected void generateTemperature(NoiseCache.NoiseEntry vals) {
-        if (vals.height < 0) {
-            this.generateHeight(vals);
-        }
-        vals.temperature = 0.5;
+        double height = this.getHeight(vals.x, vals.z);
+        double inland = this.getInland(vals.x, vals.z);
+
+        double inlandfactor = Math.max(0, inland-0.5);
+        double heightfactor = Math.max(0, height*2 - 0.9);
+
+        double mix = this.temperature.getValue(vals.x,vals.z) * 1.3 - 0.2;
+
+        vals.temperature = Math.max(0, mix + inlandfactor * 0.5 - heightfactor * 0.85);
         //ATG.logger.info("Generate Temperature for "+vals.x+","+vals.z);
     }
 
@@ -167,10 +210,15 @@ public class CoreNoise {
         return vals.moisture;
     }
     protected void generateMoisture(NoiseCache.NoiseEntry vals) {
-        if (vals.temperature < 0) {
-            this.generateTemperature(vals);
-        }
-        vals.moisture = 0.5;
+        double temp = this.getTemperature(vals.x, vals.z);
+        double inland = this.getInland(vals.x, vals.z);
+
+        double inlandfactor = Math.max( -0.1, inland-0.5 );
+        double tempfactor = temp - 0.45 + inlandfactor*0.9;
+
+        double mix = this.moisture.getValue(vals.x, vals.z) * 1.2 - 0.05;
+
+        vals.moisture = Math.max(0, Math.min(1, mix-tempfactor*0.35));
         //ATG.logger.info("Generate Moisture for "+vals.x+","+vals.z);
     }
 
@@ -231,6 +279,7 @@ public class CoreNoise {
             public double temperature = -1;
             public double moisture = -1;
             public double inland = -1;
+            public double swamp = -1;
 
             public NoiseEntry(int x, int z) {
                 this.x = x;

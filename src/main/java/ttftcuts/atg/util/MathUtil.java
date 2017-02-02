@@ -68,4 +68,28 @@ public abstract class MathUtil {
 
         return out;
     }
+
+    public static final long xorShift64(long a) {
+        a ^= (a << 21);
+        a ^= (a >>> 35);
+        a ^= (a << 4);
+        return a;
+    }
+
+    public static final long coordRandom(long x, long z, long seed) {
+        return ( xorShift64( xorShift64(x) + Long.rotateLeft(xorShift64(z), 32) ) + seed );
+    }
+
+    public static double smoothstep(double n) {
+        return n*n*(3 - 2*n);
+    }
+
+    public static double smoothrange(double n, double min, double max) {
+        n = clamp(((n - min)/(max - min)), 0.0, 1.0);
+        return smoothstep(n);
+    }
+
+    public static double spreadRange(double n, double fulcrum, double mult, double offset) {
+        return Math.max(0, Math.min(1, (n-fulcrum)*mult + fulcrum*mult + offset ));
+    }
 }
