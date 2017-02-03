@@ -22,6 +22,8 @@ public class ATG
     public void preInit(FMLPreInitializationEvent event)
     {
         new WorldTypeATG("atg");
+
+        ATGBiomes.init();
     }
 
     @Mod.EventHandler

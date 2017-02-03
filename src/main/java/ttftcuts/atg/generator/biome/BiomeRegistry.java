@@ -2,6 +2,7 @@ package ttftcuts.atg.generator.biome;
 
 import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.Biome;
+import ttftcuts.atg.ATGBiomes;
 import ttftcuts.atg.util.MathUtil;
 
 import java.util.HashMap;
@@ -58,7 +59,8 @@ public class BiomeRegistry {
                 .addBiome(Biomes.JUNGLE);
 
         // Shrubland
-        addGroup(EnumBiomeCategory.LAND, "Shrubland", 0.77, 0.53, 0.35);
+        addGroup(EnumBiomeCategory.LAND, "Shrubland", 0.77, 0.53, 0.35)
+                .addBiome(ATGBiomes.SHRUBLAND);
 
         // Boreal Forest
         addGroup(EnumBiomeCategory.LAND, "Boreal Forest", 0.25, 0.8, 0.35)
@@ -79,7 +81,8 @@ public class BiomeRegistry {
         addGroup(EnumBiomeCategory.LAND, "Tropical Shrubland", 1.3, 0.65, 0.35);
 
         // Woodland
-        addGroup(EnumBiomeCategory.LAND, "Woodland", 0.7, 0.67, 0.3);
+        addGroup(EnumBiomeCategory.LAND, "Woodland", 0.7, 0.67, 0.3)
+                .addBiome(ATGBiomes.WOODLAND);
 
         // Mesa
         addGroup(EnumBiomeCategory.LAND, "Mesa", 2.0, 0.0, 0.275, 0.44, 1.0)
