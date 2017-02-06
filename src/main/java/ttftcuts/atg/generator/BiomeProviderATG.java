@@ -233,6 +233,7 @@ public class BiomeProviderATG extends BiomeProvider {
         moisture -= Math.max(0, inland-0.5);
 
         double swamp = corenoise.getSwamp(x,z);
+        double roughness = corenoise.getRoughness(x,z);
 
         double fertility = this.getFertility(temp, moisture, height);
 
@@ -242,11 +243,13 @@ public class BiomeProviderATG extends BiomeProvider {
 
         double heightfuzz = this.getFuzz(x,z,345) / 256D;
 
-        if(height - (heightfuzz * 0.5) < (sealevel-3)/256.0) {
+        if (height - (heightfuzz * 0.5) < CoreNoise.COAST_MIN) {
             category = BiomeRegistry.EnumBiomeCategory.OCEAN;
-        } else if (height < 0.29 && swamp > 0.0) {
+        } else if (height - (heightfuzz * 0.5) < CoreNoise.SWAMP_MAX &&
+                ((height >= CoreNoise.BEACH_MAX && swamp > MathUtil.clamp(roughness * 1.5 + 0.25 + heightfuzz * 2.5, 0.0, 0.95))
+                || (height < CoreNoise.BEACH_MAX && swamp > 0.0))) {
             category = BiomeRegistry.EnumBiomeCategory.SWAMP;
-        } else if (height < (sealevel+3)/256.0) {
+        } else if (height < CoreNoise.BEACH_MAX) {
             category = BiomeRegistry.EnumBiomeCategory.BEACH;
         }
 

@@ -19,7 +19,7 @@ public abstract class ATGBiomes {
 
     public static void init() {
 
-        SHRUBLAND = register(141, "atg_shrubland", new BiomeShrubland(), true);
+        SHRUBLAND = register(141, "atg_shrubland", new BiomeShrubland(), true, BiomeDictionary.Type.PLAINS);
         WOODLAND = register(142, "atg_woodland", new BiomeWoodland(), false);
 
         OAK_SHRUB = new WorldGenShrub(

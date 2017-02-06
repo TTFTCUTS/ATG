@@ -1,6 +1,5 @@
 package ttftcuts.atg.generator;
 
-import ttftcuts.atg.ATG;
 import ttftcuts.atg.noise.*;
 import ttftcuts.atg.util.MathUtil;
 
@@ -14,11 +13,14 @@ public class CoreNoise {
     protected NoiseCache cache = new NoiseCache();
     public int collisions = 0;
 
-
-
     //------ Noise Fields ---------------------------------------------------------
 
     public final long seed;
+
+    public static final double SEA_LEVEL = 63 / 255D;
+    public static final double SWAMP_MAX = 77 / 255D;
+    public static final double BEACH_MAX = 66 / 255D;
+    public static final double COAST_MIN = 51 / 255D;
 
     protected Noise ledges;
     protected Noise lumps;
@@ -59,7 +61,7 @@ public class CoreNoise {
 
     public double getHeight(int x, int z) {
         NoiseCache.NoiseEntry vals = this.getEntry(x,z);
-        if (vals.height < 0) {
+        if (Double.isNaN(vals.height)) {
             this.generateHeight(vals);
         }
         return vals.height;
@@ -67,7 +69,7 @@ public class CoreNoise {
 
     public double getInland(int x, int z) {
         NoiseCache.NoiseEntry vals = this.getEntry(x,z);
-        if (vals.inland < 0) {
+        if (Double.isNaN(vals.inland)) {
             this.generateHeight(vals); // also sets inland
         }
         return vals.inland;
@@ -75,10 +77,18 @@ public class CoreNoise {
 
     public double getSwamp(int x, int z) {
         NoiseCache.NoiseEntry vals = this.getEntry(x,z);
-        if (vals.swamp < 0) {
+        if (Double.isNaN(vals.swamp)) {
             this.generateHeight(vals); // also sets swamp
         }
         return vals.swamp;
+    }
+
+    public double getRoughness(int x, int z) {
+        NoiseCache.NoiseEntry vals = this.getEntry(x,z);
+        if (Double.isNaN(vals.roughness)) {
+            this.generateHeight(vals); // ALSO sets roughness... dang this sets a lot of stuff
+        }
+        return vals.roughness;
     }
 
     protected void generateHeight(NoiseCache.NoiseEntry vals) {
@@ -87,8 +97,11 @@ public class CoreNoise {
         double lump = lumps.getValue(vals.x,vals.z);
         double ridge = ridges.getValue(vals.x,vals.z);
         double ocean = oceans.getValue(vals.x,vals.z);
+        double rough = roughness.getValue(vals.x,vals.z);
 
+        // TODO: might want to set these two in their own methods in case they're used elsewhere?
         vals.inland = ocean;
+        vals.roughness = rough;
 
         double islands = (lump*lump - 0.5) * 0.3 + 0.25 + (ocean+0.2) * 0.4;//0.3;
 
@@ -96,34 +109,33 @@ public class CoreNoise {
 
         vals.height += MathUtil.polymax(islands, ridgelayer * (ocean + 0.3), 0.2); // 0.15
 
-        /*if (vals.height < 0.05) {
-            vals.height = 0.6;
-        }*/
-
         if (vals.height <= 0.2) {
             double abyss = dunes.getValue(vals.x,vals.z) * 0.05 + 0.08;
             vals.height = MathUtil.polymax(vals.height, abyss, 0.1);
         }
 
         vals.swamp = 0.0;
-        if (vals.height >= 0.225 && vals.height < 0.3) {
-            double swamp = MathUtil.clamp(swamps.getValue(vals.x, vals.z) * 3.0, 0.0,1.0) + ocean * 0.5;
+        if (vals.height >= COAST_MIN && vals.height < SWAMP_MAX) {
+            double temp = this.temperature.getValue(vals.x, vals.z);
+            double moist = this.moisture.getValue(vals.x, vals.z);
+            double swampmoist = MathUtil.clamp((moist * temp - 0.35)* 2, 0.0,1.0);
+            double swamp = MathUtil.clamp(swamps.getValue(vals.x, vals.z) * MathUtil.smoothstep(swampmoist) * 5.0, 0.0,1.0);
             if (swamp > 0) {
-                if (vals.height < 0.25) {
-                    double factor = MathUtil.smoothrange(vals.height, 0.225, 0.25);
-                    swamp *= factor;
+                double factor = 1.0;
+                if (vals.height < SEA_LEVEL) {
+                    factor = MathUtil.smoothrange(vals.height, COAST_MIN, COAST_MIN + 0.035);
                 } else {
-                    double factor = MathUtil.smoothrange(vals.height, 0.25, 0.3);
-                    swamp *= 1 - factor;
+                    factor = 1.0 - MathUtil.smoothrange(vals.height, SWAMP_MAX - 0.025, SWAMP_MAX);
                 }
 
-                if (swamp > 0) {
-                    double swamplevel = MathUtil.plateau(vals.height, 57,64,77, 5.0, false);
+                factor *= MathUtil.smoothstep(MathUtil.clamp(swamp * 25.0, 0.0, 1.0));
 
-                    vals.height = (1-swamp) * vals.height + swamp * swamplevel;
-                }
 
-                vals.swamp = Math.max(0.0, swamp);
+                double swamplevel = SEA_LEVEL + rough * 0.01;
+
+                vals.height = (1-factor) * vals.height + factor * swamplevel;
+
+                vals.swamp = factor; //Math.max(0.0, swamp);
             }
         }
         
@@ -165,8 +177,6 @@ public class CoreNoise {
             ledgelumpfactor += diff * ledgefactor;
         }
 
-        double rough = roughness.getValue(vals.x,vals.z);
-
         if (ledgelumpfactor > 0.0) {
             vals.height += ledgelumpfactor * (rough + 1.0) * 0.5;
         }
@@ -182,7 +192,7 @@ public class CoreNoise {
 
     public double getTemperature(int x, int z) {
         NoiseCache.NoiseEntry vals = this.getEntry(x,z);
-        if (vals.temperature < 0) {
+        if (Double.isNaN(vals.temperature)) {
             this.generateTemperature(vals);
         }
         return vals.temperature;
@@ -204,7 +214,7 @@ public class CoreNoise {
 
     public double getMoisture(int x, int z) {
         NoiseCache.NoiseEntry vals = this.getEntry(x,z);
-        if (vals.moisture < 0) {
+        if (Double.isNaN(vals.moisture)) {
             this.generateMoisture(vals);
         }
         return vals.moisture;
@@ -261,10 +271,6 @@ public class CoreNoise {
         }
 
         public static int coordHash(int x, int z) {
-            //int hash = 17;
-            //hash = ((hash + x) << 5) - (hash + x);
-            //hash = ((hash + z) << 5) - (hash + z);
-
             int hash = 31;
             hash = ((hash + x) << 13) - (hash + x);
             hash = ((hash + z) << 13) - (hash + z);
@@ -275,11 +281,12 @@ public class CoreNoise {
             public final int x;
             public final int z;
 
-            public double height = -1;
-            public double temperature = -1;
-            public double moisture = -1;
-            public double inland = -1;
-            public double swamp = -1;
+            public double height = Double.NaN;
+            public double temperature = Double.NaN;
+            public double moisture = Double.NaN;
+            public double inland = Double.NaN;
+            public double swamp = Double.NaN;
+            public double roughness = Double.NaN;
 
             public NoiseEntry(int x, int z) {
                 this.x = x;

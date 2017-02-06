@@ -6,6 +6,7 @@ import ttftcuts.atg.ATGBiomes;
 import ttftcuts.atg.util.MathUtil;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -178,7 +179,7 @@ public class BiomeRegistry {
             this.offsetx = (int)( ( MathUtil.xorShift64( 2846 * MathUtil.xorShift64(salt + 7391834) - salt ) ) % Integer.MAX_VALUE);
             this.offsetz = (int)( ( MathUtil.xorShift64( 9672 * MathUtil.xorShift64(salt + 4517384) - salt ) ) % Integer.MAX_VALUE);
 
-            this.biomes = new HashMap<Biome, Double>();
+            this.biomes = new LinkedHashMap<Biome, Double>();
         }
 
         public Group(String name, double temperature, double moisture, double height) {
