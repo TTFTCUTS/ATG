@@ -24,6 +24,6 @@ public class BiomeShrubland extends Biome {
     @Override
     public WorldGenAbstractTree genBigTreeChance(Random rand)
     {
-        return rand.nextInt(3) == 0 ? ATGBiomes.OAK_SHRUB : Biome.TREE_FEATURE;
+        return rand.nextInt(3) != 0 ? ATGBiomes.Trees.OAK_SHRUB : Biome.TREE_FEATURE;
     }
 }

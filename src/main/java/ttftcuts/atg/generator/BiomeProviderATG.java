@@ -5,19 +5,15 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.ReportedException;
-import net.minecraft.util.datafix.fixes.PaintingDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeCache;
 import net.minecraft.world.biome.BiomeProvider;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.gen.layer.IntCache;
-import net.minecraft.world.storage.WorldInfo;
-import ttftcuts.atg.ATG;
+import ttftcuts.atg.generator.biome.BiomeBlobs;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
+import ttftcuts.atg.generator.biome.BiomeRegistry.BiomeGroup;
 import ttftcuts.atg.util.GeneralUtil;
 import ttftcuts.atg.util.MathUtil;
 
@@ -204,12 +200,12 @@ public class BiomeProviderATG extends BiomeProvider {
         }
 
         double weight = Double.MIN_VALUE;
-        Biome best = Biomes.DEFAULT;
+        BiomeGroup best = null;
 
-        Map<Biome,Double> weights = getBiomeWeights(x,z, provider.noise);
+        Map<BiomeGroup,Double> weights = getBiomeWeights(x,z, provider.noise);
 
         double w;
-        for (Biome b : weights.keySet()) {
+        for (BiomeGroup b : weights.keySet()) {
             w = weights.get(b);
             if (w > weight) {
                 best = b;
@@ -217,11 +213,25 @@ public class BiomeProviderATG extends BiomeProvider {
             }
         }
 
-        return best;
+        if (best == null) {
+            return Biomes.DEFAULT;
+        }
+        
+        return getSubBiomeForPosition(x,z, best, provider.noise);
     }
 
-    public Map<Biome, Double> getBiomeWeights(int x, int z, CoreNoise corenoise) {
-        Map<Biome, Double> weights = new HashMap<Biome, Double>();
+    public Biome getSubBiomeForPosition(int x, int z, BiomeGroup group, CoreNoise noise) {
+        if (group.biomes.size() == 1) {
+            return group.getBiome(0);
+        }
+
+        BiomeBlobs.BlobEntry blob = noise.blobs.getValue(x,z);
+
+        return group.getBiome(blob.biome);
+    }
+
+    public Map<BiomeGroup, Double> getBiomeWeights(int x, int z, CoreNoise corenoise) {
+        Map<BiomeGroup, Double> weights = new HashMap<BiomeGroup, Double>();
 
         double height = corenoise.getHeight(x,z);
         double temp = corenoise.getTemperature(x,z) + this.getFuzz(x,z,345) * (6/256D);
@@ -253,12 +263,12 @@ public class BiomeProviderATG extends BiomeProvider {
             category = BiomeRegistry.EnumBiomeCategory.BEACH;
         }
 
-        Map<String, BiomeRegistry.Group> biomeset = this.biomeRegistry.biomeGroups.get(category);
+        Map<String, BiomeGroup> biomeset = this.biomeRegistry.biomeGroups.get(category);
 
         if (!biomeset.isEmpty()) {
             double bh,bt,bm,bf,dt,dm,df,suitability;
 
-            for (BiomeRegistry.Group b : biomeset.values()) {
+            for (BiomeGroup b : biomeset.values()) {
                 if (b == null || b.biomes.isEmpty()) {
                     continue;
                 }
@@ -282,7 +292,7 @@ public class BiomeProviderATG extends BiomeProvider {
 
                 suitability = df * 0.5 + dt + dm;
 
-                weights.put(b.getBiome(0), suitability);
+                weights.put(b, suitability);
             }
         }
 

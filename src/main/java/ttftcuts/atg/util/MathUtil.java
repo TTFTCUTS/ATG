@@ -80,6 +80,10 @@ public abstract class MathUtil {
         return ( xorShift64( xorShift64(x) + Long.rotateLeft(xorShift64(z), 32) ) + seed );
     }
 
+    public static final long coordSeed(long x, long z, long seed) {
+        return seed ^ Long.rotateLeft(xorShift64(x), 16) ^ Long.rotateLeft(xorShift64(z), 48);
+    }
+
     public static double smoothstep(double n) {
         return n*n*(3 - 2*n);
     }

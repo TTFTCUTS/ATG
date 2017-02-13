@@ -12,15 +12,15 @@ import java.util.Random;
 
 public class BiomeRegistry {
 
-    public Map<EnumBiomeCategory, Map<String, Group>> biomeGroups;
+    public Map<EnumBiomeCategory, Map<String, BiomeGroup>> biomeGroups;
     public Map<Biome, Map<Biome, Double>> subBiomes;
 
     public BiomeRegistry() {
-        this.biomeGroups = new HashMap<EnumBiomeCategory, Map<String, Group>>();
+        this.biomeGroups = new HashMap<EnumBiomeCategory, Map<String, BiomeGroup>>();
         this.subBiomes = new HashMap<Biome, Map<Biome, Double>>();
 
         for (EnumBiomeCategory category : EnumBiomeCategory.values()) {
-            this.biomeGroups.put(category, new HashMap<String, Group>());
+            this.biomeGroups.put(category, new HashMap<String, BiomeGroup>());
         }
 
         this.populate();
@@ -79,7 +79,8 @@ public class BiomeRegistry {
                 .addBiome(Biomes.SAVANNA);
 
         // Tropical Shrubland
-        addGroup(EnumBiomeCategory.LAND, "Tropical Shrubland", 1.3, 0.65, 0.35);
+        addGroup(EnumBiomeCategory.LAND, "Tropical Shrubland", 1.3, 0.65, 0.35)
+                .addBiome(ATGBiomes.TROPICAL_SHRUBLAND);
 
         // Woodland
         addGroup(EnumBiomeCategory.LAND, "Woodland", 0.7, 0.67, 0.3)
@@ -122,19 +123,19 @@ public class BiomeRegistry {
                 .addBiome(Biomes.OCEAN);
     }
 
-    public Group addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height, double minHeight, double maxHeight) {
-        Group group = new Group(name, temperature, moisture, height, minHeight, maxHeight);
+    public BiomeGroup addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height, double minHeight, double maxHeight) {
+        BiomeGroup biomeGroup = new BiomeGroup(name, temperature, moisture, height, minHeight, maxHeight);
 
-        this.biomeGroups.get(category).put(name, group);
+        this.biomeGroups.get(category).put(name, biomeGroup);
 
-        return group;
+        return biomeGroup;
     }
 
-    public Group addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height) {
+    public BiomeGroup addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height) {
         return this.addGroup(category, name, temperature, moisture, height, 0.0, 1.0);
     }
 
-    //------ Group type enum ---------------------------------------------------------
+    //------ BiomeGroup type enum ---------------------------------------------------------
 
     public enum EnumBiomeCategory {
         LAND(Biomes.PLAINS),
@@ -143,16 +144,17 @@ public class BiomeRegistry {
         SWAMP(Biomes.SWAMPLAND),
         ;
 
-        public final Biome fallback;
+        public final BiomeGroup fallback;
 
         EnumBiomeCategory(Biome fallback) {
-            this.fallback = fallback;
+            this.fallback = new BiomeGroup(this.name()+"_fallback", 0.5,0.5,0.25);
+            this.fallback.addBiome(fallback);
         }
     }
 
-    //------ Group Class ---------------------------------------------------------
+    //------ BiomeGroup Class ---------------------------------------------------------
 
-    public static class Group {
+    public static class BiomeGroup {
         public String name;
         public double temperature;
         public double moisture;
@@ -167,7 +169,7 @@ public class BiomeRegistry {
         public Map<Biome, Double> biomes;
         public double totalweight = 0.0;
 
-        public Group(String name, double temperature, double moisture, double height, double minHeight, double maxHeight) {
+        public BiomeGroup(String name, double temperature, double moisture, double height, double minHeight, double maxHeight) {
             this.name = name;
             this.temperature = temperature;
             this.moisture = moisture;
@@ -182,15 +184,15 @@ public class BiomeRegistry {
             this.biomes = new LinkedHashMap<Biome, Double>();
         }
 
-        public Group(String name, double temperature, double moisture, double height) {
+        public BiomeGroup(String name, double temperature, double moisture, double height) {
             this(name, temperature, moisture, height, 0.0, 1.0);
         }
 
-        public Group(String name, double temperature, double moisture) {
+        public BiomeGroup(String name, double temperature, double moisture) {
             this(name, temperature, moisture, 0.5);
         }
 
-        public Group addBiome(Biome biome, double weight) {
+        public BiomeGroup addBiome(Biome biome, double weight) {
             if (biome != null) {
                 if (!this.biomes.containsKey(biome)) {
                     this.biomes.put(biome, weight);
@@ -202,7 +204,7 @@ public class BiomeRegistry {
             return this;
         }
 
-        public Group addBiome(Biome biome) {
+        public BiomeGroup addBiome(Biome biome) {
             return this.addBiome(biome, 1.0);
         }
 
