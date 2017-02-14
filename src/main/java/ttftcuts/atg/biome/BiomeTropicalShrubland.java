@@ -43,6 +43,6 @@ public class BiomeTropicalShrubland extends Biome {
     @Override
     public WorldGenAbstractTree genBigTreeChance(Random rand)
     {
-        return (rand.nextInt(6) == 0 ? Biome.BIG_TREE_FEATURE : (rand.nextInt(3) == 0 ? ATGBiomes.Trees.JUNGLE_SHRUB : (rand.nextInt(2) == 0 ? new WorldGenTrees(false, 4 + rand.nextInt(5), ATGBiomes.BiomeBlocks.JUNGLE_LOG, ATGBiomes.BiomeBlocks.JUNGLE_LEAF, true) : ATGBiomes.Trees.SAVANNA_TREE)));
+        return (rand.nextInt(6) == 0 ? Biome.BIG_TREE_FEATURE : (rand.nextInt(3) == 0 ? ATGBiomes.Features.JUNGLE_SHRUB : (rand.nextInt(2) == 0 ? new WorldGenTrees(false, 4 + rand.nextInt(5), ATGBiomes.BiomeBlocks.JUNGLE_LOG, ATGBiomes.BiomeBlocks.JUNGLE_LEAF, true) : ATGBiomes.Features.SAVANNA_TREE)));
     }
 }

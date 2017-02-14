@@ -78,7 +78,8 @@ public class BiomeRegistry {
         addGroup(EnumBiomeCategory.LAND, "Tundra", 0.05, 0.65, 0.35);
 
         // Steppe
-        addGroup(EnumBiomeCategory.LAND, "Steppe", 0.2, 0.3, 0.5);
+        addGroup(EnumBiomeCategory.LAND, "Steppe", 0.2, 0.3, 0.5)
+                .addBiome(ATGBiomes.STEPPE);
 
         // Savanna
         addGroup(EnumBiomeCategory.LAND, "Savanna", 1.5, 0.45, 0.275, 0.0, 0.36)
