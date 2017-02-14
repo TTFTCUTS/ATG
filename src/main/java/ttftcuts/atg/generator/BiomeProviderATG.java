@@ -225,9 +225,13 @@ public class BiomeProviderATG extends BiomeProvider {
             return group.getBiome(0);
         }
 
-        BiomeBlobs.BlobEntry blob = noise.blobs.getValue(x,z);
+        BiomeBlobs.BlobEntry blob = noise.blobs.getValue(x + group.offsetx, z + group.offsetz);
 
-        return group.getBiome(blob.biome);
+        Biome biome = group.getBiome(blob.biome); // get the biome for this blob
+        biome = this.biomeRegistry.getHillBiome(biome, noise, x,z); // check if it should be changed to a hill
+        biome = this.biomeRegistry.getSubBiome(biome, blob.subbiome); // apply sub-biome to it
+
+        return biome;
     }
 
     public Map<BiomeGroup, Double> getBiomeWeights(int x, int z, CoreNoise corenoise) {

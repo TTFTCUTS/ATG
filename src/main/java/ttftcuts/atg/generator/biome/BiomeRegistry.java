@@ -3,6 +3,7 @@ package ttftcuts.atg.generator.biome;
 import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.Biome;
 import ttftcuts.atg.ATGBiomes;
+import ttftcuts.atg.generator.CoreNoise;
 import ttftcuts.atg.util.MathUtil;
 
 import java.util.HashMap;
@@ -14,10 +15,14 @@ public class BiomeRegistry {
 
     public Map<EnumBiomeCategory, Map<String, BiomeGroup>> biomeGroups;
     public Map<Biome, Map<Biome, Double>> subBiomes;
+    public Map<Biome, Double> subWeightTotals;
+    public Map<Biome, Map<Biome, Double>> hillBiomes; // sub lists are assumed to be ordered lowest to highest!
 
     public BiomeRegistry() {
         this.biomeGroups = new HashMap<EnumBiomeCategory, Map<String, BiomeGroup>>();
         this.subBiomes = new HashMap<Biome, Map<Biome, Double>>();
+        this.subWeightTotals = new HashMap<Biome, Double>();
+        this.hillBiomes = new HashMap<Biome, Map<Biome, Double>>();
 
         for (EnumBiomeCategory category : EnumBiomeCategory.values()) {
             this.biomeGroups.put(category, new HashMap<String, BiomeGroup>());
@@ -39,13 +44,14 @@ public class BiomeRegistry {
 
         // Desert
         addGroup(EnumBiomeCategory.LAND, "Desert", 2.0, 0.0, 0.275)
-                .addBiome(Biomes.DESERT);
+                .addBiome(Biomes.DESERT)
+                .addBiome(Biomes.MESA, 0.3);
 
         // Forest
         addGroup(EnumBiomeCategory.LAND, "Forest", 0.7, 0.8, 0.35)
                 .addBiome(Biomes.FOREST)
-                .addBiome(Biomes.BIRCH_FOREST, 0.8)
-                .addBiome(Biomes.ROOFED_FOREST, 0.5);
+                .addBiome(Biomes.BIRCH_FOREST, 0.3)
+                .addBiome(Biomes.ROOFED_FOREST, 0.2);
 
         // Taiga
         addGroup(EnumBiomeCategory.LAND, "Taiga", 0.05, 0.7, 0.5)
@@ -66,7 +72,7 @@ public class BiomeRegistry {
         // Boreal Forest
         addGroup(EnumBiomeCategory.LAND, "Boreal Forest", 0.25, 0.8, 0.35)
                 .addBiome(Biomes.TAIGA)
-                .addBiome(Biomes.REDWOOD_TAIGA, 0.5);
+                .addBiome(Biomes.REDWOOD_TAIGA, 0.4);
 
         // Tundra
         addGroup(EnumBiomeCategory.LAND, "Tundra", 0.05, 0.65, 0.35);
@@ -87,8 +93,8 @@ public class BiomeRegistry {
                 .addBiome(ATGBiomes.WOODLAND);
 
         // Mesa
-        addGroup(EnumBiomeCategory.LAND, "Mesa", 2.0, 0.0, 0.275, 0.44, 1.0)
-                .addBiome(Biomes.MESA);
+        //addGroup(EnumBiomeCategory.LAND, "Mesa", 2.0, 0.0, 0.275, 0.44, 1.0)
+        //        .addBiome(Biomes.MESA);
 
 
 
@@ -121,6 +127,37 @@ public class BiomeRegistry {
         // Ocean
         addGroup(EnumBiomeCategory.OCEAN, "Ocean", 0.5, 0.5, 0.25)
                 .addBiome(Biomes.OCEAN);
+
+
+        //------ SUB-BIOMES -----------------------
+
+        double mutation = 1.0/28.0;
+        double mesa_plateaus = 0.25;
+
+        addSubBiome(Biomes.PLAINS, Biomes.MUTATED_PLAINS, mutation);
+        addSubBiome(Biomes.DESERT, Biomes.MUTATED_DESERT, mutation);
+        addSubBiome(Biomes.EXTREME_HILLS, Biomes.EXTREME_HILLS_WITH_TREES, mutation);
+        addSubBiome(Biomes.EXTREME_HILLS, Biomes.MUTATED_EXTREME_HILLS, mutation);
+        addSubBiome(Biomes.EXTREME_HILLS, Biomes.MUTATED_EXTREME_HILLS_WITH_TREES, mutation);
+        addSubBiome(Biomes.FOREST, Biomes.MUTATED_FOREST, mutation);
+        addSubBiome(Biomes.FOREST_HILLS, Biomes.MUTATED_FOREST, mutation);
+        addSubBiome(Biomes.TAIGA, Biomes.MUTATED_TAIGA, mutation);
+        addSubBiome(Biomes.ICE_PLAINS, Biomes.MUTATED_ICE_FLATS, mutation);
+        addSubBiome(Biomes.BIRCH_FOREST, Biomes.MUTATED_BIRCH_FOREST, mutation);
+        addSubBiome(Biomes.BIRCH_FOREST_HILLS, Biomes.MUTATED_BIRCH_FOREST_HILLS, mutation);
+        addSubBiome(Biomes.COLD_TAIGA, Biomes.MUTATED_TAIGA_COLD, mutation);
+        addSubBiome(Biomes.REDWOOD_TAIGA, Biomes.MUTATED_REDWOOD_TAIGA, mutation);
+        addSubBiome(Biomes.REDWOOD_TAIGA_HILLS, Biomes.MUTATED_REDWOOD_TAIGA_HILLS, mutation);
+        addSubBiome(Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, mutation);
+        addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA, mutation);
+        addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, mutation);
+        addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA, mutation); // bryce
+        addSubBiome(Biomes.MESA, Biomes.MESA_ROCK, mesa_plateaus); // plateau F
+        addSubBiome(Biomes.MESA, Biomes.MESA_CLEAR_ROCK, mesa_plateaus); // plateau
+
+        //------ HILL BIOMES -----------------------
+
+        addHillBiome(Biomes.FOREST, Biomes.FOREST_HILLS, 0.5);
     }
 
     public BiomeGroup addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height, double minHeight, double maxHeight) {
@@ -133,6 +170,79 @@ public class BiomeRegistry {
 
     public BiomeGroup addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height) {
         return this.addGroup(category, name, temperature, moisture, height, 0.0, 1.0);
+    }
+
+    public void addSubBiome(Biome parent, Biome subBiome, double weight) {
+        if (!this.subBiomes.containsKey(parent)) {
+            this.subBiomes.put(parent, new LinkedHashMap<Biome, Double>());
+            this.subWeightTotals.put(parent, 0.0);
+        }
+
+        Map<Biome,Double> subs = this.subBiomes.get(parent);
+        this.subWeightTotals.put(parent, this.subWeightTotals.get(parent) + weight);
+
+        if (!subs.containsKey(subBiome)) {
+            subs.put(subBiome, weight);
+        } else {
+            subs.put(subBiome, subs.get(subBiome) + weight);
+        }
+    }
+
+    public Biome getSubBiome(Biome parent, double value) {
+        if (!this.subBiomes.containsKey(parent)) {
+            return parent;
+        }
+
+        double weight = MathUtil.clamp(value, 0.0, 1.0) * (this.subWeightTotals.get(parent) + 1.0);
+
+        if (weight <= 1.0) {
+            return parent;
+        }
+
+        weight -= 1.0;
+
+        Map<Biome, Double> weights = this.subBiomes.get(parent);
+
+        double total = 0.0;
+        for (Map.Entry<Biome, Double> entry : weights.entrySet()) {
+            total += entry.getValue();
+            if (total >= weight) {
+                return entry.getKey();
+            }
+        }
+
+        return null; // shouldn't happen!
+    }
+
+    public void addHillBiome(Biome parent, Biome hillBiome, double height) {
+        if (!this.hillBiomes.containsKey(parent)) {
+            this.hillBiomes.put(parent, new LinkedHashMap<Biome, Double>());
+        }
+
+        Map<Biome, Double> hills = this.hillBiomes.get(parent);
+        hills.put(hillBiome, height);
+    }
+
+    public Biome getHillBiome(Biome parent, CoreNoise noise, int x, int z) {
+        if (!this.hillBiomes.containsKey(parent)) {
+            return parent;
+        }
+
+        Map<Biome, Double> hills = this.hillBiomes.get(parent);
+
+        double height = noise.getHeight(x,z) + noise.getRoughness(x,z) * 0.1;
+
+        Biome biome = parent;
+
+        for (Map.Entry<Biome,Double> e : hills.entrySet()) {
+            if (height > e.getValue()) {
+                biome = e.getKey();
+            } else {
+                return biome;
+            }
+        }
+
+        return biome;
     }
 
     //------ BiomeGroup type enum ---------------------------------------------------------
