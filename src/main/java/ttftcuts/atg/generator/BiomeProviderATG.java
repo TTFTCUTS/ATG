@@ -5,6 +5,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.ReportedException;
+import net.minecraft.util.datafix.fixes.PaintingDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -25,6 +26,9 @@ public class BiomeProviderATG extends BiomeProvider {
     //------ BiomeProvider fields ---------------------------------------------------------
     protected final BiomeCache biomeCache;
     protected final List<Biome> biomesToSpawnIn;
+
+    // counters the stupid temperature reduction by height mechanic for higher landscapes. (0.05f / 30.0f) is 100% of the baseline reduction.
+    public static final float TEMP_CORRECTION_PER_HEIGHT = (0.05f / 30.0f) * 0.66f;
 
     //------ Biome gen fields ---------------------------------------------------------
 
@@ -192,6 +196,16 @@ public class BiomeProviderATG extends BiomeProvider {
         return blockpos;
     }
 
+    @Override
+    public float getTemperatureAtHeight(float temp, int height)
+    {
+        if (height < 64) {
+            return temp;
+        } else {
+            return temp + (height - 64) * TEMP_CORRECTION_PER_HEIGHT;
+        }
+    }
+
     //------ Biome Generation ---------------------------------------------------------
 
     public Biome getBestBiome(int x, int z, ChunkProviderATG provider) {
@@ -225,7 +239,7 @@ public class BiomeProviderATG extends BiomeProvider {
             return group.getBiome(0);
         }
 
-        BiomeBlobs.BlobEntry blob = noise.blobs.getValue(x + group.offsetx, z + group.offsetz);
+        BiomeBlobs.BlobEntry blob = noise.blobs.getValue(x + group.offsetx, z + group.offsetz, 7 + group.blobSizeModifier);
 
         Biome biome = group.getBiome(blob.biome); // get the biome for this blob
         biome = this.biomeRegistry.getHillBiome(biome, noise, x,z); // check if it should be changed to a hill

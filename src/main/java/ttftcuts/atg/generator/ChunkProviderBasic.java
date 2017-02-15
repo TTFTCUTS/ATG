@@ -9,6 +9,7 @@ import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
@@ -246,7 +247,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
                         this.world.setBlockState(blockpos2, Blocks.ICE.getDefaultState(), 2);
                     }
 
-                    if (this.world.canSnowAt(blockpos1, true))
+                    if (this.canSnowAt(world, blockpos1, true))
                     {
                         this.world.setBlockState(blockpos1, Blocks.SNOW_LAYER.getDefaultState(), 2);
                     }
@@ -305,4 +306,39 @@ public class ChunkProviderBasic implements IChunkGenerator {
             mapgenstructure.generate(this.world, x, z, (ChunkPrimer)null);
         }
     }
+
+    //------------ Intervention ------------//
+
+    public float getFloatTemperature(Biome biome, BlockPos pos) {
+        return biome.getFloatTemperature(pos);
+    }
+
+    public boolean canSnowAt(World world, BlockPos pos, boolean checkLight) {
+        Biome biome = world.getBiomeGenForCoords(pos);
+        float f = this.getFloatTemperature(biome, pos);
+
+        if (f > 0.15F)
+        {
+            return false;
+        }
+        else if (!checkLight)
+        {
+            return true;
+        }
+        else
+        {
+            if (pos.getY() >= 0 && pos.getY() < 256 && world.getLightFor(EnumSkyBlock.BLOCK, pos) < 10)
+            {
+                IBlockState iblockstate = world.getBlockState(pos);
+
+                if (iblockstate.getBlock().isAir(iblockstate, world, pos) && Blocks.SNOW_LAYER.canPlaceBlockAt(world, pos))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
 }

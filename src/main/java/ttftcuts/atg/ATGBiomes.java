@@ -13,8 +13,8 @@ import net.minecraft.world.gen.feature.WorldGenShrub;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeManager;
 import ttftcuts.atg.biome.BiomeShrubland;
-import ttftcuts.atg.biome.BiomeSteppe;
 import ttftcuts.atg.biome.BiomeTropicalShrubland;
+import ttftcuts.atg.biome.BiomeTundra;
 import ttftcuts.atg.biome.BiomeWoodland;
 
 public abstract class ATGBiomes {
@@ -29,7 +29,7 @@ public abstract class ATGBiomes {
         SHRUBLAND = register(141, "atg_shrubland", new BiomeShrubland(), true, BiomeDictionary.Type.PLAINS);
         WOODLAND = register(142, "atg_woodland", new BiomeWoodland(), false);
         TROPICAL_SHRUBLAND = register(143, "atg_tropicalshrubland", new BiomeTropicalShrubland(), false);
-        STEPPE = register(144, "atg_steppe", new BiomeSteppe(), false);
+        STEPPE = register(144, "atg_steppe", new BiomeTundra(), false);
     }
 
     public static Biome register(int id, String name, Biome biome, boolean villages, BiomeDictionary.Type... dictionaryTypes) {
@@ -63,7 +63,7 @@ public abstract class ATGBiomes {
     public static abstract class Features {
         public static final WorldGenShrub OAK_SHRUB = new WorldGenShrub(BiomeBlocks.OAK_LOG, BiomeBlocks.OAK_LEAF);
         public static final WorldGenShrub JUNGLE_SHRUB = new WorldGenShrub(BiomeBlocks.JUNGLE_LOG, BiomeBlocks.OAK_LEAF);
-        public static final WorldGenShrub STEPPE_SHRUB = new WorldGenShrub(BiomeBlocks.OAK_LOG, BiomeBlocks.SPRUCE_LEAF);
+        public static final WorldGenShrub TUNDRA_SHRUB = new WorldGenShrub(BiomeBlocks.OAK_LOG, BiomeBlocks.SPRUCE_LEAF);
 
         public static final WorldGenSavannaTree SAVANNA_TREE = new WorldGenSavannaTree(false);
 

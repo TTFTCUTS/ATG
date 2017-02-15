@@ -44,6 +44,7 @@ public class BiomeRegistry {
 
         // Desert
         addGroup(EnumBiomeCategory.LAND, "Desert", 2.0, 0.0, 0.275)
+                .setBlobSizeModifier(1) // larger blobs, one power of two greater
                 .addBiome(Biomes.DESERT)
                 .addBiome(Biomes.MESA, 0.3);
 
@@ -75,14 +76,15 @@ public class BiomeRegistry {
                 .addBiome(Biomes.REDWOOD_TAIGA, 0.4);
 
         // Tundra
-        addGroup(EnumBiomeCategory.LAND, "Tundra", 0.05, 0.65, 0.35);
-
-        // Steppe
-        addGroup(EnumBiomeCategory.LAND, "Steppe", 0.2, 0.3, 0.5)
+        addGroup(EnumBiomeCategory.LAND, "Tundra", 0.25, 0.45, 0.325) // 0.05, 0.65, 0.35
                 .addBiome(ATGBiomes.STEPPE);
 
+        // Steppe
+        //addGroup(EnumBiomeCategory.LAND, "Steppe", 0.2, 0.3, 0.5)
+        //        .addBiome(ATGBiomes.STEPPE);
+
         // Savanna
-        addGroup(EnumBiomeCategory.LAND, "Savanna", 1.5, 0.45, 0.275, 0.0, 0.36)
+        addGroup(EnumBiomeCategory.LAND, "Savanna", 1.5, 0.45, 0.275)//, 0.0, 0.36)
                 .addBiome(Biomes.SAVANNA);
 
         // Tropical Shrubland
@@ -125,9 +127,15 @@ public class BiomeRegistry {
 
         //------ Ocean -----------------------
 
+        Double deep = 28.0 / 255.0;
+
         // Ocean
-        addGroup(EnumBiomeCategory.OCEAN, "Ocean", 0.5, 0.5, 0.25)
+        addGroup(EnumBiomeCategory.OCEAN, "Ocean", 0.5, 0.5, 0.25, deep, 1.0)
                 .addBiome(Biomes.OCEAN);
+
+        // Deep Ocean
+        addGroup(EnumBiomeCategory.OCEAN, "Deep Ocean", 0.5, 0.5, 0.25, 0, deep)
+                .addBiome(Biomes.DEEP_OCEAN);
 
 
         //------ SUB-BIOMES -----------------------
@@ -272,6 +280,7 @@ public class BiomeRegistry {
         public double height;
         public double minHeight;
         public double maxHeight;
+        public int blobSizeModifier = 0;
 
         public long salt;
         public int offsetx;
@@ -335,6 +344,11 @@ public class BiomeRegistry {
 
         public double getClassificationScore(Biome biome) {
             return 0.0;
+        }
+
+        public BiomeGroup setBlobSizeModifier(int size) {
+            this.blobSizeModifier = size;
+            return this;
         }
     }
 }

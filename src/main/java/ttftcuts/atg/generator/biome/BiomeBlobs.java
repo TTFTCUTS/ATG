@@ -26,14 +26,14 @@ public class BiomeBlobs {
         }
     }
 
-    public BlobEntry getValue(int x, int z) {
+    public BlobEntry getValue(int x, int z, int size) {
         BlobOffset offset = this.offsetCache.get(x,z);
         CoordPair c = null;
 
         if (offset == null) {
             c = new CoordPair(x, z);
 
-            for (int i = 0; i < this.layers; i++) {
+            for (int i = 0; i < Math.min(this.layers, size); i++) {
                 c = this.zoom(c, this.layerseeds[i]);
             }
 

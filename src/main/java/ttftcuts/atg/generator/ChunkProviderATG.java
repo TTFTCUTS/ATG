@@ -2,7 +2,9 @@ package ttftcuts.atg.generator;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.NoiseGeneratorSimplex;
@@ -33,6 +35,16 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         }
 
         ATG.logger.info("end collision test: "+test.collisions+" collisions ###########################################################");*/
+    }
+
+    // CORRECT THE DAMN TEMPERATURE CURVE
+    @Override
+    public float getFloatTemperature(Biome biome, BlockPos pos) {
+        if (pos.getY() < 64) {
+            return super.getFloatTemperature(biome, pos);
+        } else {
+            return super.getFloatTemperature(biome, pos) + (pos.getY() - 64) * BiomeProviderATG.TEMP_CORRECTION_PER_HEIGHT;
+        }
     }
 
     @Override

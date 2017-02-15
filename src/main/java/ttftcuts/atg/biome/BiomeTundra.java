@@ -5,26 +5,24 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeTaiga;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 import ttftcuts.atg.ATGBiomes;
 
 import java.util.Random;
 
-public class BiomeSteppe extends Biome {
+public class BiomeTundra extends Biome {
 
-    public BiomeSteppe() {
-        super(new BiomeProperties("Steppe")
-                .setBaseHeight(0.4f)
+    public BiomeTundra() {
+        super(new BiomeProperties("Tundra")
+                .setBaseHeight(0.325f)
                 .setHeightVariation(0.05f)
-                .setTemperature(0.2f)
-                .setRainfall(0.1f)
-                .setRainDisabled()
+                .setTemperature(0.2f) // 0.25f
+                .setRainfall(0.45f)
         );
 
         this.theBiomeDecorator.treesPerChunk = 1;
-        this.theBiomeDecorator.grassPerChunk = 25;
+        this.theBiomeDecorator.grassPerChunk = 10;
         this.theBiomeDecorator.flowersPerChunk = 2;
         this.theBiomeDecorator.reedsPerChunk = -999;
         this.theBiomeDecorator.cactiPerChunk = -999;
@@ -33,7 +31,7 @@ public class BiomeSteppe extends Biome {
     @Override
     public WorldGenAbstractTree genBigTreeChance(Random rand)
     {
-        return ATGBiomes.Features.STEPPE_SHRUB;
+        return ATGBiomes.Features.TUNDRA_SHRUB;
     }
 
     @Override
@@ -46,6 +44,8 @@ public class BiomeSteppe extends Biome {
             BlockPos blockpos = worldIn.getHeight(pos.add(x, 0, z));
             ATGBiomes.Features.BOULDER_COBBLE.generate(worldIn, rand, blockpos);
         }
+
+        super.decorate(worldIn, rand, pos);
     }
 
     @Override
@@ -54,11 +54,11 @@ public class BiomeSteppe extends Biome {
         this.topBlock = Blocks.GRASS.getDefaultState();
         this.fillerBlock = Blocks.DIRT.getDefaultState();
 
-        if (noiseVal > 1.75D)
+        if (noiseVal > 1.8D)
         {
             this.topBlock = Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.COARSE_DIRT);
         }
-        else if (noiseVal > -0.95D)
+        else if (noiseVal <= -1.85D)
         {
             this.topBlock = Blocks.GRAVEL.getDefaultState();
         }
@@ -68,6 +68,13 @@ public class BiomeSteppe extends Biome {
 
     @Override
     public int getGrassColorAtPos(BlockPos pos) {
-        return 0xCBC29E; //super.getGrassColorAtPos(pos);
+        //return 0xba785a;// 0xC49878; //0xCBC29E; //super.getGrassColorAtPos(pos);
+        double d0 = GRASS_COLOR_NOISE.getValue((double)pos.getX() * 0.0225D, (double)pos.getZ() * 0.0225D);
+        return d0 < -0.1D ? 0xba785a : 0xC49878;
+    }
+
+    @Override
+    public int getFoliageColorAtPos(BlockPos pos) {
+        return 0xb5bf89;
     }
 }

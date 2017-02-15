@@ -60,7 +60,7 @@ public class CoreNoise {
         this.temperature = new TailoredNoise(rand, 1281,0.87, 119,0.07, 26,0.06);
         this.moisture = new TailoredNoise(rand, 400,0.76, 243,0.16, 53,0.08);
 
-        this.blobs = new BiomeBlobs(rand.nextLong(), 6);
+        this.blobs = new BiomeBlobs(rand.nextLong(), 64);
     }
 
     //------ Height ---------------------------------------------------------
