@@ -19,22 +19,6 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         super(world);
 
         noise = new CoreNoise(1);
-
-        /*ATG.logger.info("collision test ###########################################################");
-
-        test.collisions = 0;
-
-        for (int x=-1024; x<1024; x++) {
-            for (int z=-1024; z<1024; z++) {
-                for (int cx = 0; cx <16; cx++) {
-                    for (int cz = 0; cz <16; cz++) {
-                        test.getHeight(x*16 + cx, z*16 + cz);
-                    }
-                }
-            }
-        }
-
-        ATG.logger.info("end collision test: "+test.collisions+" collisions ###########################################################");*/
     }
 
     // CORRECT THE DAMN TEMPERATURE CURVE
@@ -49,13 +33,8 @@ public class ChunkProviderATG extends ChunkProviderBasic {
 
     @Override
     public void fillChunk(int chunkX, int chunkZ, ChunkPrimer primer) {
-        //this.depthBuffer = testnoise.getRegion(depthBuffer, chunkX*16.0, chunkZ*16.0, 16,16, 0.0625, 0.0625,1.0);
-
         IBlockState landblock = Blocks.STONE.getDefaultState();
         IBlockState seablock = Blocks.WATER.getDefaultState();
-
-        //ATG.logger.info(Arrays.toString(this.depthBuffer));
-        double scale = 1.0/100.0;
 
         int x,z,water,height,limit,ix,iz,iy;
 
@@ -67,8 +46,6 @@ public class ChunkProviderATG extends ChunkProviderBasic {
             {
                 x = chunkX*16 + ix;
                 z = chunkZ*16 + iz;
-                //double n = testnoise.getValue(x*scale, z*scale);
-                //int height = (int)Math.round(n*20 + 120);//(int)Math.round(this.depthBuffer[ix+iz*16] * 255);
 
                 height = (int)Math.floor(noise.getHeight(x,z) * 255);
 

@@ -24,6 +24,9 @@ public class CoreNoise {
     public static final double BEACH_MAX = 66 / 255D;
     public static final double COAST_MIN = 51 / 255D;
 
+    public static final double SQUASH_HEIGHT = 0.9;
+    public static final double SQUASH_DIVISOR = 0.5;
+
     protected Noise ledges;
     protected Noise lumps;
     protected Noise ridges;
@@ -188,10 +191,21 @@ public class CoreNoise {
         }
 
         if (vals.height > 0.5) {
-            vals.height += (vals.height - 0.5) * 0.005 * rough;
+            vals.height += (vals.height - 0.5) * 0.01 * rough;
         }
 
         vals.height += rough * 0.00125;
+
+        // squash hills down so they never breach world height!
+        if (vals.height > SQUASH_HEIGHT) {
+            double h = (vals.height - SQUASH_HEIGHT) / (1.0 - SQUASH_HEIGHT);
+
+            double mix = MathUtil.smoothstep(MathUtil.clamp(h, 0.0, 1.0));
+
+            h = (1-mix) * h + mix * (h / (SQUASH_DIVISOR + h));
+
+            vals.height = SQUASH_HEIGHT + (h * (1.0-SQUASH_HEIGHT));
+        }
     }
 
     //------ Temperature ---------------------------------------------------------

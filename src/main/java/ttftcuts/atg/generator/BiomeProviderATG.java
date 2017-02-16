@@ -265,8 +265,6 @@ public class BiomeProviderATG extends BiomeProvider {
 
         double fertility = this.getFertility(temp, moisture, height);
 
-        int sealevel = 63;
-
         BiomeRegistry.EnumBiomeCategory category = BiomeRegistry.EnumBiomeCategory.LAND;
 
         double heightfuzz = this.getFuzz(x,z,345) / 256D;
@@ -313,7 +311,6 @@ public class BiomeProviderATG extends BiomeProvider {
                 weights.put(b, suitability);
             }
         }
-
 
         if(weights.isEmpty()) {
             weights.put(category.fallback, 1.0);

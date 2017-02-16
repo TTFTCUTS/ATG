@@ -77,11 +77,11 @@ public class BiomeRegistry {
 
         // Tundra
         addGroup(EnumBiomeCategory.LAND, "Tundra", 0.25, 0.45, 0.325) // 0.05, 0.65, 0.35
-                .addBiome(ATGBiomes.STEPPE);
+                .addBiome(ATGBiomes.TUNDRA);
 
         // Steppe
         //addGroup(EnumBiomeCategory.LAND, "Steppe", 0.2, 0.3, 0.5)
-        //        .addBiome(ATGBiomes.STEPPE);
+        //        .addBiome(ATGBiomes.TUNDRA);
 
         // Savanna
         addGroup(EnumBiomeCategory.LAND, "Savanna", 1.5, 0.45, 0.275)//, 0.0, 0.36)
@@ -108,12 +108,12 @@ public class BiomeRegistry {
                 .addBiome(Biomes.BEACH);
 
         // Stone Beach
-        addGroup(EnumBiomeCategory.BEACH, "Stone Beach", 0.25, 0.4, 0.25)
-                .addBiome(Biomes.STONE_BEACH);
+        addGroup(EnumBiomeCategory.BEACH, "Cold Beach", 0.25, 0.4, 0.25)
+                .addBiome(ATGBiomes.GRAVEL_BEACH);
 
         // Cold Beach
-        addGroup(EnumBiomeCategory.BEACH, "Cold Beach", 0.0, 0.4, 0.25)
-                .addBiome(Biomes.COLD_BEACH);
+        addGroup(EnumBiomeCategory.BEACH, "Snowy Beach", 0.0, 0.4, 0.25)
+                .addBiome(ATGBiomes.GRAVEL_BEACH_SNOWY);
 
 
 
@@ -134,7 +134,7 @@ public class BiomeRegistry {
                 .addBiome(Biomes.OCEAN);
 
         // Deep Ocean
-        addGroup(EnumBiomeCategory.OCEAN, "Deep Ocean", 0.5, 0.5, 0.25, 0, deep)
+        addGroup(EnumBiomeCategory.OCEAN, "Deep Ocean", 0.5, 0.5, 0.25, 0.0, deep)
                 .addBiome(Biomes.DEEP_OCEAN);
 
 

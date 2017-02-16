@@ -1,5 +1,6 @@
 package ttftcuts.atg.biome;
 
+import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 import ttftcuts.atg.ATGBiomes;
@@ -19,6 +20,8 @@ public class BiomeShrubland extends Biome {
         this.theBiomeDecorator.treesPerChunk = 1;
         this.theBiomeDecorator.grassPerChunk = 7;
         this.theBiomeDecorator.flowersPerChunk = 3;
+
+        this.spawnableCreatureList.add(new Biome.SpawnListEntry(EntityHorse.class, 2, 2, 4));
     }
 
     @Override

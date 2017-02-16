@@ -1,11 +1,15 @@
 package ttftcuts.atg.biome;
 
 import net.minecraft.block.BlockDoublePlant;
+import net.minecraft.block.BlockTallGrass;
+import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
+import net.minecraft.world.gen.feature.WorldGenTallGrass;
 import net.minecraft.world.gen.feature.WorldGenTrees;
+import net.minecraft.world.gen.feature.WorldGenerator;
 import ttftcuts.atg.ATGBiomes;
 
 import java.util.Random;
@@ -22,6 +26,8 @@ public class BiomeTropicalShrubland extends Biome {
         this.theBiomeDecorator.treesPerChunk = 5;
         this.theBiomeDecorator.grassPerChunk = 10;
         this.theBiomeDecorator.flowersPerChunk = 4;
+
+        this.spawnableCreatureList.add(new Biome.SpawnListEntry(EntityChicken.class, 5, 4, 4));
     }
 
     @Override
@@ -44,5 +50,11 @@ public class BiomeTropicalShrubland extends Biome {
     public WorldGenAbstractTree genBigTreeChance(Random rand)
     {
         return (rand.nextInt(6) == 0 ? Biome.BIG_TREE_FEATURE : (rand.nextInt(3) == 0 ? ATGBiomes.Features.JUNGLE_SHRUB : (rand.nextInt(2) == 0 ? new WorldGenTrees(false, 4 + rand.nextInt(5), ATGBiomes.BiomeBlocks.JUNGLE_LOG, ATGBiomes.BiomeBlocks.JUNGLE_LEAF, true) : ATGBiomes.Features.SAVANNA_TREE)));
+    }
+
+    @Override
+    public WorldGenerator getRandomWorldGenForGrass(Random rand)
+    {
+        return rand.nextInt(4) == 0 ? new WorldGenTallGrass(BlockTallGrass.EnumType.FERN) : super.getRandomWorldGenForGrass(rand);
     }
 }

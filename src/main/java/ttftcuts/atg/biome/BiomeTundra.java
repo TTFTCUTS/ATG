@@ -1,6 +1,8 @@
 package ttftcuts.atg.biome;
 
 import net.minecraft.block.BlockDirt;
+import net.minecraft.entity.passive.EntityRabbit;
+import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -26,6 +28,10 @@ public class BiomeTundra extends Biome {
         this.theBiomeDecorator.flowersPerChunk = 2;
         this.theBiomeDecorator.reedsPerChunk = -999;
         this.theBiomeDecorator.cactiPerChunk = -999;
+
+        this.spawnableCreatureList.clear();
+        this.spawnableCreatureList.add(new Biome.SpawnListEntry(EntityRabbit.class, 10, 2, 3));
+        this.spawnableCreatureList.add(new Biome.SpawnListEntry(EntitySheep.class, 12, 1, 5));
     }
 
     @Override

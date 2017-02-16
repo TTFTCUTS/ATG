@@ -11,25 +11,27 @@ import net.minecraft.world.gen.feature.WorldGenBlockBlob;
 import net.minecraft.world.gen.feature.WorldGenSavannaTree;
 import net.minecraft.world.gen.feature.WorldGenShrub;
 import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.common.BiomeManager;
-import ttftcuts.atg.biome.BiomeShrubland;
-import ttftcuts.atg.biome.BiomeTropicalShrubland;
-import ttftcuts.atg.biome.BiomeTundra;
-import ttftcuts.atg.biome.BiomeWoodland;
+import ttftcuts.atg.biome.*;
 
 public abstract class ATGBiomes {
 
     public static Biome SHRUBLAND;
     public static Biome WOODLAND;
     public static Biome TROPICAL_SHRUBLAND;
-    public static Biome STEPPE;
+    public static Biome TUNDRA;
+    public static Biome GRAVEL_BEACH;
+    public static Biome GRAVEL_BEACH_SNOWY;
 
     public static void init() {
 
-        SHRUBLAND = register(141, "atg_shrubland", new BiomeShrubland(), true, BiomeDictionary.Type.PLAINS);
-        WOODLAND = register(142, "atg_woodland", new BiomeWoodland(), false);
-        TROPICAL_SHRUBLAND = register(143, "atg_tropicalshrubland", new BiomeTropicalShrubland(), false);
-        STEPPE = register(144, "atg_steppe", new BiomeTundra(), false);
+        SHRUBLAND = register(141, "atg_shrubland", new BiomeShrubland(), true, Type.PLAINS, Type.SPARSE);
+        WOODLAND = register(142, "atg_woodland", new BiomeWoodland(), false, Type.FOREST);
+        TROPICAL_SHRUBLAND = register(143, "atg_tropical_shrubland", new BiomeTropicalShrubland(), false, Type.HOT, Type.WET, Type.JUNGLE, Type.FOREST, Type.SAVANNA);
+        TUNDRA = register(144, "atg_steppe", new BiomeTundra(), true, Type.PLAINS, Type.COLD, Type.CONIFEROUS, Type.SPARSE);
+        GRAVEL_BEACH = register(145, "atg_gravel_beach", new BiomeGravelBeach(), false, Type.COLD, Type.BEACH);
+        GRAVEL_BEACH_SNOWY = register(146, "atg_snowy_gravel_beach", new BiomeSnowyGravelBeach(), false, Type.COLD, Type.BEACH, Type.SNOWY);
     }
 
     public static Biome register(int id, String name, Biome biome, boolean villages, BiomeDictionary.Type... dictionaryTypes) {
