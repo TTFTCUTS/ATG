@@ -52,12 +52,6 @@ public class BiomeProviderATG extends BiomeProvider {
 
     //------ BiomeProvder functionality ---------------------------------------------------------
 
-    /*@Override
-    public Biome getBiomeGenerator(BlockPos pos)
-    {
-        return this.getBiomeGenerator(pos, (Biome)null);
-    }*/
-
     @Override
     public Biome getBiomeGenerator(BlockPos pos, Biome biomeGenBaseIn)
     {
@@ -89,12 +83,6 @@ public class BiomeProviderATG extends BiomeProvider {
         return biomes;
     }
 
-    /*@Override
-    public Biome[] loadBlockGeneratorData(@Nullable Biome[] oldBiomeList, int x, int z, int width, int depth)
-    {
-        return this.getBiomeGenAt(oldBiomeList, x, z, width, depth, true);
-    }*/
-
     @Override
     public Biome[] getBiomeGenAt(@Nullable Biome[] listToReuse, int x, int z, int width, int length, boolean cacheFlag)
     {
@@ -121,7 +109,7 @@ public class BiomeProviderATG extends BiomeProvider {
                     bx = x + ix;
                     bz = z + iz;
 
-                    listToReuse[iz*width + ix] = getBestBiome(bx,bz, provider);
+                    listToReuse[iz*width + ix] = getBiomeFromProvider(bx,bz, provider);
                 }
             }
 
@@ -208,13 +196,28 @@ public class BiomeProviderATG extends BiomeProvider {
 
     //------ Biome Generation ---------------------------------------------------------
 
-    public Biome getBestBiome(int x, int z, ChunkProviderATG provider) {
+    public Biome getBiomeFromProvider(int x, int z, ChunkProviderATG provider) {
         if (provider == null) {
             return Biomes.DEFAULT;
         }
 
+        CoreNoise core = provider.noise;
+
+        CoreNoise.NoiseEntry entry = core.getEntry(x,z);
+        if (entry.biome != null) {
+            return entry.biome;
+        }
+
+        Biome biome = this.getBestBiome(x,z,provider);
+
+        entry.biome = biome;
+
+        return biome;
+    }
+
+    public Biome getBestBiome(int x, int z, ChunkProviderATG provider) {
         double weight = Double.MIN_VALUE;
-        BiomeGroup best = null;
+        BiomeGroup bestGroup = null;
 
         Map<BiomeGroup,Double> weights = getBiomeWeights(x,z, provider.noise);
 
@@ -222,16 +225,16 @@ public class BiomeProviderATG extends BiomeProvider {
         for (BiomeGroup b : weights.keySet()) {
             w = weights.get(b);
             if (w > weight) {
-                best = b;
+                bestGroup = b;
                 weight = w;
             }
         }
 
-        if (best == null) {
+        if (bestGroup == null) {
             return Biomes.DEFAULT;
         }
-        
-        return getSubBiomeForPosition(x,z, best, provider.noise);
+
+        return getSubBiomeForPosition(x,z, bestGroup, provider.noise);
     }
 
     public Biome getSubBiomeForPosition(int x, int z, BiomeGroup group, CoreNoise noise) {

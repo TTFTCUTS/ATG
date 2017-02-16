@@ -1,19 +1,18 @@
 package ttftcuts.atg.generator;
 
+import net.minecraft.world.biome.Biome;
 import ttftcuts.atg.generator.biome.BiomeBlobs;
 import ttftcuts.atg.noise.*;
 import ttftcuts.atg.util.CoordCache;
 import ttftcuts.atg.util.CoordPair;
 import ttftcuts.atg.util.MathUtil;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Random;
 
 public class CoreNoise {
     //------ Cache Fields ---------------------------------------------------------
 
-    protected CoordCache<NoiseEntry> cache = new CoordCache<NoiseEntry>(256);
+    protected CoordCache<NoiseEntry> cache = new CoordCache<NoiseEntry>(1024);
 
     //------ Noise Fields ---------------------------------------------------------
 
@@ -272,6 +271,7 @@ public class CoreNoise {
         public double inland = Double.NaN;
         public double swamp = Double.NaN;
         public double roughness = Double.NaN;
+        public Biome biome = null;
 
         public NoiseEntry(int x, int z) {
             super(x,z);

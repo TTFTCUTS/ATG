@@ -2,6 +2,7 @@ package ttftcuts.atg.generator.biome;
 
 import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.Biome;
+import ttftcuts.atg.ATG;
 import ttftcuts.atg.ATGBiomes;
 import ttftcuts.atg.generator.CoreNoise;
 import ttftcuts.atg.util.MathUtil;
@@ -17,12 +18,14 @@ public class BiomeRegistry {
     public Map<Biome, Map<Biome, Double>> subBiomes;
     public Map<Biome, Double> subWeightTotals;
     public Map<Biome, Map<Biome, Double>> hillBiomes; // sub lists are assumed to be ordered lowest to highest!
+    public Map<Biome, IBiomeHeightModifier> heightMods;
 
     public BiomeRegistry() {
         this.biomeGroups = new HashMap<EnumBiomeCategory, Map<String, BiomeGroup>>();
         this.subBiomes = new HashMap<Biome, Map<Biome, Double>>();
         this.subWeightTotals = new HashMap<Biome, Double>();
         this.hillBiomes = new HashMap<Biome, Map<Biome, Double>>();
+        this.heightMods = new HashMap<Biome, IBiomeHeightModifier>();
 
         for (EnumBiomeCategory category : EnumBiomeCategory.values()) {
             this.biomeGroups.put(category, new HashMap<String, BiomeGroup>());
@@ -167,6 +170,10 @@ public class BiomeRegistry {
         //------ HILL BIOMES -----------------------
 
         addHillBiome(Biomes.FOREST, Biomes.FOREST_HILLS, 0.5);
+
+        //------ HEIGHT MODIFIERS -----------------------
+
+        addHeightModifier(Biomes.DESERT, ATGBiomes.HeightModifiers.DUNES);
     }
 
     public BiomeGroup addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height, double minHeight, double maxHeight) {
@@ -252,6 +259,14 @@ public class BiomeRegistry {
         }
 
         return biome;
+    }
+
+    public void addHeightModifier(Biome biome, IBiomeHeightModifier mod) {
+        this.heightMods.put(biome, mod);
+    }
+
+    public IBiomeHeightModifier getHeightModifier(Biome biome) {
+        return this.heightMods.get(biome);
     }
 
     //------ BiomeGroup type enum ---------------------------------------------------------

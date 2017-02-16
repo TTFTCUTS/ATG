@@ -14,6 +14,8 @@ import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.common.BiomeManager;
 import ttftcuts.atg.biome.*;
+import ttftcuts.atg.biome.heightmods.HeightModDunes;
+import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 
 public abstract class ATGBiomes {
 
@@ -46,6 +48,10 @@ public abstract class ATGBiomes {
         }
 
         return biome;
+    }
+
+    public static abstract class HeightModifiers {
+        public static final IBiomeHeightModifier DUNES = new HeightModDunes();
     }
 
     public static abstract class BiomeBlocks {
