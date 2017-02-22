@@ -1,11 +1,11 @@
 package ttftcuts.atg.generator;
 
 import com.google.common.collect.Lists;
+
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.ReportedException;
-import net.minecraft.util.datafix.fixes.PaintingDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -17,6 +17,7 @@ import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.generator.biome.BiomeRegistry.BiomeGroup;
 import ttftcuts.atg.util.GeneralUtil;
 import ttftcuts.atg.util.MathUtil;
+
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -260,8 +261,8 @@ public class BiomeProviderATG extends BiomeProvider {
         double moisture = corenoise.getMoisture(x,z) + this.getFuzz(x,z,103) * (4/256D);
         moisture = MathUtil.spreadRange(moisture, 0.4, 1.5, 0.07);
         double inland = corenoise.getInland(x,z);
-        temp += Math.max(0, inland-0.5);
-        moisture -= Math.max(0, inland-0.5);
+        //temp += Math.max(0, inland-0.5);
+        //moisture -= Math.max(0, inland-0.5);
 
         double swamp = corenoise.getSwamp(x,z);
         double roughness = corenoise.getRoughness(x,z);

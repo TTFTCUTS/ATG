@@ -223,9 +223,9 @@ public class CoreNoise {
         double inlandfactor = Math.max(0, inland-0.5);
         double heightfactor = Math.max(0, height*2 - 0.9);
 
-        double mix = this.temperature.getValue(vals.x,vals.z) * 1.3 - 0.2;
+        double mix = this.temperature.getValue(vals.x,vals.z) * 1.5 - 0.3; // * 1.3 - 0.2
 
-        vals.temperature = Math.max(0, mix + inlandfactor * 0.5 - heightfactor * 0.85);
+        vals.temperature = Math.max(0, mix + inlandfactor * 0.5 - heightfactor * 0.85); // 0.5, 0.85
         //ATG.logger.info("Generate Temperature for "+vals.x+","+vals.z);
     }
 
@@ -245,7 +245,7 @@ public class CoreNoise {
         double inlandfactor = Math.max( -0.1, inland-0.5 );
         double tempfactor = temp - 0.45 + inlandfactor*0.9;
 
-        double mix = this.moisture.getValue(vals.x, vals.z) * 1.2 - 0.05;
+        double mix = this.moisture.getValue(vals.x, vals.z) * 1.2 - 0.125; // * 1.2 - 0.05
 
         vals.moisture = Math.max(0, Math.min(1, mix-tempfactor*0.35));
         //ATG.logger.info("Generate Moisture for "+vals.x+","+vals.z);
