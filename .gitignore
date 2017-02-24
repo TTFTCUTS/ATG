@@ -21,6 +21,7 @@ gradlew.bat
 /.classpath
 /.project
 /bin
+/classes
 gradle/wrapper/gradle-wrapper.jar
 gradle/wrapper/gradle-wrapper.properties
 build.bat

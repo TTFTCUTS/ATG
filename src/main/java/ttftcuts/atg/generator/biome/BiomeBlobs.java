@@ -20,7 +20,7 @@ public class BiomeBlobs {
 
         this.layerseeds = new long[layers];
 
-        Random rand = new Random();
+        Random rand = new Random(seed);
         for (int i=0; i<layers; i++) {
             this.layerseeds[i] = rand.nextLong();
         }

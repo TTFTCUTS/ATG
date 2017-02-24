@@ -1,5 +1,7 @@
 package ttftcuts.atg.util;
 
+import java.util.Random;
+
 public abstract class MathUtil {
 
     /**
@@ -94,6 +96,38 @@ public abstract class MathUtil {
     }
 
     public static double spreadRange(double n, double fulcrum, double mult, double offset) {
-        return Math.max(0, Math.min(1, (n-fulcrum)*mult + fulcrum*mult + offset ));
+        return spreadRange(n,fulcrum,mult,offset,0.0,1.0);
+    }
+
+    public static double spreadRange(double n, double fulcrum, double mult, double offset, double min, double max) {
+        return Math.max(min, Math.min(max, (n-fulcrum)*mult + fulcrum*mult + offset ));
+    }
+
+    private static Random fuzz = new Random();
+    public static double getFuzz(int x, int z, int salt) {
+        double out = 0.0D;
+
+        int ox = 3847234;
+        int oz = 8362482;
+
+        long xm = x*ox;
+        long zm = z*oz;
+
+        fuzz.setSeed((xm^zm)+salt);
+        out += fuzz.nextDouble();
+
+        fuzz.setSeed(((xm+ox)^zm)+salt);
+        out += fuzz.nextDouble();
+
+        fuzz.setSeed(((xm-ox)^zm)+salt);
+        out += fuzz.nextDouble();
+
+        fuzz.setSeed((xm^(zm+oz))+salt);
+        out += fuzz.nextDouble();
+
+        fuzz.setSeed((xm^(zm-oz))+salt);
+        out += fuzz.nextDouble();
+
+        return (out*0.2 - 0.5);
     }
 }

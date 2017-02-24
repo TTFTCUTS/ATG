@@ -22,6 +22,7 @@ public abstract class ATGBiomes {
     public static Biome SHRUBLAND;
     public static Biome WOODLAND;
     public static Biome TROPICAL_SHRUBLAND;
+    public static Biome SCRUBLAND;
     public static Biome TUNDRA;
     public static Biome GRAVEL_BEACH;
     public static Biome GRAVEL_BEACH_SNOWY;
@@ -31,9 +32,10 @@ public abstract class ATGBiomes {
         SHRUBLAND = register(141, "atg_shrubland", new BiomeShrubland(), true, Type.PLAINS, Type.SPARSE);
         WOODLAND = register(142, "atg_woodland", new BiomeWoodland(), false, Type.FOREST);
         TROPICAL_SHRUBLAND = register(143, "atg_tropical_shrubland", new BiomeTropicalShrubland(), false, Type.HOT, Type.WET, Type.JUNGLE, Type.FOREST, Type.SAVANNA);
-        TUNDRA = register(144, "atg_steppe", new BiomeTundra(), true, Type.PLAINS, Type.COLD, Type.CONIFEROUS, Type.SPARSE);
-        GRAVEL_BEACH = register(145, "atg_gravel_beach", new BiomeGravelBeach(), false, Type.COLD, Type.BEACH);
-        GRAVEL_BEACH_SNOWY = register(146, "atg_snowy_gravel_beach", new BiomeSnowyGravelBeach(), false, Type.COLD, Type.BEACH, Type.SNOWY);
+        SCRUBLAND = register(144, "atg_scrubland", new BiomeScrubland(), true, Type.HOT, Type.SPARSE, Type.DRY, Type.SANDY, Type.SAVANNA);
+        TUNDRA = register(145, "atg_steppe", new BiomeTundra(), true, Type.PLAINS, Type.COLD, Type.CONIFEROUS, Type.SPARSE);
+        GRAVEL_BEACH = register(146, "atg_gravel_beach", new BiomeGravelBeach(), false, Type.COLD, Type.BEACH);
+        GRAVEL_BEACH_SNOWY = register(147, "atg_snowy_gravel_beach", new BiomeSnowyGravelBeach(), false, Type.COLD, Type.BEACH, Type.SNOWY);
     }
 
     public static Biome register(int id, String name, Biome biome, boolean villages, BiomeDictionary.Type... dictionaryTypes) {

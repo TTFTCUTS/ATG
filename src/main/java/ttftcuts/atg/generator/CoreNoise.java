@@ -225,7 +225,7 @@ public class CoreNoise {
 
         double mix = this.temperature.getValue(vals.x,vals.z) * 1.5 - 0.3; // * 1.3 - 0.2
 
-        vals.temperature = Math.max(0, mix + inlandfactor * 0.5 - heightfactor * 0.85); // 0.5, 0.85
+        vals.temperature = Math.max(0, mix + inlandfactor * 0.25 - heightfactor * 0.65); // 0.5, 0.85
         //ATG.logger.info("Generate Temperature for "+vals.x+","+vals.z);
     }
 

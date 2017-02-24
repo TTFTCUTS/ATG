@@ -256,9 +256,9 @@ public class BiomeProviderATG extends BiomeProvider {
         Map<BiomeGroup, Double> weights = new HashMap<BiomeGroup, Double>();
 
         double height = corenoise.getHeight(x,z);
-        double temp = corenoise.getTemperature(x,z) + this.getFuzz(x,z,345) * (6/256D);
-        temp = MathUtil.spreadRange(temp, 0.4, 1.5, -0.15);
-        double moisture = corenoise.getMoisture(x,z) + this.getFuzz(x,z,103) * (4/256D);
+        double temp = corenoise.getTemperature(x,z) + MathUtil.getFuzz(x,z,345) * (6/256D);
+        temp = MathUtil.spreadRange(temp, 0.4, 1.5, -0.15, 0.0, 1.0); // was max 1 no mult
+        double moisture = corenoise.getMoisture(x,z) + MathUtil.getFuzz(x,z,103) * (4/256D);
         moisture = MathUtil.spreadRange(moisture, 0.4, 1.5, 0.07);
         double inland = corenoise.getInland(x,z);
         //temp += Math.max(0, inland-0.5);
@@ -271,7 +271,7 @@ public class BiomeProviderATG extends BiomeProvider {
 
         BiomeRegistry.EnumBiomeCategory category = BiomeRegistry.EnumBiomeCategory.LAND;
 
-        double heightfuzz = this.getFuzz(x,z,345) / 256D;
+        double heightfuzz = MathUtil.getFuzz(x,z,345) / 256D;
 
         if (height - (heightfuzz * 0.5) < CoreNoise.COAST_MIN) {
             category = BiomeRegistry.EnumBiomeCategory.OCEAN;
@@ -301,7 +301,7 @@ public class BiomeProviderATG extends BiomeProvider {
                 bt = b.temperature;
                 bm = b.moisture;
 
-                bt = MathUtil.spreadRange(bt, 0.4, 1.3, -0.3);
+                bt = MathUtil.spreadRange(bt, 0.4, 1.3, -0.3, 0.0, 2.0) * 0.667; // was max 1 no mult
                 bm = MathUtil.spreadRange(bm, 0.4, 1.2, 0.07);
 
                 bf = getFertility(bt,bm,bh);
@@ -323,33 +323,6 @@ public class BiomeProviderATG extends BiomeProvider {
         //ATG.logger.info(weights);
 
         return weights;
-    }
-
-    private double getFuzz(int x, int z, int salt) {
-        double out = 0.0D;
-
-        int ox = 3847234;
-        int oz = 8362482;
-
-        long xm = x*ox;
-        long zm = z*oz;
-
-        this.fuzz.setSeed((xm^zm)+salt);
-        out += this.fuzz.nextDouble();
-
-        this.fuzz.setSeed(((xm+ox)^zm)+salt);
-        out += this.fuzz.nextDouble();
-
-        this.fuzz.setSeed(((xm-ox)^zm)+salt);
-        out += this.fuzz.nextDouble();
-
-        this.fuzz.setSeed((xm^(zm+oz))+salt);
-        out += this.fuzz.nextDouble();
-
-        this.fuzz.setSeed((xm^(zm-oz))+salt);
-        out += this.fuzz.nextDouble();
-
-        return (out*0.2 - 0.5);
     }
 
     private double getFertility(double temp, double moisture, double height) {

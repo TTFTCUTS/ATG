@@ -46,7 +46,7 @@ public class BiomeRegistry {
                 .addBiome(Biomes.PLAINS);
 
         // Desert
-        addGroup(EnumBiomeCategory.LAND, "Desert", 2.0, 0.0, 0.275)
+        addGroup(EnumBiomeCategory.LAND, "Desert", 1.8, 0.2, 0.275) // 2.0 temp
                 .setBlobSizeModifier(1) // larger blobs, one power of two greater
                 .addBiome(Biomes.DESERT)
                 .addBiome(Biomes.MESA, 0.3);
@@ -66,7 +66,7 @@ public class BiomeRegistry {
                 .addBiome(Biomes.ICE_PLAINS);
 
         // Jungle
-        addGroup(EnumBiomeCategory.LAND, "Jungle", 1.3, 0.75, 0.325)
+        addGroup(EnumBiomeCategory.LAND, "Jungle", 1.75, 0.75, 0.325) // 1.3 temp
                 .addBiome(Biomes.JUNGLE);
 
         // Shrubland
@@ -87,11 +87,11 @@ public class BiomeRegistry {
         //        .addBiome(ATGBiomes.TUNDRA);
 
         // Savanna
-        addGroup(EnumBiomeCategory.LAND, "Savanna", 1.5, 0.45, 0.275)//, 0.0, 0.36)
+        addGroup(EnumBiomeCategory.LAND, "Savanna", 1.7, 0.55, 0.275)// 1.5, 0.45, 0.275)
                 .addBiome(Biomes.SAVANNA);
 
         // Tropical Shrubland
-        addGroup(EnumBiomeCategory.LAND, "Tropical Shrubland", 1.3, 0.65, 0.35)
+        addGroup(EnumBiomeCategory.LAND, "Tropical Shrubland", 1.75, 0.65, 0.35) // 1.3 temp
                 .addBiome(ATGBiomes.TROPICAL_SHRUBLAND);
 
         // Woodland
@@ -102,7 +102,9 @@ public class BiomeRegistry {
         //addGroup(EnumBiomeCategory.LAND, "Mesa", 2.0, 0.0, 0.275, 0.44, 1.0)
         //        .addBiome(Biomes.MESA);
 
-
+        // Dry Scrubland
+        addGroup(EnumBiomeCategory.LAND, "Dry Scrubland", 1.8, 0.35, 0.325) // 1.7, 0.3, 0.275
+                .addBiome(ATGBiomes.SCRUBLAND);
 
         //------ Beach -----------------------
 
