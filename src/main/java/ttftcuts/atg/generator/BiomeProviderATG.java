@@ -239,13 +239,10 @@ public class BiomeProviderATG extends BiomeProvider {
     }
 
     public Biome getSubBiomeForPosition(int x, int z, BiomeGroup group, CoreNoise noise) {
-        if (group.biomes.size() == 1) {
-            return group.getBiome(0);
-        }
-
-        BiomeBlobs.BlobEntry blob = noise.blobs.getValue(x + group.offsetx, z + group.offsetz, 7 + group.blobSizeModifier);
+        BiomeBlobs.BlobEntry blob = noise.blobs.getValue(x + group.offsetx, z + group.offsetz, 8 + group.blobSizeModifier, 7 + group.blobSizeModifier + group.subBlobSizeModfier);
 
         Biome biome = group.getBiome(blob.biome); // get the biome for this blob
+
         biome = this.biomeRegistry.getHillBiome(biome, noise, x,z); // check if it should be changed to a hill
         biome = this.biomeRegistry.getSubBiome(biome, blob.subbiome); // apply sub-biome to it
 

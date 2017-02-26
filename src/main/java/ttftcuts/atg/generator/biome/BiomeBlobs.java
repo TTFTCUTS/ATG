@@ -8,7 +8,6 @@ import java.util.Random;
 
 public class BiomeBlobs {
 
-    protected CoordCache<BlobEntry> valueCache = new CoordCache<BlobEntry>(64);
     protected CoordCache<BlobOffset> offsetCache = new CoordCache<BlobOffset>(256);
     protected long seed;
     protected int layers;
@@ -26,37 +25,49 @@ public class BiomeBlobs {
         }
     }
 
-    public BlobEntry getValue(int x, int z, int size) {
+    public BlobEntry getValue(int x, int z, int size, int subsize) {
         BlobOffset offset = this.offsetCache.get(x,z);
         CoordPair c = null;
+        CoordPair cSub = null;
 
         if (offset == null) {
             c = new CoordPair(x, z);
+            cSub = new CoordPair(x, z);
 
-            for (int i = 0; i < Math.min(this.layers, size); i++) {
-                c = this.zoom(c, this.layerseeds[i]);
+            size = Math.min(this.layers, size);
+            subsize = Math.min(this.layers, subsize);
+
+            int count = Math.max(size, subsize);
+            CoordPair ipair = new CoordPair(x,z);
+
+            for (int i = 0; i < count; i++) {
+                ipair = this.zoom(ipair, this.layerseeds[i]);
+
+                if (i == size - 1) {
+                    c = new CoordPair(ipair.x, ipair.z);
+                }
+
+                if (i == subsize - 1) {
+                    cSub = new CoordPair(ipair.x, ipair.z);
+                }
             }
 
             offset = new BlobOffset(x,z);
             offset.offset = c;
+            offset.subOffset = cSub;
 
             this.offsetCache.put(x,z,offset);
         } else {
             c = offset.offset;
+            cSub = offset.subOffset;
         }
 
-        BlobEntry blob = this.valueCache.get(c.x, c.z);
-        if (blob == null) {
-            blob = new BlobEntry(c.x,c.z);
-            this.valueCache.put(c.x,c.z,blob);
-        }
-        if(Double.isNaN(blob.biome)) {
-            Random rand = new Random(MathUtil.coordSeed(c.x,c.z,this.seed));
-            blob.biome = rand.nextDouble();
-            blob.subbiome = rand.nextDouble();
-        }
+        Random rand = new Random(MathUtil.coordRandom(c.x,c.z, this.seed) + this.seed);
+        double biome = rand.nextDouble();
+        rand = new Random(MathUtil.coordRandom(cSub.x,cSub.z, this.seed) + this.seed + 13);
+        double subbiome = rand.nextDouble();
 
-        return blob;
+        return new BlobEntry(biome, subbiome);
     }
 
     public CoordPair zoom(CoordPair coords, long seed) {
@@ -69,7 +80,7 @@ public class BiomeBlobs {
         if (ex && ez) {
             return new CoordPair(hx, hz);
         } else {
-            Random rand = new Random(MathUtil.coordSeed(coords.x, coords.z, seed));
+            Random rand = new Random(MathUtil.coordRandom(coords.x,coords.z, this.seed) + seed);
             int ox = rand.nextBoolean() ? (coords.x < 0 ? -1 : 1) : 0;
             int oz = rand.nextBoolean() ? (coords.z < 0 ? -1 : 1) : 0;
 
@@ -85,18 +96,20 @@ public class BiomeBlobs {
 
     public static class BlobOffset extends CoordPair {
         public CoordPair offset = null;
+        public CoordPair subOffset = null;
 
         public BlobOffset(int x, int z) {
             super(x,z);
         }
     }
 
-    public static class BlobEntry extends CoordPair {
-        public double biome = Double.NaN;
-        public double subbiome = Double.NaN;
+    public static class BlobEntry {
+        public final double biome;
+        public final double subbiome;
 
-        public BlobEntry(int x, int z) {
-            super(x,z);
+        public BlobEntry(double biome, double subbiome) {
+            this.biome = biome;
+            this.subbiome = subbiome;
         }
     }
 }

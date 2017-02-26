@@ -10,10 +10,13 @@ import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 import ttftcuts.atg.util.Kernel;
 import ttftcuts.atg.util.MathUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ChunkProviderATG extends ChunkProviderBasic {
     public CoreNoise noise;
 
-    public static final int BLEND_RADIUS = 4;
+    public static final int BLEND_RADIUS = 5;
     public static final Kernel BLEND_KERNEL = new Kernel(BLEND_RADIUS, (int x, int z) -> {
         double dist = Math.sqrt(x*x+z*z);
         if (dist > BLEND_RADIUS) { return 0.0; }
@@ -86,6 +89,9 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         double k;
 
         double noise = 0.0;
+        double modheight;
+
+        Map<Biome, Double> heights = new HashMap<Biome, Double>();
 
         for (ix = -BLEND_RADIUS; ix <= BLEND_RADIUS; ix++) {
             for (iz = -BLEND_RADIUS; iz <= BLEND_RADIUS; iz++) {
@@ -94,11 +100,17 @@ public class ChunkProviderATG extends ChunkProviderBasic {
                 if (k > 0.0) {
                     biome = provider.getBiomeFromProvider(x + ix, z + iz, this);
 
-                    heightmod = provider.biomeRegistry.getHeightModifier(biome);
-                    if (heightmod == null) {
-                        noise += height * k;
+                    if (heights.containsKey(biome)) {
+                        noise += heights.get(biome) * k;
                     } else {
-                        noise += heightmod.getModifiedHeight(x, z, height) * k;
+                        heightmod = provider.biomeRegistry.getHeightModifier(biome);
+                        if (heightmod == null) {
+                            modheight = height;
+                        } else {
+                            modheight = heightmod.getModifiedHeight(x, z, height);
+                        }
+                        noise += modheight * k;
+                        heights.put(biome, modheight);
                     }
                 }
             }

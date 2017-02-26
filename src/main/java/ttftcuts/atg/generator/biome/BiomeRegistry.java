@@ -46,7 +46,7 @@ public class BiomeRegistry {
                 .addBiome(Biomes.PLAINS);
 
         // Desert
-        addGroup(EnumBiomeCategory.LAND, "Desert", 1.8, 0.2, 0.275) // 2.0 temp
+        addGroup(EnumBiomeCategory.LAND, "Desert", 1.8, 0.2, 0.275)
                 .setBlobSizeModifier(1) // larger blobs, one power of two greater
                 .addBiome(Biomes.DESERT)
                 .addBiome(Biomes.MESA, 0.3);
@@ -58,7 +58,7 @@ public class BiomeRegistry {
                 .addBiome(Biomes.ROOFED_FOREST, 0.2);
 
         // Taiga
-        addGroup(EnumBiomeCategory.LAND, "Taiga", 0.05, 0.7, 0.5)
+        addGroup(EnumBiomeCategory.LAND, "Taiga", 0.05, 0.7, 0.4) // height 0.5
                 .addBiome(Biomes.COLD_TAIGA);
 
         // Ice Plains
@@ -66,7 +66,7 @@ public class BiomeRegistry {
                 .addBiome(Biomes.ICE_PLAINS);
 
         // Jungle
-        addGroup(EnumBiomeCategory.LAND, "Jungle", 1.75, 0.75, 0.325) // 1.3 temp
+        addGroup(EnumBiomeCategory.LAND, "Jungle", 1.75, 0.75, 0.325)
                 .addBiome(Biomes.JUNGLE);
 
         // Shrubland
@@ -74,50 +74,42 @@ public class BiomeRegistry {
                 .addBiome(ATGBiomes.SHRUBLAND);
 
         // Boreal Forest
-        addGroup(EnumBiomeCategory.LAND, "Boreal Forest", 0.25, 0.8, 0.35)
+        addGroup(EnumBiomeCategory.LAND, "Boreal Forest", 0.35, 0.8, 0.4) // temp 0.25, height 0.35
                 .addBiome(Biomes.TAIGA)
                 .addBiome(Biomes.REDWOOD_TAIGA, 0.4);
 
         // Tundra
-        addGroup(EnumBiomeCategory.LAND, "Tundra", 0.25, 0.45, 0.325) // 0.05, 0.65, 0.35
+        addGroup(EnumBiomeCategory.LAND, "Tundra", 0.25, 0.45, 0.325)
                 .addBiome(ATGBiomes.TUNDRA);
 
-        // Steppe
-        //addGroup(EnumBiomeCategory.LAND, "Steppe", 0.2, 0.3, 0.5)
-        //        .addBiome(ATGBiomes.TUNDRA);
-
         // Savanna
-        addGroup(EnumBiomeCategory.LAND, "Savanna", 1.7, 0.55, 0.275)// 1.5, 0.45, 0.275)
+        addGroup(EnumBiomeCategory.LAND, "Savanna", 1.7, 0.55, 0.275)
                 .addBiome(Biomes.SAVANNA);
 
         // Tropical Shrubland
-        addGroup(EnumBiomeCategory.LAND, "Tropical Shrubland", 1.75, 0.65, 0.35) // 1.3 temp
+        addGroup(EnumBiomeCategory.LAND, "Tropical Shrubland", 1.75, 0.65, 0.35)
                 .addBiome(ATGBiomes.TROPICAL_SHRUBLAND);
 
         // Woodland
         addGroup(EnumBiomeCategory.LAND, "Woodland", 0.7, 0.67, 0.3)
                 .addBiome(ATGBiomes.WOODLAND);
 
-        // Mesa
-        //addGroup(EnumBiomeCategory.LAND, "Mesa", 2.0, 0.0, 0.275, 0.44, 1.0)
-        //        .addBiome(Biomes.MESA);
-
         // Dry Scrubland
-        addGroup(EnumBiomeCategory.LAND, "Dry Scrubland", 1.8, 0.35, 0.325) // 1.7, 0.3, 0.275
+        addGroup(EnumBiomeCategory.LAND, "Dry Scrubland", 1.8, 0.35, 0.325)
                 .addBiome(ATGBiomes.SCRUBLAND);
 
         //------ Beach -----------------------
 
         // Beach
-        addGroup(EnumBiomeCategory.BEACH, "Beach", 0.8, 0.4, 0.25)
+        addGroup(EnumBiomeCategory.BEACH, "Beach", 0.6, 0.4, 0.25) // 0.8, 0.4, 0.25
                 .addBiome(Biomes.BEACH);
 
         // Stone Beach
-        addGroup(EnumBiomeCategory.BEACH, "Cold Beach", 0.25, 0.4, 0.25)
+        addGroup(EnumBiomeCategory.BEACH, "Cold Beach", 0.335, 0.5, 0.25) // 0.25, 0.4, 0.25
                 .addBiome(ATGBiomes.GRAVEL_BEACH);
 
         // Cold Beach
-        addGroup(EnumBiomeCategory.BEACH, "Snowy Beach", 0.0, 0.4, 0.25)
+        addGroup(EnumBiomeCategory.BEACH, "Snowy Beach", 0.0, 0.5, 0.26) // 0.0, 0.4, 0.25
                 .addBiome(ATGBiomes.GRAVEL_BEACH_SNOWY);
 
 
@@ -140,17 +132,17 @@ public class BiomeRegistry {
 
         // Deep Ocean
         addGroup(EnumBiomeCategory.OCEAN, "Deep Ocean", 0.5, 0.5, 0.25, 0.0, deep)
-                .addBiome(Biomes.DEEP_OCEAN);
+                .addBiome(Biomes.DEEP_OCEAN)
+                .addBiome(Biomes.MUSHROOM_ISLAND, 0.002);
 
 
         //------ SUB-BIOMES -----------------------
 
-        double mutation = 1.0/28.0;
-        double mesa_plateaus = 0.25;
+        // mutations
+        double mutation = 1.0/15.0;
 
         addSubBiome(Biomes.PLAINS, Biomes.MUTATED_PLAINS, mutation);
         addSubBiome(Biomes.DESERT, Biomes.MUTATED_DESERT, mutation);
-        addSubBiome(Biomes.EXTREME_HILLS, Biomes.EXTREME_HILLS_WITH_TREES, mutation);
         addSubBiome(Biomes.EXTREME_HILLS, Biomes.MUTATED_EXTREME_HILLS, mutation);
         addSubBiome(Biomes.EXTREME_HILLS, Biomes.MUTATED_EXTREME_HILLS_WITH_TREES, mutation);
         addSubBiome(Biomes.FOREST, Biomes.MUTATED_FOREST, mutation);
@@ -166,12 +158,58 @@ public class BiomeRegistry {
         addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA, mutation);
         addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, mutation);
         addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA, mutation); // bryce
+
+        // mesa plateaus
+        double mesa_plateaus = 0.25;
         addSubBiome(Biomes.MESA, Biomes.MESA_ROCK, mesa_plateaus); // plateau F
         addSubBiome(Biomes.MESA, Biomes.MESA_CLEAR_ROCK, mesa_plateaus); // plateau
 
+        // copses and clearings
+        double clearing = 0.10;
+        addSubBiome(Biomes.PLAINS, ATGBiomes.WOODLAND, clearing);
+        addSubBiome(Biomes.PLAINS, ATGBiomes.SHRUBLAND, clearing);
+        addSubBiome(ATGBiomes.SHRUBLAND, ATGBiomes.WOODLAND, clearing);
+        addSubBiome(ATGBiomes.SHRUBLAND, Biomes.FOREST, clearing);
+        addSubBiome(ATGBiomes.TUNDRA, Biomes.TAIGA, clearing);
+        addSubBiome(Biomes.EXTREME_HILLS, Biomes.EXTREME_HILLS_WITH_TREES, clearing);
+
+        addSubBiome(Biomes.FOREST, Biomes.PLAINS, clearing);
+        addSubBiome(Biomes.FOREST, ATGBiomes.WOODLAND, clearing);
+        addSubBiome(Biomes.FOREST, ATGBiomes.SHRUBLAND, clearing);
+        addSubBiome(Biomes.FOREST_HILLS, Biomes.PLAINS, clearing);
+        addSubBiome(Biomes.FOREST_HILLS, ATGBiomes.WOODLAND, clearing);
+        addSubBiome(Biomes.FOREST_HILLS, ATGBiomes.SHRUBLAND, clearing);
+        addSubBiome(Biomes.BIRCH_FOREST, Biomes.PLAINS, clearing);
+        addSubBiome(Biomes.BIRCH_FOREST, ATGBiomes.SHRUBLAND, clearing);
+        addSubBiome(Biomes.BIRCH_FOREST_HILLS, Biomes.PLAINS, clearing);
+        addSubBiome(Biomes.BIRCH_FOREST_HILLS, ATGBiomes.SHRUBLAND, clearing);
+        addSubBiome(Biomes.ROOFED_FOREST, ATGBiomes.WOODLAND, clearing);
+        addSubBiome(Biomes.ROOFED_FOREST, ATGBiomes.SHRUBLAND, clearing);
+        addSubBiome(Biomes.TAIGA, Biomes.PLAINS, clearing*2);
+        addSubBiome(Biomes.TAIGA_HILLS, Biomes.PLAINS, clearing*2);
+        addSubBiome(Biomes.COLD_TAIGA, Biomes.ICE_PLAINS, clearing*2);
+        addSubBiome(Biomes.COLD_TAIGA_HILLS, Biomes.ICE_MOUNTAINS, clearing*2);
+        addSubBiome(Biomes.ICE_MOUNTAINS, Biomes.COLD_TAIGA_HILLS, clearing);
+
         //------ HILL BIOMES -----------------------
 
-        addHillBiome(Biomes.FOREST, Biomes.FOREST_HILLS, 0.5);
+        double hills = 128/255.0;
+        double upperhills = 170/255.0;
+        double mountain = 192/255.0;
+
+        addHillBiome(Biomes.PLAINS, Biomes.EXTREME_HILLS, upperhills);
+        addHillBiome(Biomes.FOREST, Biomes.FOREST_HILLS, hills);
+        addHillBiome(Biomes.BIRCH_FOREST, Biomes.BIRCH_FOREST_HILLS, hills);
+        addHillBiome(Biomes.TAIGA, Biomes.TAIGA_HILLS, hills);
+        addHillBiome(Biomes.COLD_TAIGA, Biomes.COLD_TAIGA_HILLS, hills);
+        addHillBiome(Biomes.COLD_TAIGA, Biomes.ICE_MOUNTAINS, mountain);
+        addHillBiome(Biomes.JUNGLE, Biomes.JUNGLE_HILLS, hills);
+        addHillBiome(Biomes.ICE_PLAINS, Biomes.ICE_MOUNTAINS, mountain);
+        addHillBiome(ATGBiomes.TUNDRA, Biomes.EXTREME_HILLS, upperhills);
+        addHillBiome(ATGBiomes.TUNDRA, Biomes.ICE_MOUNTAINS, mountain);
+        addHillBiome(ATGBiomes.SHRUBLAND, Biomes.EXTREME_HILLS, mountain);
+        addHillBiome(Biomes.DESERT, Biomes.DESERT_HILLS, hills);
+
 
         //------ HEIGHT MODIFIERS -----------------------
 
@@ -204,6 +242,8 @@ public class BiomeRegistry {
         } else {
             subs.put(subBiome, subs.get(subBiome) + weight);
         }
+
+        //ATG.logger.info("Sub biomes for "+parent.getBiomeName()+": (total weight: "+this.subWeightTotals.get(parent)+") "+subs);
     }
 
     public Biome getSubBiome(Biome parent, double value) {
@@ -298,6 +338,7 @@ public class BiomeRegistry {
         public double minHeight;
         public double maxHeight;
         public int blobSizeModifier = 0;
+        public int subBlobSizeModfier = 0;
 
         public long salt;
         public int offsetx;
@@ -315,8 +356,13 @@ public class BiomeRegistry {
             this.maxHeight = maxHeight;
             this.salt = name.hashCode();
 
-            this.offsetx = (int)( ( MathUtil.xorShift64( 2846 * MathUtil.xorShift64(salt + 7391834) - salt ) ) % Integer.MAX_VALUE);
-            this.offsetz = (int)( ( MathUtil.xorShift64( 9672 * MathUtil.xorShift64(salt + 4517384) - salt ) ) % Integer.MAX_VALUE);
+            Random rand = new Random(this.salt);
+
+            this.offsetx = rand.nextInt();
+            this.offsetz = rand.nextInt();
+
+            //this.offsetx = (int)( ( MathUtil.xorShift64( 2846 * MathUtil.xorShift64(salt + 7391834) - salt ) ) % Integer.MAX_VALUE);
+            //this.offsetz = (int)( ( MathUtil.xorShift64( 9672 * MathUtil.xorShift64(salt + 4517384) - salt ) ) % Integer.MAX_VALUE);
 
             this.biomes = new LinkedHashMap<Biome, Double>();
         }
@@ -365,6 +411,11 @@ public class BiomeRegistry {
 
         public BiomeGroup setBlobSizeModifier(int size) {
             this.blobSizeModifier = size;
+            return this;
+        }
+
+        public BiomeGroup setSubBlobSizeModifier(int size) {
+            this.subBlobSizeModfier = size;
             return this;
         }
     }

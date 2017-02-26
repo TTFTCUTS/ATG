@@ -73,7 +73,7 @@ public abstract class MathUtil {
 
     public static final long xorShift64(long a) {
         a ^= (a << 21);
-        a ^= (a >>> 35);
+        a ^= (a >> 35);
         a ^= (a << 4);
         return a;
     }
@@ -129,5 +129,12 @@ public abstract class MathUtil {
         out += fuzz.nextDouble();
 
         return (out*0.2 - 0.5);
+    }
+
+    public static int coordHash(int x, int z) {
+        int hash = 31;
+        hash = ((hash + x) << 13) - (hash + x);
+        hash = ((hash + z) << 13) - (hash + z);
+        return hash;
     }
 }
