@@ -4,6 +4,7 @@ import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 import ttftcuts.atg.noise.DuneNoise;
 import ttftcuts.atg.noise.Noise;
 
+import java.util.Map;
 import java.util.Random;
 
 public class HeightModDunes implements IBiomeHeightModifier {
@@ -15,7 +16,7 @@ public class HeightModDunes implements IBiomeHeightModifier {
     }
 
     @Override
-    public double getModifiedHeight(int x, int z, double height) {
+    public double getModifiedHeight(int x, int z, double height, Map<String,Object> args) {
         return height + this.noise.getValue(x,z) * 0.05;
     }
 }

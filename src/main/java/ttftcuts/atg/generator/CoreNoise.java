@@ -17,6 +17,7 @@ public class CoreNoise {
     //------ Noise Fields ---------------------------------------------------------
 
     public final long seed;
+    public final CoordPair heightModOffset;
 
     public static final double SEA_LEVEL = 63 / 255D;
     public static final double SWAMP_MAX = 77 / 255D;
@@ -63,6 +64,8 @@ public class CoreNoise {
         this.moisture = new TailoredNoise(rand, 400,0.76, 243,0.16, 53,0.08);
 
         this.blobs = new BiomeBlobs(rand.nextLong(), 64);
+
+        this.heightModOffset = new CoordPair(rand.nextInt(), rand.nextInt());
     }
 
     //------ Height ---------------------------------------------------------

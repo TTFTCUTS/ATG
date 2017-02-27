@@ -254,7 +254,7 @@ public class BiomeProviderATG extends BiomeProvider {
 
         double height = corenoise.getHeight(x,z);
         double temp = corenoise.getTemperature(x,z) + MathUtil.getFuzz(x,z,345) * (6/256D);
-        temp = MathUtil.spreadRange(temp, 0.4, 1.5, -0.15, 0.0, 1.0); // was max 1 no mult
+        temp = MathUtil.spreadRange(temp, 0.4, 1.5, -0.15, -0.05, 1.0); // was max 1 no mult
         double moisture = corenoise.getMoisture(x,z) + MathUtil.getFuzz(x,z,103) * (4/256D);
         moisture = MathUtil.spreadRange(moisture, 0.4, 1.5, 0.07);
         double inland = corenoise.getInland(x,z);
@@ -298,7 +298,7 @@ public class BiomeProviderATG extends BiomeProvider {
                 bt = b.temperature;
                 bm = b.moisture;
 
-                bt = MathUtil.spreadRange(bt, 0.4, 1.3, -0.3, 0.0, 2.0) * 0.667; // was max 1 no mult
+                bt = MathUtil.spreadRange(bt, 0.4, 1.3, -0.3, -0.075, 2.0) * 0.667; // was max 1 no mult
                 bm = MathUtil.spreadRange(bm, 0.4, 1.2, 0.07);
 
                 bf = getFertility(bt,bm,bh);

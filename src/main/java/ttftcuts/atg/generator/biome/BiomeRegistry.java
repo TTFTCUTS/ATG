@@ -18,14 +18,14 @@ public class BiomeRegistry {
     public Map<Biome, Map<Biome, Double>> subBiomes;
     public Map<Biome, Double> subWeightTotals;
     public Map<Biome, Map<Biome, Double>> hillBiomes; // sub lists are assumed to be ordered lowest to highest!
-    public Map<Biome, IBiomeHeightModifier> heightMods;
+    public Map<Biome, HeightModEntry> heightMods;
 
     public BiomeRegistry() {
         this.biomeGroups = new HashMap<EnumBiomeCategory, Map<String, BiomeGroup>>();
         this.subBiomes = new HashMap<Biome, Map<Biome, Double>>();
         this.subWeightTotals = new HashMap<Biome, Double>();
         this.hillBiomes = new HashMap<Biome, Map<Biome, Double>>();
-        this.heightMods = new HashMap<Biome, IBiomeHeightModifier>();
+        this.heightMods = new HashMap<Biome, HeightModEntry>();
 
         for (EnumBiomeCategory category : EnumBiomeCategory.values()) {
             this.biomeGroups.put(category, new HashMap<String, BiomeGroup>());
@@ -74,7 +74,7 @@ public class BiomeRegistry {
                 .addBiome(ATGBiomes.SHRUBLAND);
 
         // Boreal Forest
-        addGroup(EnumBiomeCategory.LAND, "Boreal Forest", 0.35, 0.8, 0.4) // temp 0.25, height 0.35
+        addGroup(EnumBiomeCategory.LAND, "Boreal Forest", 0.4, 0.8, 0.4) // temp 0.25, height 0.35
                 .addBiome(Biomes.TAIGA)
                 .addBiome(Biomes.REDWOOD_TAIGA, 0.4);
 
@@ -105,7 +105,7 @@ public class BiomeRegistry {
                 .addBiome(Biomes.BEACH);
 
         // Stone Beach
-        addGroup(EnumBiomeCategory.BEACH, "Cold Beach", 0.335, 0.5, 0.25) // 0.25, 0.4, 0.25
+        addGroup(EnumBiomeCategory.BEACH, "Cold Beach", 0.34, 0.5, 0.25) // 0.25, 0.4, 0.25
                 .addBiome(ATGBiomes.GRAVEL_BEACH);
 
         // Cold Beach
@@ -146,8 +146,11 @@ public class BiomeRegistry {
         addSubBiome(Biomes.EXTREME_HILLS, Biomes.MUTATED_EXTREME_HILLS, mutation);
         addSubBiome(Biomes.EXTREME_HILLS, Biomes.MUTATED_EXTREME_HILLS_WITH_TREES, mutation);
         addSubBiome(Biomes.FOREST, Biomes.MUTATED_FOREST, mutation);
+        addSubBiome(Biomes.FOREST, Biomes.ROOFED_FOREST, mutation);
         addSubBiome(Biomes.FOREST_HILLS, Biomes.MUTATED_FOREST, mutation);
+        addSubBiome(Biomes.ROOFED_FOREST, Biomes.MUTATED_ROOFED_FOREST, mutation);
         addSubBiome(Biomes.TAIGA, Biomes.MUTATED_TAIGA, mutation);
+        addSubBiome(Biomes.TAIGA, Biomes.FOREST, mutation);
         addSubBiome(Biomes.ICE_PLAINS, Biomes.MUTATED_ICE_FLATS, mutation);
         addSubBiome(Biomes.BIRCH_FOREST, Biomes.MUTATED_BIRCH_FOREST, mutation);
         addSubBiome(Biomes.BIRCH_FOREST_HILLS, Biomes.MUTATED_BIRCH_FOREST_HILLS, mutation);
@@ -157,12 +160,14 @@ public class BiomeRegistry {
         addSubBiome(Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, mutation);
         addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA, mutation);
         addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, mutation);
-        addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA, mutation); // bryce
+        addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA_ROCK, mutation);
+        addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA_CLEAR_ROCK, mutation);
 
         // mesa plateaus
         double mesa_plateaus = 0.25;
         addSubBiome(Biomes.MESA, Biomes.MESA_ROCK, mesa_plateaus); // plateau F
         addSubBiome(Biomes.MESA, Biomes.MESA_CLEAR_ROCK, mesa_plateaus); // plateau
+        addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA, mesa_plateaus); // bryce
 
         // copses and clearings
         double clearing = 0.10;
@@ -214,6 +219,18 @@ public class BiomeRegistry {
         //------ HEIGHT MODIFIERS -----------------------
 
         addHeightModifier(Biomes.DESERT, ATGBiomes.HeightModifiers.DUNES);
+        addHeightModifier(Biomes.MUSHROOM_ISLAND, ATGBiomes.HeightModifiers.ISLAND);
+        addHeightModifier(Biomes.SAVANNA_PLATEAU, ATGBiomes.HeightModifiers.PLATEAU);
+        addHeightModifier(Biomes.MUTATED_SAVANNA, ATGBiomes.HeightModifiers.PLATEAU, 1);
+        addHeightModifier(Biomes.MUTATED_SAVANNA_ROCK, ATGBiomes.HeightModifiers.PLATEAU, 1);
+        addHeightModifier(Biomes.MUTATED_ROOFED_FOREST, ATGBiomes.HeightModifiers.PLATEAU);
+
+        addHeightModifier(Biomes.MESA, ATGBiomes.HeightModifiers.MESA);
+        addHeightModifier(Biomes.MESA_ROCK, ATGBiomes.HeightModifiers.MESA, 1); // plateau F
+        addHeightModifier(Biomes.MESA_CLEAR_ROCK, ATGBiomes.HeightModifiers.MESA, 1); // plateau
+        addHeightModifier(Biomes.MUTATED_MESA, ATGBiomes.HeightModifiers.MESA, 2); // bryce
+        addHeightModifier(Biomes.MUTATED_MESA_ROCK, ATGBiomes.HeightModifiers.MESA, 1); // plateau F M
+        addHeightModifier(Biomes.MUTATED_MESA_CLEAR_ROCK, ATGBiomes.HeightModifiers.MESA, 1); // plateau M
     }
 
     public BiomeGroup addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height, double minHeight, double maxHeight) {
@@ -303,11 +320,21 @@ public class BiomeRegistry {
         return biome;
     }
 
-    public void addHeightModifier(Biome biome, IBiomeHeightModifier mod) {
-        this.heightMods.put(biome, mod);
+    public void addHeightModifier(Biome biome, IBiomeHeightModifier mod, Map<String,Object> args) {
+        this.heightMods.put(biome, new HeightModEntry(mod, args));
     }
 
-    public IBiomeHeightModifier getHeightModifier(Biome biome) {
+    public void addHeightModifier(Biome biome, IBiomeHeightModifier mod) {
+        this.addHeightModifier(biome, mod, null);
+    }
+
+    public void addHeightModifier(Biome biome, IBiomeHeightModifier mod, int variant) {
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("variant", variant);
+        this.addHeightModifier(biome, mod, args);
+    }
+
+    public HeightModEntry getHeightModifier(Biome biome) {
         return this.heightMods.get(biome);
     }
 
@@ -417,6 +444,18 @@ public class BiomeRegistry {
         public BiomeGroup setSubBlobSizeModifier(int size) {
             this.subBlobSizeModfier = size;
             return this;
+        }
+    }
+
+    //------ HeightModEntry Class ---------------------------------------------------------
+
+    public static class HeightModEntry {
+        public final IBiomeHeightModifier modifier;
+        public final Map<String,Object> arguments;
+
+        public HeightModEntry(IBiomeHeightModifier modifier, Map<String,Object> args) {
+            this.modifier = modifier;
+            this.arguments = args;
         }
     }
 }

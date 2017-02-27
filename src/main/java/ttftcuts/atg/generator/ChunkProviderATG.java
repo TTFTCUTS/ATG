@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
+import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 import ttftcuts.atg.util.Kernel;
 import ttftcuts.atg.util.MathUtil;
@@ -26,7 +27,7 @@ public class ChunkProviderATG extends ChunkProviderBasic {
     public ChunkProviderATG(World world) {
         super(world);
 
-        noise = new CoreNoise(1);
+        noise = new CoreNoise(world.getSeed());
     }
 
     // CORRECT THE DAMN TEMPERATURE CURVE
@@ -85,7 +86,7 @@ public class ChunkProviderATG extends ChunkProviderBasic {
 
         int ix,iz;
         Biome biome;
-        IBiomeHeightModifier heightmod;
+        BiomeRegistry.HeightModEntry heightmod;
         double k;
 
         double noise = 0.0;
@@ -107,7 +108,7 @@ public class ChunkProviderATG extends ChunkProviderBasic {
                         if (heightmod == null) {
                             modheight = height;
                         } else {
-                            modheight = heightmod.getModifiedHeight(x, z, height);
+                            modheight = heightmod.modifier.getModifiedHeight(x + this.noise.heightModOffset.x, z + this.noise.heightModOffset.z, height, heightmod.arguments);
                         }
                         noise += modheight * k;
                         heights.put(biome, modheight);
