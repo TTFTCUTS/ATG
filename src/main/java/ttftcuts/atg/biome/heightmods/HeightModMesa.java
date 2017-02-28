@@ -81,7 +81,7 @@ public class HeightModMesa implements IBiomeHeightModifier {
         n = Math.max(height-0.01, n- r);
 
         if (variant == 2) {
-            n = MathUtil.polymax(n, spire, 0.5);
+            n = MathUtil.polymax(n, spire, 8/255.0);
         }
 
         return MathUtil.polymax(n, height, 12/255.0);

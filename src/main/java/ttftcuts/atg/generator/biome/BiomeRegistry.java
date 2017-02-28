@@ -84,6 +84,7 @@ public class BiomeRegistry {
 
         // Savanna
         addGroup(EnumBiomeCategory.LAND, "Savanna", 1.7, 0.55, 0.275)
+                .setSubBlobSizeModifier(1)
                 .addBiome(Biomes.SAVANNA);
 
         // Tropical Shrubland
@@ -157,9 +158,9 @@ public class BiomeRegistry {
         addSubBiome(Biomes.COLD_TAIGA, Biomes.MUTATED_TAIGA_COLD, mutation);
         addSubBiome(Biomes.REDWOOD_TAIGA, Biomes.MUTATED_REDWOOD_TAIGA, mutation);
         addSubBiome(Biomes.REDWOOD_TAIGA_HILLS, Biomes.MUTATED_REDWOOD_TAIGA_HILLS, mutation);
-        addSubBiome(Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, mutation);
-        addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA, mutation);
-        addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, mutation);
+        addSubBiome(Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, mutation * 0.5);
+        addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA, mutation * 0.15);
+        addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, mutation * 0.15);
         addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA_ROCK, mutation);
         addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA_CLEAR_ROCK, mutation);
 
