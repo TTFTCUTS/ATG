@@ -6,6 +6,7 @@ import net.minecraft.block.BlockOldLog;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenBlockBlob;
 import net.minecraft.world.gen.feature.WorldGenSavannaTree;
@@ -13,6 +14,7 @@ import net.minecraft.world.gen.feature.WorldGenShrub;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.common.BiomeManager;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import ttftcuts.atg.biome.*;
 import ttftcuts.atg.biome.heightmods.HeightModDunes;
 import ttftcuts.atg.biome.heightmods.HeightModMesa;
@@ -32,17 +34,18 @@ public abstract class ATGBiomes {
 
     public static void init() {
 
-        SHRUBLAND = register(141, "atg_shrubland", new BiomeShrubland(), true, Type.PLAINS, Type.SPARSE);
-        WOODLAND = register(142, "atg_woodland", new BiomeWoodland(), false, Type.FOREST);
-        TROPICAL_SHRUBLAND = register(143, "atg_tropical_shrubland", new BiomeTropicalShrubland(), false, Type.HOT, Type.WET, Type.JUNGLE, Type.FOREST, Type.SAVANNA);
-        SCRUBLAND = register(144, "atg_scrubland", new BiomeScrubland(), true, Type.HOT, Type.SPARSE, Type.DRY, Type.SANDY, Type.SAVANNA);
-        TUNDRA = register(145, "atg_steppe", new BiomeTundra(), true, Type.PLAINS, Type.COLD, Type.CONIFEROUS, Type.SPARSE);
-        GRAVEL_BEACH = register(146, "atg_gravel_beach", new BiomeGravelBeach(), false, Type.COLD, Type.BEACH);
-        GRAVEL_BEACH_SNOWY = register(147, "atg_snowy_gravel_beach", new BiomeSnowyGravelBeach(), false, Type.COLD, Type.BEACH, Type.SNOWY);
+        SHRUBLAND = register("shrubland", new BiomeShrubland(), true, Type.PLAINS, Type.SPARSE);
+        WOODLAND = register("woodland", new BiomeWoodland(), false, Type.FOREST);
+        TROPICAL_SHRUBLAND = register("tropical_shrubland", new BiomeTropicalShrubland(), false, Type.HOT, Type.WET, Type.JUNGLE, Type.FOREST, Type.SAVANNA);
+        SCRUBLAND = register("scrubland", new BiomeScrubland(), true, Type.HOT, Type.SPARSE, Type.DRY, Type.SANDY, Type.SAVANNA);
+        TUNDRA = register("steppe", new BiomeTundra(), true, Type.PLAINS, Type.COLD, Type.CONIFEROUS, Type.SPARSE);
+        GRAVEL_BEACH = register("gravel_beach", new BiomeGravelBeach(), false, Type.COLD, Type.BEACH);
+        GRAVEL_BEACH_SNOWY = register("snowy_gravel_beach", new BiomeSnowyGravelBeach(), false, Type.COLD, Type.BEACH, Type.SNOWY);
     }
 
-    public static Biome register(int id, String name, Biome biome, boolean villages, BiomeDictionary.Type... dictionaryTypes) {
-        Biome.registerBiome(id, name, biome);
+    public static Biome register(String name, Biome biome, boolean villages, BiomeDictionary.Type... dictionaryTypes) {
+        biome.setRegistryName(ATG.MODID, name);
+        GameRegistry.register(biome);
 
         if (villages) {
             BiomeManager.addVillageBiome(biome, true);
