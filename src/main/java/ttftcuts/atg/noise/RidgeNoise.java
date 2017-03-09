@@ -3,9 +3,9 @@ package ttftcuts.atg.noise;
 import java.util.Random;
 
 public class RidgeNoise extends Noise {
-    OpenSimplexNoise generator;
-    int layers;
-    double scale;
+    protected OpenSimplexNoise generator;
+    protected int layers;
+    protected double scale;
 
     public RidgeNoise(Random rand, double scale, int layers) {
         this.generator = new OpenSimplexNoise(rand.nextLong());

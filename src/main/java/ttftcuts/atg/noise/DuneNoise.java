@@ -5,9 +5,9 @@ import ttftcuts.atg.util.MathUtil;
 import java.util.Random;
 
 public class DuneNoise extends Noise {
-    OpenSimplexNoise generator;
-    double scale;
-    double mixscale;
+    protected OpenSimplexNoise generator;
+    protected double scale;
+    protected double mixscale;
 
     public DuneNoise(Random rand, double scale, double mixscale) {
         this.generator = new OpenSimplexNoise(rand.nextLong());

@@ -3,25 +3,25 @@ package ttftcuts.atg.noise;
 import java.util.Random;
 
 public class JordanTurbulence extends Noise {
-    OpenSimplexNoise generator;
-    double scale;
+    protected OpenSimplexNoise generator;
+    protected double scale;
 
-    OctaveNoise distortion;
+    protected OctaveNoise distortion;
 
-    int octaves;
-    double lacunarity;
-    double gain1;
-    double gain;
-    double warp0;
-    double warp;
-    double damp0;
-    double damp;
-    double damp_scale;
+    protected int octaves;
+    protected double lacunarity;
+    protected double gain1;
+    protected double gain;
+    protected double warp0;
+    protected double warp;
+    protected double damp0;
+    protected double damp;
+    protected double damp_scale;
 
-    double distortion_magnitude;
-    int distortion_octaves;
-    double distortion_scale;
-    double distortion_gain;
+    protected double distortion_magnitude;
+    protected int distortion_octaves;
+    protected double distortion_scale;
+    protected double distortion_gain;
 
     public JordanTurbulence(Random rand, double scale, int octaves, double lacunarity, double gain1, double gain, double warp0, double warp, double damp0, double damp, double damp_scale, int distortion_octaves, double distortion_scale, double distortion_magnitude, double distortion_gain) {
         this.generator = new OpenSimplexNoise(rand.nextLong());

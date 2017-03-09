@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Random;
 
 public class TailoredNoise extends Noise {
-    Map<Double, Double> layers;
-    OpenSimplexNoise generator;
+    protected Map<Double, Double> layers;
+    protected OpenSimplexNoise generator;
 
     public TailoredNoise(Random rand, double... values) {
         this.generator = new OpenSimplexNoise(rand.nextLong());

@@ -3,14 +3,14 @@ package ttftcuts.atg.noise;
 import java.util.Random;
 
 public class OctaveNoise extends Noise {
-    OpenSimplexNoise generator;
-    double scale;
+    protected OpenSimplexNoise generator;
+    protected double scale;
 
-    int octaves;
-    double lacunarity;
-    double gain;
+    protected int octaves;
+    protected double lacunarity;
+    protected double gain;
 
-    double offset = 0.0;
+    protected double offset = 0.0;
 
     public OctaveNoise(Random rand, double scale, int octaves, double lacunarity, double gain) {
         this.generator = new OpenSimplexNoise(rand.nextLong());
