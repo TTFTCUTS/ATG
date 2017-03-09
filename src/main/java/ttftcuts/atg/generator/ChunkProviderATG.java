@@ -7,7 +7,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
-import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
+import ttftcuts.atg.util.GeneralUtil;
 import ttftcuts.atg.util.Kernel;
 import ttftcuts.atg.util.MathUtil;
 
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChunkProviderATG extends ChunkProviderBasic {
-    public CoreNoise noise;
+
 
     public static final int BLEND_RADIUS = 5;
     public static final Kernel BLEND_KERNEL = new Kernel(BLEND_RADIUS, (int x, int z) -> {
@@ -26,8 +26,6 @@ public class ChunkProviderATG extends ChunkProviderBasic {
 
     public ChunkProviderATG(World world) {
         super(world);
-
-        noise = new CoreNoise(world.getSeed());
     }
 
     // CORRECT THE DAMN TEMPERATURE CURVE
@@ -42,6 +40,12 @@ public class ChunkProviderATG extends ChunkProviderBasic {
 
     @Override
     public void fillChunk(int chunkX, int chunkZ, ChunkPrimer primer) {
+        BiomeProviderATG provider = GeneralUtil.getATGBiomeProvider(this.world);
+        if (provider == null) {
+            super.fillChunk(chunkX, chunkZ, primer);
+            return;
+        }
+
         IBlockState landblock = Blocks.STONE.getDefaultState();
         IBlockState seablock = Blocks.WATER.getDefaultState();
 
@@ -57,9 +61,9 @@ public class ChunkProviderATG extends ChunkProviderBasic {
                 x = chunkX*16 + ix;
                 z = chunkZ*16 + iz;
 
-                height = noise.getHeight(x,z);
+                height = provider.noise.getHeight(x,z);
 
-                height = this.getBiomeNoiseBlend(x,z, height);
+                height = this.getBiomeNoiseBlend(x,z, height, provider);
 
                 heightInt = (int)Math.floor(height * 255);
 
@@ -77,13 +81,7 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         }
     }
 
-    public double getBiomeNoiseBlend(int x, int z, double height) {
-        if (!(this.world.getBiomeProvider() instanceof BiomeProviderATG)) {
-            return height;
-        }
-
-        BiomeProviderATG provider = (BiomeProviderATG)this.world.getBiomeProvider();
-
+    public double getBiomeNoiseBlend(int x, int z, double height, BiomeProviderATG provider) {
         int ix,iz;
         Biome biome;
         BiomeRegistry.HeightModEntry heightmod;
@@ -99,7 +97,7 @@ public class ChunkProviderATG extends ChunkProviderBasic {
                 k = BLEND_KERNEL.getValue(ix,iz);
 
                 if (k > 0.0) {
-                    biome = provider.getBiomeFromProvider(x + ix, z + iz, this);
+                    biome = provider.getBestBiomeCached(x + ix, z + iz);
 
                     if (heights.containsKey(biome)) {
                         noise += heights.get(biome) * k;
@@ -108,7 +106,7 @@ public class ChunkProviderATG extends ChunkProviderBasic {
                         if (heightmod == null) {
                             modheight = height;
                         } else {
-                            modheight = heightmod.modifier.getModifiedHeight(x + this.noise.heightModOffset.x, z + this.noise.heightModOffset.z, height, heightmod.arguments);
+                            modheight = heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments);
                         }
                         noise += modheight * k;
                         heights.put(biome, modheight);

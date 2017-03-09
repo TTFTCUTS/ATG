@@ -15,7 +15,6 @@ import net.minecraft.world.gen.layer.IntCache;
 import ttftcuts.atg.generator.biome.BiomeBlobs;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.generator.biome.BiomeRegistry.BiomeGroup;
-import ttftcuts.atg.util.GeneralUtil;
 import ttftcuts.atg.util.MathUtil;
 
 
@@ -23,6 +22,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class BiomeProviderATG extends BiomeProvider {
+    public CoreNoise noise;
 
     //------ BiomeProvider fields ---------------------------------------------------------
     protected final BiomeCache biomeCache;
@@ -42,6 +42,9 @@ public class BiomeProviderATG extends BiomeProvider {
     public BiomeProviderATG(World world)
     {
         this.world = world;
+
+        this.noise = new CoreNoise(world.getSeed());
+
         this.fuzz = new Random();
         this.biomeCache = new BiomeCache(this);
         this.biomesToSpawnIn = Lists.newArrayList(allowedBiomes);
@@ -69,15 +72,13 @@ public class BiomeProviderATG extends BiomeProvider {
             biomes = new Biome[width * height];
         }
 
-        ChunkProviderATG provider = GeneralUtil.getATGProvider(this.world);
-
         int ix,iz,bx,bz;
         for (ix = 0; ix < width; ++ix) {
             for (iz = 0; iz < height; ++iz) {
                 bx = x + ix;
                 bz = z + iz;
 
-                biomes[iz*width + ix] = getBestBiome(bx,bz, provider);
+                biomes[iz*width + ix] = getBestBiome(bx,bz);
             }
         }
 
@@ -102,15 +103,13 @@ public class BiomeProviderATG extends BiomeProvider {
         }
         else
         {
-            ChunkProviderATG provider = GeneralUtil.getATGProvider(this.world);
-
             int ix,iz,bx,bz;
             for (ix = 0; ix < width; ++ix) {
                 for (iz = 0; iz < length; ++iz) {
                     bx = x + ix;
                     bz = z + iz;
 
-                    listToReuse[iz*width + ix] = getBiomeFromProvider(bx,bz, provider);
+                    listToReuse[iz*width + ix] = getBestBiomeCached(bx,bz);
                 }
             }
 
@@ -197,30 +196,25 @@ public class BiomeProviderATG extends BiomeProvider {
 
     //------ Biome Generation ---------------------------------------------------------
 
-    public Biome getBiomeFromProvider(int x, int z, ChunkProviderATG provider) {
-        if (provider == null) {
-            return Biomes.DEFAULT;
-        }
+    public Biome getBestBiomeCached(int x, int z) {
 
-        CoreNoise core = provider.noise;
-
-        CoreNoise.NoiseEntry entry = core.getEntry(x,z);
+        CoreNoise.NoiseEntry entry = this.noise.getEntry(x,z);
         if (entry.biome != null) {
             return entry.biome;
         }
 
-        Biome biome = this.getBestBiome(x,z,provider);
+        Biome biome = this.getBestBiome(x,z);
 
         entry.biome = biome;
 
         return biome;
     }
 
-    public Biome getBestBiome(int x, int z, ChunkProviderATG provider) {
+    public Biome getBestBiome(int x, int z) {
         double weight = Double.MIN_VALUE;
         BiomeGroup bestGroup = null;
 
-        Map<BiomeGroup,Double> weights = getBiomeWeights(x,z, provider.noise);
+        Map<BiomeGroup,Double> weights = getBiomeWeights(x,z, this.noise);
 
         double w;
         for (BiomeGroup b : weights.keySet()) {
@@ -235,15 +229,15 @@ public class BiomeProviderATG extends BiomeProvider {
             return Biomes.DEFAULT;
         }
 
-        return getSubBiomeForPosition(x,z, bestGroup, provider.noise);
+        return getSubBiomeForPosition(x,z, bestGroup);
     }
 
-    public Biome getSubBiomeForPosition(int x, int z, BiomeGroup group, CoreNoise noise) {
-        BiomeBlobs.BlobEntry blob = noise.blobs.getValue(x + group.offsetx, z + group.offsetz, 8 + group.blobSizeModifier, 7 + group.blobSizeModifier + group.subBlobSizeModfier);
+    public Biome getSubBiomeForPosition(int x, int z, BiomeGroup group) {
+        BiomeBlobs.BlobEntry blob = this.noise.blobs.getValue(x + group.offsetx, z + group.offsetz, 8 + group.blobSizeModifier, 7 + group.blobSizeModifier + group.subBlobSizeModfier);
 
         Biome biome = group.getBiome(blob.biome); // get the biome for this blob
 
-        biome = this.biomeRegistry.getHillBiome(biome, noise, x,z); // check if it should be changed to a hill
+        biome = this.biomeRegistry.getHillBiome(biome, this.noise, x,z); // check if it should be changed to a hill
         biome = this.biomeRegistry.getSubBiome(biome, blob.subbiome); // apply sub-biome to it
 
         return biome;
