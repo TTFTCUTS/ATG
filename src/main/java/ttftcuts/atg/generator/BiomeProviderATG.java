@@ -57,9 +57,9 @@ public class BiomeProviderATG extends BiomeProvider {
     //------ BiomeProvder functionality ---------------------------------------------------------
 
     @Override
-    public Biome getBiomeGenerator(BlockPos pos, Biome biomeGenBaseIn)
+    public Biome getBiome(BlockPos pos, Biome defaultBiome)
     {
-        return this.biomeCache.getBiome(pos.getX(), pos.getZ(), biomeGenBaseIn);
+        return this.biomeCache.getBiome(pos.getX(), pos.getZ(), defaultBiome);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class BiomeProviderATG extends BiomeProvider {
     }
 
     @Override
-    public Biome[] getBiomeGenAt(@Nullable Biome[] listToReuse, int x, int z, int width, int length, boolean cacheFlag)
+    public Biome[] getBiomes(@Nullable Biome[] listToReuse, int x, int z, int width, int length, boolean cacheFlag)
     {
         IntCache.resetIntCache();
 
@@ -127,7 +127,7 @@ public class BiomeProviderATG extends BiomeProvider {
         int zmax = z + (radius >> 2);
         int xdiff = xmax - xmin + 1;
         int zdiff = zmax - zmin + 1;
-        Biome[] biomes = this.getBiomeGenAt(null, xmin,zmin,xdiff,zdiff, true);
+        Biome[] biomes = this.getBiomes(null, xmin,zmin,xdiff,zdiff, true);
 
         try
         {
@@ -164,7 +164,7 @@ public class BiomeProviderATG extends BiomeProvider {
         int zmax = z + (range >> 2);
         int xdiff = xmax - xmin + 1;
         int zdiff = zmax - zmin + 1;
-        Biome[] genbiomes = this.getBiomeGenAt(null, xmin,zmin,xdiff,zdiff, true);
+        Biome[] genbiomes = this.getBiomes(null, xmin,zmin,xdiff,zdiff, true);
         BlockPos blockpos = null;
         int k1 = 0;
 

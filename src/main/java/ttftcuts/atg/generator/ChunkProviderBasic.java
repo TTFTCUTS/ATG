@@ -23,8 +23,10 @@ import net.minecraft.world.gen.structure.*;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.terraingen.TerrainGen;
+import ttftcuts.atg.generator.structure.WoodlandMansionATG;
 
 import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -32,7 +34,7 @@ import java.util.function.Function;
 
 public class ChunkProviderBasic implements IChunkGenerator {
     protected final World world;
-    protected final List<MapGenStructure> structureGenerators = Lists.newArrayList();
+    protected final LinkedHashMap<String, MapGenStructure> structureGenerators = Maps.newLinkedHashMap();
     protected final List<MapGenBase> featureGenerators = Lists.newArrayList();
     protected final Map<MapGenStructure, FeatureSpawnListAction> featureSpawnListActions = Maps.newHashMap();
     protected final Random random;
@@ -62,10 +64,10 @@ public class ChunkProviderBasic implements IChunkGenerator {
 
     public void initFeatures() {
         if (this.structuresEnabled) {
-            structureGenerators.add((MapGenVillage) TerrainGen.getModdedMapGen(new MapGenVillage(), InitMapGenEvent.EventType.VILLAGE));
+            structureGenerators.put("Village", (MapGenVillage) TerrainGen.getModdedMapGen(new MapGenVillage(), InitMapGenEvent.EventType.VILLAGE));
 
             MapGenScatteredFeature mgsf = (MapGenScatteredFeature) TerrainGen.getModdedMapGen(new MapGenScatteredFeature(), InitMapGenEvent.EventType.SCATTERED_FEATURE);
-            structureGenerators.add(mgsf);
+            structureGenerators.put("Temple", mgsf);
             this.featureSpawnListActions.put(mgsf, (s, type, pos) -> {
                 MapGenScatteredFeature gen = (MapGenScatteredFeature)s;
                 if (type == EnumCreatureType.MONSTER && gen.isSwampHut(pos))
@@ -75,12 +77,12 @@ public class ChunkProviderBasic implements IChunkGenerator {
                 return null;
             });
 
-            structureGenerators.add((MapGenMineshaft) TerrainGen.getModdedMapGen(new MapGenMineshaft(), InitMapGenEvent.EventType.MINESHAFT));
+            structureGenerators.put("Mineshaft", (MapGenMineshaft) TerrainGen.getModdedMapGen(new MapGenMineshaft(), InitMapGenEvent.EventType.MINESHAFT));
 
-            structureGenerators.add((MapGenStronghold) TerrainGen.getModdedMapGen(new MapGenStronghold(), InitMapGenEvent.EventType.STRONGHOLD));
+            structureGenerators.put("Stronghold", (MapGenStronghold) TerrainGen.getModdedMapGen(new MapGenStronghold(), InitMapGenEvent.EventType.STRONGHOLD));
 
             StructureOceanMonument som = (StructureOceanMonument) TerrainGen.getModdedMapGen(new StructureOceanMonument(), InitMapGenEvent.EventType.OCEAN_MONUMENT);
-            structureGenerators.add(som);
+            structureGenerators.put("Monument", som);
             this.featureSpawnListActions.put(som, (s, type, pos) -> {
                 StructureOceanMonument gen = (StructureOceanMonument)s;
                 if (type == EnumCreatureType.MONSTER && s.isPositionInStructure(this.world, pos))
@@ -89,6 +91,8 @@ public class ChunkProviderBasic implements IChunkGenerator {
                 }
                 return null;
             });
+
+            structureGenerators.put("Mansion", new WoodlandMansionATG(this));
         }
 
         featureGenerators.add(TerrainGen.getModdedMapGen(new MapGenCaves(), InitMapGenEvent.EventType.CAVE));
@@ -100,7 +104,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
             mapgenbase.generate(this.world, x,z, primer);
         }
 
-        for (MapGenStructure mapgenstructure : this.structureGenerators) {
+        for (MapGenStructure mapgenstructure : this.structureGenerators.values()) {
             mapgenstructure.generate(this.world, x,z, primer);
         }
     }
@@ -108,7 +112,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
     public boolean populateFeatures(ChunkPos chunkpos) {
         boolean village = false;
 
-        for (MapGenStructure mapgenstructure : this.structureGenerators)
+        for (MapGenStructure mapgenstructure : this.structureGenerators.values())
         {
             boolean flag = mapgenstructure.generateStructure(this.world, this.random, chunkpos);
 
@@ -145,7 +149,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
 
         this.fillChunk(x,z,chunkprimer);
 
-        Biome[] biomes = this.world.getBiomeProvider().loadBlockGeneratorData((Biome[])null, x * 16, z * 16, 16, 16);
+        Biome[] biomes = this.world.getBiomeProvider().getBiomes((Biome[])null, x * 16, z * 16, 16, 16);
         this.replaceBiomeBlocks(x,z, chunkprimer, biomes);
 
         this.generateFeatures(x,z, chunkprimer);
@@ -183,7 +187,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
         int blockX = x * 16;
         int blockZ = z * 16;
         BlockPos blockpos = new BlockPos(blockX, 0, blockZ);
-        Biome biome = this.world.getBiomeGenForCoords(blockpos.add(16, 0, 16));
+        Biome biome = this.world.getBiome(blockpos.add(16, 0, 16));
         this.random.setSeed(this.world.getSeed());
         long randX = this.random.nextLong() / 2L * 2L + 1L;
         long randZ = this.random.nextLong() / 2L * 2L + 1L;
@@ -267,9 +271,9 @@ public class ChunkProviderBasic implements IChunkGenerator {
 
     @Override
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) {
-        Biome biome = this.world.getBiomeGenForCoords(pos);
+        Biome biome = this.world.getBiome(pos);
 
-        for (MapGenStructure structure : this.structureGenerators)
+        for (MapGenStructure structure : this.structureGenerators.values())
         {
             if (this.featureSpawnListActions.containsKey(structure)) {
                 List<Biome.SpawnListEntry> list = this.featureSpawnListActions.get(structure).apply(structure, creatureType, pos);
@@ -284,15 +288,10 @@ public class ChunkProviderBasic implements IChunkGenerator {
 
     @Nullable
     @Override
-    public BlockPos getStrongholdGen(World worldIn, String structureName, BlockPos position) {
-        if ("Stronghold".equals(structureName))
-        {
-            for (MapGenStructure mapgenstructure : this.structureGenerators)
-            {
-                if (mapgenstructure instanceof MapGenStronghold)
-                {
-                    return mapgenstructure.getClosestStrongholdPos(worldIn, position);
-                }
+    public BlockPos getStrongholdGen(World worldIn, String structureName, BlockPos position, boolean flag) {
+        for (String name : this.structureGenerators.keySet()) {
+            if (structureName.equals(name)) {
+                return this.structureGenerators.get(name).getClosestStrongholdPos(worldIn, position, flag);
             }
         }
 
@@ -301,7 +300,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
 
     @Override
     public void recreateStructures(Chunk chunkIn, int x, int z) {
-        for (MapGenStructure mapgenstructure : this.structureGenerators)
+        for (MapGenStructure mapgenstructure : this.structureGenerators.values())
         {
             mapgenstructure.generate(this.world, x, z, (ChunkPrimer)null);
         }
@@ -314,7 +313,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
     }
 
     public boolean canSnowAt(World world, BlockPos pos, boolean checkLight) {
-        Biome biome = world.getBiomeGenForCoords(pos);
+        Biome biome = world.getBiome(pos);
         float f = this.getFloatTemperature(biome, pos);
 
         if (f > 0.15F)

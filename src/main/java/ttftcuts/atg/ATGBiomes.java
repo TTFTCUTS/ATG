@@ -52,7 +52,7 @@ public abstract class ATGBiomes {
         }
 
         if (dictionaryTypes.length > 0) {
-            BiomeDictionary.registerBiomeType(biome, dictionaryTypes);
+            BiomeDictionary.addTypes(biome, dictionaryTypes);
         }
 
         return biome;
