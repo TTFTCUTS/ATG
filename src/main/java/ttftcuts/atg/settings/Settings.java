@@ -2,27 +2,9 @@ package ttftcuts.atg.settings;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.world.biome.Biome;
+import ttftcuts.atg.ATG;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class Settings {
-
-    Map<Biome,Biome> biomeReplacements = new HashMap<>();
-    List<GroupDefinition> groupDefinitions = new ArrayList<>();
-
-    public Settings() {
-
-    }
-
-    public void apply(Settings toApply) {
-
-    }
-
-    // #### reading and writing ###
+public abstract class Settings {
 
     public String writeToJson() {
         JsonObject json = new JsonObject();
@@ -32,25 +14,20 @@ public class Settings {
         return json.toString();
     }
 
-    public static Settings readFromJson(String input) {
-        Settings settings = new Settings();
+    public static <T extends Settings> T readFromJson(String input, Class<T> clazz) {
+        try {
+            T settings = clazz.getConstructor().newInstance();
 
-        settings.readData((JsonObject)new JsonParser().parse(input));
+            settings.readData((JsonObject) new JsonParser().parse(input));
 
-        return settings;
+            return settings;
+        } catch (Exception e) {
+            ATG.logger.error(e); // shouldn't happen
+        }
+        return null;
     }
 
-    public void readData(JsonObject json) {
+    public abstract void readData(JsonObject json);
 
-    }
-
-    public void writeData(JsonObject json) {
-
-    }
-
-    // #### subclasses ####
-
-    public static class GroupDefinition {
-
-    }
+    public abstract void writeData(JsonObject json);
 }
