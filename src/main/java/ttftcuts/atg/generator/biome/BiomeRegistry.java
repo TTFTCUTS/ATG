@@ -342,6 +342,7 @@ public class BiomeRegistry {
     //------ BiomeGroup type enum ---------------------------------------------------------
 
     public enum EnumBiomeCategory {
+        UNKNOWN(Biomes.PLAINS),
         LAND(Biomes.PLAINS),
         OCEAN(Biomes.OCEAN),
         BEACH(Biomes.BEACH),
