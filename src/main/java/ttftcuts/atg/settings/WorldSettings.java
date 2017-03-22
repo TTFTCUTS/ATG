@@ -15,8 +15,8 @@ public class WorldSettings extends Settings {
 
 
         // biome stuff
-        if (json.has("biomes")) {
-            biomeSettings.readData(json.getAsJsonObject("biomes"));
+        if (json.has("biomedata")) {
+            biomeSettings.readData(json.getAsJsonObject("biomedata"));
         }
     }
 
@@ -28,7 +28,7 @@ public class WorldSettings extends Settings {
         JsonObject biomes = new JsonObject();
         this.biomeSettings.writeData(biomes);
         if (!biomes.entrySet().isEmpty()) {
-            json.add("biomes", biomes);
+            json.add("biomedata", biomes);
         }
     }
 }
