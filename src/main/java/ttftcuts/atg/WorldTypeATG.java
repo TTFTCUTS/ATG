@@ -36,10 +36,12 @@ public class WorldTypeATG extends WorldType {
         // testing time
 
         ATG.logger.info("wheee");
+
         BiomeSettings testsettings = new DefaultBiomeSettings();
         String json = testsettings.writeToJson();
         ATG.logger.info("Json 1: "+json);
-        BiomeSettings test2 = BiomeSettings.readFromJson(json, BiomeSettings.class);
+
+        BiomeSettings test2 = new BiomeSettings().readFromJson(json);
         String json2 = test2.writeToJson();
         ATG.logger.info("Json 2: "+json2);
     }

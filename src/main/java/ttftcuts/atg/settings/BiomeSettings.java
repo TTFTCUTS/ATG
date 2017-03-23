@@ -22,6 +22,11 @@ public class BiomeSettings extends Settings {
     }
 
     @Override
+    public BiomeSettings readFromJson(String input) {
+        return (BiomeSettings)super.readFromJson(input);
+    }
+
+    @Override
     public void readData(JsonObject json) {
         this.groups.clear();
         this.biomes.clear();
@@ -38,42 +43,12 @@ public class BiomeSettings extends Settings {
 
         if (json.has("biomes")) {
             JsonObject b = json.getAsJsonObject("biomes");
-            for(Map.Entry<String, JsonElement> entry : b.entrySet()) {
-                EnumBiomeCategory category = EnumBiomeCategory.valueOf(entry.getKey());
-                JsonObject cgroups = entry.getValue().getAsJsonObject();
-                for (Map.Entry<String, JsonElement> groupentry : cgroups.entrySet()) {
-                    String group = groupentry.getKey();
-                    JsonArray gbiomes = groupentry.getValue().getAsJsonArray();
-
-                    for (JsonElement biome : gbiomes) {
-                        BiomeDefinition bd = new BiomeDefinition();
-                        bd.fromJson(biome.getAsJsonObject());
-                        bd.category = category;
-                        bd.group = group;
-                        this.biomes.add(bd);
-                    }
-                }
-            }
+            this.readBiomeEntryList(b, this.biomes, BiomeDefinition.class);
         }
 
         if (json.has("replace")) {
             JsonObject b = json.getAsJsonObject("replace");
-            for(Map.Entry<String, JsonElement> entry : b.entrySet()) {
-                EnumBiomeCategory category = EnumBiomeCategory.valueOf(entry.getKey());
-                JsonObject cgroups = entry.getValue().getAsJsonObject();
-                for (Map.Entry<String, JsonElement> groupentry : cgroups.entrySet()) {
-                    String group = groupentry.getKey();
-                    JsonArray gbiomes = groupentry.getValue().getAsJsonArray();
-
-                    for (JsonElement biome : gbiomes) {
-                        BiomeReplacement bd = new BiomeReplacement();
-                        bd.fromJson(biome.getAsJsonObject());
-                        bd.category = category;
-                        bd.group = group;
-                        this.replacements.add(bd);
-                    }
-                }
-            }
+            this.readBiomeEntryList(b, this.replacements, BiomeReplacement.class);
         }
     }
 
@@ -89,48 +64,20 @@ public class BiomeSettings extends Settings {
 
         if (!this.biomes.isEmpty()) {
             JsonObject categories = new JsonObject();
-
-            for (BiomeDefinition biome : this.biomes) {
-                String catname = biome.category.toString();
-                if (!categories.has(catname)) {
-                    categories.add(catname, new JsonObject());
-                }
-                JsonObject catobject = categories.getAsJsonObject(catname);
-
-                if (!catobject.has(biome.group)) {
-                    catobject.add(biome.group, new JsonArray());
-                }
-                JsonArray groupobject = catobject.getAsJsonArray(biome.group);
-
-                groupobject.add(biome.toJson());
-            }
-
+            this.writeBiomeEntryList(categories, this.biomes);
             json.add("biomes", categories);
         }
 
         if (!this.replacements.isEmpty()) {
             JsonObject categories = new JsonObject();
-
-            for (BiomeReplacement biome : this.replacements) {
-                String catname = biome.category.toString();
-                if (!categories.has(catname)) {
-                    categories.add(catname, new JsonObject());
-                }
-                JsonObject catobject = categories.getAsJsonObject(catname);
-
-                if (!catobject.has(biome.group)) {
-                    catobject.add(biome.group, new JsonArray());
-                }
-                JsonArray groupobject = catobject.getAsJsonArray(biome.group);
-
-                groupobject.add(biome.toJson());
-            }
-
+            this.writeBiomeEntryList(categories, this.replacements);
             json.add("replace", categories);
         }
     }
 
-    // subclasses
+    // Subclasses and handling
+
+    // ##### Group Entries #####
 
     public static class GroupDefinition {
         EnumBiomeCategory category = EnumBiomeCategory.UNKNOWN;
@@ -168,6 +115,46 @@ public class BiomeSettings extends Settings {
         }
     }
 
+    // ##### Biome Entries #####
+
+    protected <T extends BiomeEntry> void readBiomeEntryList(JsonObject o, List<T> list, Class<T> clazz) {
+        for(Map.Entry<String, JsonElement> entry : o.entrySet()) {
+            EnumBiomeCategory category = EnumBiomeCategory.valueOf(entry.getKey());
+            JsonObject cgroups = entry.getValue().getAsJsonObject();
+
+            for (Map.Entry<String, JsonElement> groupentry : cgroups.entrySet()) {
+                String group = groupentry.getKey();
+                JsonArray gbiomes = groupentry.getValue().getAsJsonArray();
+
+                for (JsonElement biome : gbiomes) {
+                    T bd = T.create(clazz);
+                    if(bd == null) { return; }
+                    bd.fromJson(biome.getAsJsonObject());
+                    bd.category = category;
+                    bd.group = group;
+                    list.add(bd);
+                }
+            }
+        }
+    }
+
+    protected <T extends BiomeEntry> void writeBiomeEntryList(JsonObject o, List<T> list) {
+        for (T biome : list) {
+            String catname = biome.category.toString();
+            if (!o.has(catname)) {
+                o.add(catname, new JsonObject());
+            }
+            JsonObject catobject = o.getAsJsonObject(catname);
+
+            if (!catobject.has(biome.group)) {
+                catobject.add(biome.group, new JsonArray());
+            }
+            JsonArray groupobject = catobject.getAsJsonArray(biome.group);
+
+            groupobject.add(biome.toJson());
+        }
+    }
+
     public static class BiomeEntry {
         public static final ResourceLocation DEFAULT_BIOME_NAME = Biomes.PLAINS.getRegistryName();
 
@@ -177,21 +164,21 @@ public class BiomeSettings extends Settings {
 
         public JsonObject toJson() {
             JsonObject o = new JsonObject();
-            /*o.addProperty("type", category.toString());
-            o.addProperty("group", group);*/
             o.addProperty("name", name.toString());
             return o;
         }
 
         public void fromJson(JsonObject o) {
-            /*if (o.has("type")) {
-                category = EnumBiomeCategory.valueOf(o.get("type").getAsString());
-            }
-            if (o.has("group")) {
-                group = o.get("group").getAsString();
-            }*/
             if (o.has("name")) {
                 name = new ResourceLocation(o.get("name").getAsString());
+            }
+        }
+
+        public static <T extends BiomeEntry> T create(Class<T> clazz) {
+            try {
+                return clazz.getConstructor().newInstance();
+            } catch (Exception e) {
+                return null;
             }
         }
     }
@@ -211,6 +198,7 @@ public class BiomeSettings extends Settings {
                 weight = o.get("weight").getAsDouble();
             }
         }
+
     }
 
     public static class BiomeReplacement extends BiomeEntry {

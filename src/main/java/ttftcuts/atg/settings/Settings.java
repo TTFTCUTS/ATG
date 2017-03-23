@@ -2,9 +2,12 @@ package ttftcuts.atg.settings;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import ttftcuts.atg.ATG;
 
 public abstract class Settings {
+    public static final JsonParser PARSER = new JsonParser();
+
 
     public String writeToJson() {
         JsonObject json = new JsonObject();
@@ -14,17 +17,11 @@ public abstract class Settings {
         return json.toString();
     }
 
-    public static <T extends Settings> T readFromJson(String input, Class<T> clazz) {
-        try {
-            T settings = clazz.getConstructor().newInstance();
+    public Settings readFromJson(String input) {
 
-            settings.readData((JsonObject) new JsonParser().parse(input));
+        this.readData(PARSER.parse(input).getAsJsonObject());
 
-            return settings;
-        } catch (Exception e) {
-            ATG.logger.error(e); // shouldn't happen
-        }
-        return null;
+        return this;
     }
 
     public abstract void readData(JsonObject json);
