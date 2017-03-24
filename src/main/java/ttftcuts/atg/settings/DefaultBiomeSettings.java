@@ -16,7 +16,12 @@ public class DefaultBiomeSettings extends BiomeSettings {
         addBiome(EnumBiomeCategory.LAND, "Forest", Biomes.MUSHROOM_ISLAND, 0.25);
         addBiome(EnumBiomeCategory.OCEAN, "Ocean", Biomes.SWAMPLAND, 0.5);
 
-        addReplacement(EnumBiomeCategory.OCEAN, "Ocean", Biomes.OCEAN, Biomes.FOREST);
+        addReplacement(Biomes.OCEAN, Biomes.FOREST);
+
+        SubBiomeEntry subtest = new SubBiomeEntry();
+        subtest.name = Biomes.MUSHROOM_ISLAND.getRegistryName();
+        subtest.parentBiome = Biomes.FOREST.getRegistryName();
+        this.subBiomes.add(subtest);
     }
 
     public void addGroup(EnumBiomeCategory category, String name, double height, double temperature, double moisture) {
@@ -46,20 +51,18 @@ public class DefaultBiomeSettings extends BiomeSettings {
         this.addBiome(category, group, biome.getRegistryName(), weight);
     }
 
-    public void addReplacement(EnumBiomeCategory category, String group, ResourceLocation toReplace, ResourceLocation name) {
+    public void addReplacement(ResourceLocation toReplace, ResourceLocation name) {
         BiomeReplacement def = new BiomeReplacement();
-        def.category = category;
-        def.group = group;
         def.name = name;
         def.replace = toReplace;
         this.replacements.add(def);
     }
 
-    public void addReplacement(EnumBiomeCategory category, String group, String toReplace, String name) {
-        this.addReplacement(category, group, new ResourceLocation(toReplace), new ResourceLocation(name));
+    public void addReplacement(String toReplace, String name) {
+        this.addReplacement(new ResourceLocation(toReplace), new ResourceLocation(name));
     }
 
-    public void addReplacement(EnumBiomeCategory category, String group, Biome toReplace, Biome biome) {
-        this.addReplacement(category, group, toReplace.getRegistryName(), biome.getRegistryName());
+    public void addReplacement(Biome toReplace, Biome biome) {
+        this.addReplacement(toReplace.getRegistryName(), biome.getRegistryName());
     }
 }
