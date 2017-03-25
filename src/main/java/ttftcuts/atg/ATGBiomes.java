@@ -59,10 +59,10 @@ public abstract class ATGBiomes {
     }
 
     public static abstract class HeightModifiers {
-        public static final IBiomeHeightModifier DUNES = new HeightModDunes();
-        public static final IBiomeHeightModifier ISLAND = new HeightModMushroomIsland();
-        public static final IBiomeHeightModifier MESA = new HeightModMesa();
-        public static final IBiomeHeightModifier PLATEAU = new HeightModPlateaus();
+        public static final IBiomeHeightModifier DUNES = ATG.globalRegistry.registerHeightModifier(new HeightModDunes(), "dunes");
+        public static final IBiomeHeightModifier ISLAND = ATG.globalRegistry.registerHeightModifier(new HeightModMushroomIsland(), "island");
+        public static final IBiomeHeightModifier MESA = ATG.globalRegistry.registerHeightModifier(new HeightModMesa(), "mesa");
+        public static final IBiomeHeightModifier PLATEAU = ATG.globalRegistry.registerHeightModifier(new HeightModPlateaus(), "plateau");
     }
 
     public static abstract class BiomeBlocks {

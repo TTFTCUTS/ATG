@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import ttftcuts.atg.util.JsonUtil;
 
 import java.util.LinkedHashMap;
 
@@ -51,15 +52,16 @@ public abstract class Settings {
         static <T extends IJsonMappable> void readJsonableMap(JsonObject o, LinkedHashMap<String, T> list, String tagname, Class<T> clazz) {
             list.clear();
             if (o.has(tagname)) {
-                JsonArray g = o.getAsJsonArray(tagname);
+                JsonArray g = JsonUtil.getAsArray(o, tagname); //o.getAsJsonArray(tagname);
                 for (JsonElement element : g) {
                     T def = IJsonable.create(clazz);
                     JsonObject eo;
-                    try {
+                    /*try {
                         eo = element.getAsJsonObject();
                     } catch (Exception e) {
                         return;
-                    }
+                    }*/
+                    eo = JsonUtil.asObject(element);
                     def.fromJson(eo);
                     list.put(def.getMapKey(), def);
                 }
