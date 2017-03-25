@@ -38,6 +38,15 @@ public class WorldTypeATG extends WorldType {
         ATG.logger.info("wheee");
 
         BiomeSettings testsettings = new DefaultBiomeSettings();
+
+        BiomeSettings testammendment = new BiomeSettings();
+        BiomeSettings.BiomeReplacement testreplace = new BiomeSettings.BiomeReplacement();
+        testreplace.replace = Biomes.MUSHROOM_ISLAND.getRegistryName();
+        testreplace.name = Biomes.MESA.getRegistryName();
+        testammendment.replacements.put(testreplace.getMapKey(), testreplace);
+
+        testsettings.apply(testammendment);
+
         String json = testsettings.writeToJson();
         ATG.logger.info("Json 1: "+json);
 

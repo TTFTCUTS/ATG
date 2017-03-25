@@ -5,23 +5,141 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.ResourceLocation;
+import ttftcuts.atg.ATG;
 import ttftcuts.atg.generator.biome.BiomeRegistry.EnumBiomeCategory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BiomeSettings extends Settings {
 
-    public List<GroupDefinition> groups = new ArrayList<>();
-    public List<BiomeDefinition> biomes = new ArrayList<>();
-    public List<BiomeReplacement> replacements = new ArrayList<>();
-    public List<GroupedBiomeEntry> removals = new ArrayList<>();
-    public List<SubBiomeEntry> subBiomes = new ArrayList<>();
-    public List<HillBiomeEntry> hillBiomes = new ArrayList<>();
+    public LinkedHashMap<String, GroupDefinition> groups = new LinkedHashMap<>();
+    public LinkedHashMap<String, GroupEntry> groupRemovals = new LinkedHashMap<>();
+
+    public LinkedHashMap<String, BiomeReplacement> replacements = new LinkedHashMap<>();
+
+    public LinkedHashMap<String, BiomeDefinition> biomes = new LinkedHashMap<>();
+    public LinkedHashMap<String, GroupedBiomeEntry> removals = new LinkedHashMap<>();
+
+    public LinkedHashMap<String, SubBiomeEntry> subBiomes = new LinkedHashMap<>();
+    public LinkedHashMap<String, BiomeEntry> subRemovals = new LinkedHashMap<>();
+
+    public LinkedHashMap<String, HillBiomeEntry> hillBiomes = new LinkedHashMap<>();
+    public LinkedHashMap<String, BiomeEntry> hillRemovals = new LinkedHashMap<>();
 
     public void apply(BiomeSettings toApply) {
 
+        // replacement... the hardest part
+        ATG.logger.info("replacing");
+
+        for (BiomeReplacement rep : toApply.replacements.values()) {
+            ATG.logger.info("Replacing " + rep.replace + " with " + rep.name);
+
+            // biomes
+            {
+                List<BiomeDefinition> toReAdd = new ArrayList<>();
+                for (Iterator<Map.Entry<String, BiomeDefinition>> iter = this.biomes.entrySet().iterator(); iter.hasNext(); ) {
+                    Map.Entry<String, BiomeDefinition> entry = iter.next();
+                    BiomeDefinition def = entry.getValue();
+                    if (def.name == rep.replace) {
+                        def.name = rep.name;
+                        toReAdd.add(def);
+                        iter.remove();
+                    }
+                }
+                for (BiomeDefinition def : toReAdd) {
+                    this.biomes.put(def.getMapKey(), def);
+                }
+            }
+
+            // sub-biomes
+            {
+                List<SubBiomeEntry> toReAdd = new ArrayList<>();
+                for (Iterator<Map.Entry<String, SubBiomeEntry>> iter = this.subBiomes.entrySet().iterator(); iter.hasNext(); ) {
+                    Map.Entry<String, SubBiomeEntry> entry = iter.next();
+                    SubBiomeEntry def = entry.getValue();
+                    if (def.name == rep.replace || def.parentBiome == rep.replace) {
+                        if (def.name == rep.replace) {
+                            def.name = rep.name;
+                        }
+                        if (def.parentBiome == rep.replace) {
+                            def.parentBiome = rep.name;
+                        }
+                        toReAdd.add(def);
+                        iter.remove();
+                    }
+                }
+                for (SubBiomeEntry def : toReAdd) {
+                    this.subBiomes.put(def.getMapKey(), def);
+                }
+            }
+
+            // hill biomes
+            {
+                List<HillBiomeEntry> toReAdd = new ArrayList<>();
+                for (Iterator<Map.Entry<String, HillBiomeEntry>> iter = this.hillBiomes.entrySet().iterator(); iter.hasNext(); ) {
+                    Map.Entry<String, HillBiomeEntry> entry = iter.next();
+                    HillBiomeEntry def = entry.getValue();
+                    if (def.name == rep.replace || def.parentBiome == rep.replace) {
+                        if (def.name == rep.replace) {
+                            def.name = rep.name;
+                        }
+                        if (def.parentBiome == rep.replace) {
+                            def.parentBiome = rep.name;
+                        }
+                        toReAdd.add(def);
+                        iter.remove();
+                    }
+                }
+                for (HillBiomeEntry def : toReAdd) {
+                    this.hillBiomes.put(def.getMapKey(), def);
+                }
+            }
+        }
+
+        // removals
+        for (Map.Entry<String, GroupEntry> entry : toApply.groupRemovals.entrySet()) {
+            if (this.groups.containsKey(entry.getKey())) {
+                this.groups.remove(entry.getKey());
+            }
+        }
+        for (Map.Entry<String, GroupedBiomeEntry> entry : toApply.removals.entrySet()) {
+            if (this.biomes.containsKey(entry.getKey())) {
+                this.biomes.remove(entry.getKey());
+            }
+        }
+        for (Map.Entry<String, BiomeEntry> entry : toApply.subRemovals.entrySet()) {
+            if (this.subBiomes.containsKey(entry.getKey())) {
+                this.subBiomes.remove(entry.getKey());
+            }
+        }
+        for (Map.Entry<String, BiomeEntry> entry : toApply.hillRemovals.entrySet()) {
+            if (this.hillBiomes.containsKey(entry.getKey())) {
+                this.hillBiomes.remove(entry.getKey());
+            }
+        }
+
+        // additions
+        this.groups.putAll(toApply.groups); // overwrite groups in lower entries
+
+        for (Map.Entry<String, BiomeDefinition> entry : toApply.biomes.entrySet()) {
+            String key = entry.getKey();
+            if (this.biomes.containsKey(key)) {
+                this.biomes.get(key).weight += toApply.biomes.get(key).weight;
+            } else {
+                this.biomes.put(key, entry.getValue());
+            }
+        }
+
+        for (Map.Entry<String, SubBiomeEntry> entry : toApply.subBiomes.entrySet()) {
+            String key = entry.getKey();
+            if (this.subBiomes.containsKey(key)) {
+                this.subBiomes.get(key).weight += toApply.subBiomes.get(key).weight;
+            } else {
+                this.subBiomes.put(key, entry.getValue());
+            }
+        }
+
+        this.hillBiomes.putAll(toApply.hillBiomes); // overwrite hill biome heights too
     }
 
     @Override
@@ -31,43 +149,51 @@ public class BiomeSettings extends Settings {
 
     @Override
     public void readData(JsonObject json) {
-        IJsonable.readJsonableList(json, this.groups, "groups", GroupDefinition.class);
-        GroupedBiomeEntry.readGroupedEntryList(json, this.biomes, "biomes", BiomeDefinition.class);
-        GroupedBiomeEntry.readGroupedEntryList(json, this.removals, "remove", GroupedBiomeEntry.class);
-        IJsonable.readJsonableList(json, this.replacements, "replace", BiomeReplacement.class);
-        IJsonable.readJsonableList(json, this.subBiomes, "subbiomes", SubBiomeEntry.class);
-        IJsonable.readJsonableList(json, this.hillBiomes, "hillbiomes", HillBiomeEntry.class);
+        IJsonMappable.readJsonableMap(json, this.groups, "groups", GroupDefinition.class);
+        IJsonMappable.readJsonableMap(json, this.groupRemovals, "groupremove", GroupEntry.class);
+
+        IJsonMappable.readJsonableMap(json, this.replacements, "replace", BiomeReplacement.class);
+
+        GroupedBiomeEntry.readGroupedEntryMap(json, this.biomes, "biomes", BiomeDefinition.class);
+        GroupedBiomeEntry.readGroupedEntryMap(json, this.removals, "biomeremove", GroupedBiomeEntry.class);
+
+        IJsonMappable.readJsonableMap(json, this.subBiomes, "subbiomes", SubBiomeEntry.class);
+        IJsonMappable.readJsonableMap(json, this.subRemovals, "subremove", BiomeEntry.class);
+
+        IJsonMappable.readJsonableMap(json, this.hillBiomes, "hillbiomes", HillBiomeEntry.class);
+        IJsonMappable.readJsonableMap(json, this.hillRemovals, "hillremove", BiomeEntry.class);
     }
 
     @Override
     public void writeData(JsonObject json) {
-        IJsonable.writeJsonableList(json, this.groups, "groups");
-        GroupedBiomeEntry.writeGroupedEntryList(json, this.biomes, "biomes");
-        GroupedBiomeEntry.writeGroupedEntryList(json, this.removals, "remove");
-        IJsonable.writeJsonableList(json, this.replacements, "replace");
-        IJsonable.writeJsonableList(json, this.subBiomes, "subbiomes");
-        IJsonable.writeJsonableList(json, this.hillBiomes, "hillbiomes");
+        IJsonMappable.writeJsonableMap(json, this.groups, "groups");
+        IJsonMappable.writeJsonableMap(json, this.groupRemovals, "groupremove");
+
+        IJsonMappable.writeJsonableMap(json, this.replacements, "replace");
+
+        GroupedBiomeEntry.writeGroupedEntryMap(json, this.biomes, "biomes");
+        GroupedBiomeEntry.writeGroupedEntryMap(json, this.removals, "biomeremove");
+
+        IJsonMappable.writeJsonableMap(json, this.subBiomes, "subbiomes");
+        IJsonMappable.writeJsonableMap(json, this.subRemovals, "subremove");
+
+        IJsonMappable.writeJsonableMap(json, this.hillBiomes, "hillbiomes");
+        IJsonMappable.writeJsonableMap(json, this.hillRemovals, "hillremove");
     }
 
     // Subclasses and handling
 
     // ##### Group Entries #####
 
-    public static class GroupDefinition implements IJsonable {
-        EnumBiomeCategory category = EnumBiomeCategory.UNKNOWN;
-        String name = "New Group";
-        double height = 0.25;
-        double temperature = 0.5;
-        double moisture = 0.5;
+    public static class GroupEntry implements IJsonMappable {
+        public EnumBiomeCategory category = EnumBiomeCategory.UNKNOWN;
+        public String name = "New Group";
 
         @Override
         public JsonObject toJson() {
             JsonObject o = new JsonObject();
             o.addProperty("type", category.toString());
             o.addProperty("name", name);
-            o.addProperty("height", height);
-            o.addProperty("temp", temperature);
-            o.addProperty("moisture", moisture);
             return o;
         }
 
@@ -79,6 +205,33 @@ public class BiomeSettings extends Settings {
             if (o.has("name")) {
                 name = o.get("name").getAsString();
             }
+        }
+
+        @Override
+        public String getMapKey() {
+            return this.category +"_"+ this.name;
+        }
+    }
+
+    public static class GroupDefinition extends GroupEntry {
+        public EnumBiomeCategory category = EnumBiomeCategory.UNKNOWN;
+        public String name = "New Group";
+        public double height = 0.25;
+        public double temperature = 0.5;
+        public double moisture = 0.5;
+
+        @Override
+        public JsonObject toJson() {
+            JsonObject o = super.toJson();
+            o.addProperty("height", height);
+            o.addProperty("temp", temperature);
+            o.addProperty("moisture", moisture);
+            return o;
+        }
+
+        @Override
+        public void fromJson(JsonObject o) {
+            super.fromJson(o);
             if (o.has("height")) {
                 height = o.get("height").getAsDouble();
             }
@@ -93,8 +246,7 @@ public class BiomeSettings extends Settings {
 
     // ##### Biome Entries #####
 
-
-    public static class BiomeEntry implements IJsonable {
+    public static class BiomeEntry implements IJsonMappable {
         public static final ResourceLocation DEFAULT_BIOME_NAME = Biomes.PLAINS.getRegistryName();
         public ResourceLocation name = DEFAULT_BIOME_NAME;
 
@@ -111,21 +263,26 @@ public class BiomeSettings extends Settings {
                 name = new ResourceLocation(o.get("biome").getAsString());
             }
         }
+
+        @Override
+        public String getMapKey() {
+            return this.name.toString();
+        }
     }
 
     public static class GroupedBiomeEntry extends BiomeEntry {
         public EnumBiomeCategory category = EnumBiomeCategory.UNKNOWN;
         public String group = "";
 
-        protected static <T extends GroupedBiomeEntry> void readGroupedEntryList(JsonObject readFrom, List<T> list, String tagname, Class<T> clazz) {
+        protected static <T extends GroupedBiomeEntry> void readGroupedEntryMap(JsonObject readFrom, LinkedHashMap<String, T> list, String tagname, Class<T> clazz) {
             list.clear();
             if (readFrom.has(tagname)) {
                 JsonObject b = readFrom.getAsJsonObject(tagname);
-                readGroupedEntryList(b, list, clazz);
+                readGroupedEntryMap(b, list, clazz);
             }
         }
 
-        protected static <T extends GroupedBiomeEntry> void readGroupedEntryList(JsonObject o, List<T> list, Class<T> clazz) {
+        protected static <T extends GroupedBiomeEntry> void readGroupedEntryMap(JsonObject o, LinkedHashMap<String, T> list, Class<T> clazz) {
             for(Map.Entry<String, JsonElement> entry : o.entrySet()) {
                 EnumBiomeCategory category = EnumBiomeCategory.valueOf(entry.getKey());
                 JsonObject cgroups = entry.getValue().getAsJsonObject();
@@ -140,22 +297,22 @@ public class BiomeSettings extends Settings {
                         bd.fromJson(biome.getAsJsonObject());
                         bd.category = category;
                         bd.group = group;
-                        list.add(bd);
+                        list.put(bd.getMapKey(), bd);
                     }
                 }
             }
         }
 
-        protected static <T extends GroupedBiomeEntry> void writeGroupedEntryList(JsonObject writeTo, List<T> list, String tagname) {
+        protected static <T extends GroupedBiomeEntry> void writeGroupedEntryMap(JsonObject writeTo, LinkedHashMap<String, T> list, String tagname) {
             if (!list.isEmpty()) {
                 JsonObject categories = new JsonObject();
-                writeGroupedEntryList(categories, list);
+                writeGroupedEntryMap(categories, list);
                 writeTo.add(tagname, categories);
             }
         }
 
-        protected static <T extends GroupedBiomeEntry> void writeGroupedEntryList(JsonObject o, List<T> list) {
-            for (T biome : list) {
+        protected static <T extends GroupedBiomeEntry> void writeGroupedEntryMap(JsonObject o, LinkedHashMap<String, T> list) {
+            for (T biome : list.values()) {
                 String catname = biome.category.toString();
                 if (!o.has(catname)) {
                     o.add(catname, new JsonObject());
@@ -170,10 +327,15 @@ public class BiomeSettings extends Settings {
                 groupobject.add(biome.toJson());
             }
         }
+
+        @Override
+        public String getMapKey() {
+            return this.category +"_"+ this.group +"_"+ this.name.toString();
+        }
     }
 
     public static class BiomeDefinition extends GroupedBiomeEntry {
-        double weight = 1.0;
+        public double weight = 1.0;
 
         @Override
         public JsonObject toJson() {
@@ -195,7 +357,7 @@ public class BiomeSettings extends Settings {
     public static class BiomeReplacement extends BiomeEntry {
         public static final ResourceLocation DEFAULT_BIOME_TARGET = Biomes.VOID.getRegistryName();
 
-        ResourceLocation replace = DEFAULT_BIOME_TARGET;
+        public ResourceLocation replace = DEFAULT_BIOME_TARGET;
 
         @Override
         public JsonObject toJson() {
@@ -235,6 +397,11 @@ public class BiomeSettings extends Settings {
                 weight = o.get("weight").getAsDouble();
             }
         }
+
+        @Override
+        public String getMapKey() {
+            return this.name + "_" + this.parentBiome;
+        }
     }
 
     public static class HillBiomeEntry extends BiomeEntry {
@@ -258,6 +425,11 @@ public class BiomeSettings extends Settings {
             if (o.has("height")) {
                 height = o.get("height").getAsDouble();
             }
+        }
+
+        @Override
+        public String getMapKey() {
+            return this.name + "_" + this.parentBiome;
         }
     }
 }

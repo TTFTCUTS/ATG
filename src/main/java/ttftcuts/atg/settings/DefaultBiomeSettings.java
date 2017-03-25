@@ -21,7 +21,7 @@ public class DefaultBiomeSettings extends BiomeSettings {
         SubBiomeEntry subtest = new SubBiomeEntry();
         subtest.name = Biomes.MUSHROOM_ISLAND.getRegistryName();
         subtest.parentBiome = Biomes.FOREST.getRegistryName();
-        this.subBiomes.add(subtest);
+        this.subBiomes.put(subtest.getMapKey(), subtest);
     }
 
     public void addGroup(EnumBiomeCategory category, String name, double height, double temperature, double moisture) {
@@ -31,7 +31,7 @@ public class DefaultBiomeSettings extends BiomeSettings {
         def.height = height;
         def.temperature = temperature;
         def.moisture = moisture;
-        this.groups.add(def);
+        this.groups.put(def.getMapKey(), def);
     }
 
     public void addBiome(EnumBiomeCategory category, String group, ResourceLocation name, double weight) {
@@ -40,7 +40,7 @@ public class DefaultBiomeSettings extends BiomeSettings {
         def.group = group;
         def.name = name;
         def.weight = weight;
-        this.biomes.add(def);
+        this.biomes.put(def.getMapKey(), def);
     }
 
     public void addBiome(EnumBiomeCategory category, String group, String name, double weight) {
@@ -55,7 +55,7 @@ public class DefaultBiomeSettings extends BiomeSettings {
         BiomeReplacement def = new BiomeReplacement();
         def.name = name;
         def.replace = toReplace;
-        this.replacements.add(def);
+        this.replacements.put(def.getMapKey(), def);
     }
 
     public void addReplacement(String toReplace, String name) {
