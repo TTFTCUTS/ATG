@@ -31,4 +31,13 @@ public class WorldSettings extends Settings {
             json.add("biomedata", biomes);
         }
     }
+
+    @Override
+    public WorldSettings copy() {
+        WorldSettings copy = new WorldSettings();
+
+        copy.biomeSettings = this.biomeSettings.copy();
+
+        return copy;
+    }
 }

@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import com.sun.javaws.exceptions.InvalidArgumentException;
 import ttftcuts.atg.ATG;
 
+import java.util.Map;
+
 public abstract class JsonUtil {
     public static <T> T get(JsonObject json, String tag, T fallback) {
         if (!json.has(tag) || json.get(tag) == null) {

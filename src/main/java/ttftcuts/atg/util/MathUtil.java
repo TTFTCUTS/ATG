@@ -14,6 +14,9 @@ public abstract class MathUtil {
     public static double clamp(double num, double min, double max) {
         return Math.max(min, Math.min(max, num));
     }
+    public static int clamp(int num, int min, int max)  {
+        return Math.max(min, Math.min(max, num));
+    }
 
     /**
      * Polynomial smoothed maximum of a and b. Equivalent to Math.max until the difference between the two values is less than div, where it has a smooth transition between the values.

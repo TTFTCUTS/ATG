@@ -17,4 +17,11 @@ public class GlobalRegistry {
         this.heightMods.put(name, mod);
         return mod;
     }
+
+    public IBiomeHeightModifier getHeightModifier(String name) {
+        if (heightMods.containsKey(name)) {
+            return heightMods.get(name);
+        }
+        return null;
+    }
 }

@@ -84,7 +84,7 @@ public class ChunkProviderATG extends ChunkProviderBasic {
     public double getBiomeNoiseBlend(int x, int z, double height, BiomeProviderATG provider) {
         int ix,iz;
         Biome biome;
-        BiomeRegistry.HeightModEntry heightmod;
+        BiomeRegistry.HeightModRegistryEntry heightmod;
         double k;
 
         double noise = 0.0;

@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import ttftcuts.atg.util.JsonUtil;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public abstract class Settings {
     public static final JsonParser PARSER = new JsonParser();
@@ -31,11 +32,15 @@ public abstract class Settings {
 
     public abstract void writeData(JsonObject json);
 
+    public abstract Settings copy();
+
     // ##### saveable interface #####
 
     public interface IJsonable {
         JsonObject toJson();
         void fromJson(JsonObject o);
+
+        IJsonable copy();
 
         static <T extends IJsonable> T create(Class<T> clazz) {
             try {
@@ -76,6 +81,12 @@ public abstract class Settings {
                     g.add(def.toJson());
                 }
                 o.add(tagname, g);
+            }
+        }
+
+        static <T extends IJsonMappable> void copyMap(Map<String, T> source, Map<String, T> destination) {
+            for (Map.Entry<String, T> e : source.entrySet()) {
+                destination.put(e.getKey(), (T)(e.getValue().copy()));
             }
         }
     }

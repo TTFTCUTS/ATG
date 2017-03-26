@@ -1,5 +1,6 @@
 package ttftcuts.atg.biome.heightmods;
 
+import ttftcuts.atg.generator.biome.BiomeModParameter;
 import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 import ttftcuts.atg.noise.Noise;
 import ttftcuts.atg.noise.OctaveNoise;
@@ -8,6 +9,7 @@ import ttftcuts.atg.noise.TailoredNoise;
 import ttftcuts.atg.util.MathUtil;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -15,6 +17,11 @@ public class HeightModPlateaus implements IBiomeHeightModifier {
     protected Noise plateaunoise;
     protected Noise roughness;
     protected Noise rifts;
+
+    protected static final Map<String, BiomeModParameter> PARAMETERS = new HashMap<>();
+    static {
+        PARAMETERS.put("variant", new BiomeModParameter.IntParameter(0, 0, 1));
+    }
 
     public HeightModPlateaus() {
         Random rand = new Random(37813873749245L);
@@ -24,7 +31,13 @@ public class HeightModPlateaus implements IBiomeHeightModifier {
         this.rifts = new RidgeNoise(rand, 150, 4);
     }
 
-    @Override public double getModifiedHeight(int x, int z, double height, @Nullable Map<String, Object> args) {
+    @Override
+    public Map<String, BiomeModParameter> getSettings() {
+        return PARAMETERS;
+    }
+
+    @Override
+    public double getModifiedHeight(int x, int z, double height, @Nullable Map<String, Object> args) {
 
         /**
          * Variants:

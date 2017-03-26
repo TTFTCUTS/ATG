@@ -6,8 +6,10 @@ import com.google.gson.JsonObject;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.ResourceLocation;
 import ttftcuts.atg.ATG;
+import ttftcuts.atg.generator.biome.BiomeModParameter;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.generator.biome.BiomeRegistry.EnumBiomeCategory;
+import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 import ttftcuts.atg.util.JsonUtil;
 
 import java.util.*;
@@ -34,11 +36,7 @@ public class BiomeSettings extends Settings {
     public void apply(BiomeSettings toApply) {
 
         // replacement... the hardest part
-        ATG.logger.info("replacing");
-
         for (BiomeReplacement rep : toApply.replacements.values()) {
-            ATG.logger.info("Replacing " + rep.replace + " with " + rep.name);
-
             // biomes
             {
                 List<BiomeDefinition> toReAdd = new ArrayList<>();
@@ -215,6 +213,30 @@ public class BiomeSettings extends Settings {
         IJsonMappable.writeJsonableMap(json, this.heightModRemovals, "heightmodremove");
     }
 
+    @Override
+    public BiomeSettings copy() {
+        BiomeSettings copy = new BiomeSettings();
+
+        IJsonMappable.copyMap(this.groups, copy.groups);
+        IJsonMappable.copyMap(this.groupRemovals, copy.groupRemovals);
+
+        IJsonMappable.copyMap(this.replacements, copy.replacements);
+
+        IJsonMappable.copyMap(this.biomes, copy.biomes);
+        IJsonMappable.copyMap(this.removals, copy.removals);
+
+        IJsonMappable.copyMap(this.subBiomes, copy.subBiomes);
+        IJsonMappable.copyMap(this.subRemovals, copy.subRemovals);
+
+        IJsonMappable.copyMap(this.hillBiomes, copy.hillBiomes);
+        IJsonMappable.copyMap(this.hillRemovals, copy.hillRemovals);
+
+        IJsonMappable.copyMap(this.heightMods, copy.heightMods);
+        IJsonMappable.copyMap(this.heightModRemovals, copy.heightModRemovals);
+
+        return copy;
+    }
+
     // Subclasses and handling
 
     // ##### Group Entries #####
@@ -234,7 +256,7 @@ public class BiomeSettings extends Settings {
         @Override
         public void fromJson(JsonObject o) {
             if (o.has("type")) {
-                category = EnumBiomeCategory.valueOf(JsonUtil.get(o, "type", "UNKNOWN"));
+                category = EnumBiomeCategory.get(JsonUtil.get(o, "type", "UNKNOWN"));
             }
             if (o.has("name")) {
                 name = JsonUtil.get(o, "name", "Invalid Group");
@@ -245,14 +267,26 @@ public class BiomeSettings extends Settings {
         public String getMapKey() {
             return this.category +"_"+ this.name;
         }
+
+        @Override
+        public GroupEntry copy() {
+            GroupEntry copy = new GroupEntry();
+
+            copy.category = this.category;
+            copy.name = this.name;
+
+            return copy;
+        }
     }
 
     public static class GroupDefinition extends GroupEntry {
-        public EnumBiomeCategory category = EnumBiomeCategory.UNKNOWN;
-        public String name = "New Group";
         public double height = 0.25;
         public double temperature = 0.5;
         public double moisture = 0.5;
+        public double minHeight = 0.0;
+        public double maxHeight = 1.0;
+        public int blobsize = 0;
+        public int subblobsize = 0;
 
         @Override
         public JsonObject toJson() {
@@ -260,6 +294,18 @@ public class BiomeSettings extends Settings {
             o.addProperty("height", height);
             o.addProperty("temp", temperature);
             o.addProperty("moisture", moisture);
+            if (minHeight != 0.0) {
+                o.addProperty("minheight", minHeight);
+            }
+            if (maxHeight != 1.0) {
+                o.addProperty("maxheight", maxHeight);
+            }
+            if (blobsize != 0) {
+                o.addProperty("blobsize", blobsize);
+            }
+            if (subblobsize != 0) {
+                o.addProperty("subblobsize", subblobsize);
+            }
             return o;
         }
 
@@ -275,6 +321,36 @@ public class BiomeSettings extends Settings {
             if (o.has("moisture")) {
                 moisture = JsonUtil.get(o, "moisture", 0.5);
             }
+            if (o.has("minheight")) {
+                minHeight = JsonUtil.get(o, "minheight", 0.0);
+            }
+            if (o.has("maxheight")) {
+                maxHeight = JsonUtil.get(o, "maxheight", 1.0);
+            }
+            if (o.has("blobsize")) {
+                blobsize = JsonUtil.get(o, "blobsize", 0);
+            }
+            if (o.has("subblobsize")) {
+                subblobsize = JsonUtil.get(o, "subblobsize", 0);
+            }
+        }
+
+        @Override
+        public GroupDefinition copy() {
+            GroupDefinition copy = new GroupDefinition();
+
+            copy.category = this.category;
+            copy.name = this.name;
+
+            copy.height = this.height;
+            copy.temperature = this.temperature;
+            copy.moisture = this.moisture;
+            copy.minHeight = this.minHeight;
+            copy.maxHeight = this.maxHeight;
+            copy.blobsize = this.blobsize;
+            copy.subblobsize = this.subblobsize;
+
+            return copy;
         }
     }
 
@@ -302,6 +378,15 @@ public class BiomeSettings extends Settings {
         public String getMapKey() {
             return this.name.toString();
         }
+
+        @Override
+        public BiomeEntry copy() {
+            BiomeEntry copy = new BiomeEntry();
+
+            copy.name = new ResourceLocation(this.name.toString());
+
+            return copy;
+        }
     }
 
     public static class GroupedBiomeEntry extends BiomeEntry {
@@ -318,7 +403,8 @@ public class BiomeSettings extends Settings {
 
         protected static <T extends GroupedBiomeEntry> void readGroupedEntryMap(JsonObject o, LinkedHashMap<String, T> list, Class<T> clazz) {
             for(Map.Entry<String, JsonElement> entry : o.entrySet()) {
-                EnumBiomeCategory category = EnumBiomeCategory.valueOf(entry.getKey());
+                EnumBiomeCategory category = EnumBiomeCategory.get(entry.getKey());
+                if (category == null) { continue; }
                 JsonObject cgroups = JsonUtil.asObject(entry.getValue());
 
                 for (Map.Entry<String, JsonElement> groupentry : cgroups.entrySet()) {
@@ -366,6 +452,17 @@ public class BiomeSettings extends Settings {
         public String getMapKey() {
             return this.category +"_"+ this.group +"_"+ this.name.toString();
         }
+
+        @Override
+        public GroupedBiomeEntry copy() {
+            GroupedBiomeEntry copy = new GroupedBiomeEntry();
+
+            copy.name = new ResourceLocation(this.name.toString());
+            copy.category = this.category;
+            copy.group = this.group;
+
+            return copy;
+        }
     }
 
     public static class BiomeDefinition extends GroupedBiomeEntry {
@@ -386,6 +483,17 @@ public class BiomeSettings extends Settings {
             }
         }
 
+        @Override
+        public BiomeDefinition copy() {
+            BiomeDefinition copy = new BiomeDefinition();
+
+            copy.name = new ResourceLocation(this.name.toString());
+            copy.category = this.category;
+            copy.group = this.group;
+            copy.weight = this.weight;
+
+            return copy;
+        }
     }
 
     public static class BiomeReplacement extends BiomeEntry {
@@ -406,6 +514,16 @@ public class BiomeSettings extends Settings {
             if (o.has("replace")) {
                 replace = new ResourceLocation(JsonUtil.get(o, "replace", "invalid"));
             }
+        }
+
+        @Override
+        public BiomeReplacement copy() {
+            BiomeReplacement copy = new BiomeReplacement();
+
+            copy.name = new ResourceLocation(this.name.toString());
+            copy.replace = new ResourceLocation(this.replace.toString());
+
+            return copy;
         }
     }
 
@@ -436,6 +554,17 @@ public class BiomeSettings extends Settings {
         public String getMapKey() {
             return this.name + "_" + this.parentBiome;
         }
+
+        @Override
+        public SubBiomeEntry copy() {
+            SubBiomeEntry copy = new SubBiomeEntry();
+
+            copy.name = new ResourceLocation(this.name.toString());
+            copy.parentBiome = new ResourceLocation(this.parentBiome.toString());
+            copy.weight = this.weight;
+
+            return copy;
+        }
     }
 
     public static class HillBiomeEntry extends BiomeEntry {
@@ -465,15 +594,49 @@ public class BiomeSettings extends Settings {
         public String getMapKey() {
             return this.name + "_" + this.parentBiome;
         }
+
+        @Override
+        public HillBiomeEntry copy() {
+            HillBiomeEntry copy = new HillBiomeEntry();
+
+            copy.name = new ResourceLocation(this.name.toString());
+            copy.parentBiome = new ResourceLocation(this.parentBiome.toString());
+            copy.height = this.height;
+
+            return copy;
+        }
     }
 
     public static class HeightModEntry extends BiomeEntry {
         public String heightMod = "";
+        public Map<String, Object> parameters = new HashMap<>();
 
         @Override
         public JsonObject toJson() {
             JsonObject o = super.toJson();
             o.addProperty("mod", heightMod);
+
+            JsonObject po = new JsonObject();
+            IBiomeHeightModifier mod = ATG.globalRegistry.getHeightModifier(heightMod);
+            if (mod != null) {
+                Map<String, BiomeModParameter> params = mod.getSettings();
+                if (params != null) {
+                    for (Map.Entry<String, BiomeModParameter> e : params.entrySet()) {
+                        String key = e.getKey();
+                        BiomeModParameter param = e.getValue();
+                        if (this.parameters.containsKey(key)) {
+                            Object val = this.parameters.get(key);
+                            if (!val.equals(param.defaultValue)) {
+                                param.writeToJson(po, key, val);
+                            }
+                        }
+                    }
+                }
+            }
+            if (!po.entrySet().isEmpty()) {
+                o.add("params", po);
+            }
+
             return o;
         }
 
@@ -483,6 +646,33 @@ public class BiomeSettings extends Settings {
             if (o.has("mod")) {
                 heightMod = JsonUtil.get(o, "mod", "");
             }
+            if (o.has("params")) {
+                JsonObject po = JsonUtil.getAsObject(o, "params");
+                IBiomeHeightModifier mod = ATG.globalRegistry.getHeightModifier(heightMod);
+                if (mod != null) {
+                    Map<String, BiomeModParameter> params = mod.getSettings();
+                    if (params != null) {
+                        for (Map.Entry<String, BiomeModParameter> e : params.entrySet()) {
+                            String key = e.getKey();
+                            BiomeModParameter param = e.getValue();
+                            if (po.has(key)) {
+                                this.parameters.put(key, param.readFromJson(po, key));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public HeightModEntry copy() {
+            HeightModEntry copy = new HeightModEntry();
+
+            copy.name = new ResourceLocation(this.name.toString());
+            copy.heightMod = this.heightMod;
+            copy.parameters.putAll(this.parameters);
+
+            return copy;
         }
     }
 }

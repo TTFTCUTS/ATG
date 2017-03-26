@@ -2,15 +2,11 @@ package ttftcuts.atg.generator.biome;
 
 import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.Biome;
-import ttftcuts.atg.ATG;
 import ttftcuts.atg.ATGBiomes;
 import ttftcuts.atg.generator.CoreNoise;
 import ttftcuts.atg.util.MathUtil;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class BiomeRegistry {
 
@@ -18,14 +14,14 @@ public class BiomeRegistry {
     public Map<Biome, Map<Biome, Double>> subBiomes;
     public Map<Biome, Double> subWeightTotals;
     public Map<Biome, Map<Biome, Double>> hillBiomes; // sub lists are assumed to be ordered lowest to highest!
-    public Map<Biome, HeightModEntry> heightMods;
+    public Map<Biome, HeightModRegistryEntry> heightMods;
 
     public BiomeRegistry() {
         this.biomeGroups = new HashMap<EnumBiomeCategory, Map<String, BiomeGroup>>();
         this.subBiomes = new HashMap<Biome, Map<Biome, Double>>();
         this.subWeightTotals = new HashMap<Biome, Double>();
         this.hillBiomes = new HashMap<Biome, Map<Biome, Double>>();
-        this.heightMods = new HashMap<Biome, HeightModEntry>();
+        this.heightMods = new HashMap<Biome, HeightModRegistryEntry>();
 
         for (EnumBiomeCategory category : EnumBiomeCategory.values()) {
             this.biomeGroups.put(category, new HashMap<String, BiomeGroup>());
@@ -322,7 +318,7 @@ public class BiomeRegistry {
     }
 
     public void addHeightModifier(Biome biome, IBiomeHeightModifier mod, Map<String,Object> args) {
-        this.heightMods.put(biome, new HeightModEntry(mod, args));
+        this.heightMods.put(biome, new HeightModRegistryEntry(mod, args));
     }
 
     public void addHeightModifier(Biome biome, IBiomeHeightModifier mod) {
@@ -335,7 +331,7 @@ public class BiomeRegistry {
         this.addHeightModifier(biome, mod, args);
     }
 
-    public HeightModEntry getHeightModifier(Biome biome) {
+    public HeightModRegistryEntry getHeightModifier(Biome biome) {
         return this.heightMods.get(biome);
     }
 
@@ -354,6 +350,22 @@ public class BiomeRegistry {
         EnumBiomeCategory(Biome fallback) {
             this.fallback = new BiomeGroup(this.name()+"_fallback", 0.5,0.5,0.25);
             this.fallback.addBiome(fallback);
+        }
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase(Locale.ENGLISH);
+        }
+
+        public static EnumBiomeCategory get(String name) {
+            name = name.toUpperCase(Locale.ENGLISH);
+            EnumBiomeCategory category;
+            try {
+                category = EnumBiomeCategory.valueOf(name);
+            } catch (Exception e) {
+                return null;
+            }
+            return category;
         }
     }
 
@@ -449,13 +461,13 @@ public class BiomeRegistry {
         }
     }
 
-    //------ HeightModEntry Class ---------------------------------------------------------
+    //------ HeightModRegistryEntry Class ---------------------------------------------------------
 
-    public static class HeightModEntry {
+    public static class HeightModRegistryEntry {
         public final IBiomeHeightModifier modifier;
         public final Map<String,Object> arguments;
 
-        public HeightModEntry(IBiomeHeightModifier modifier, Map<String,Object> args) {
+        public HeightModRegistryEntry(IBiomeHeightModifier modifier, Map<String,Object> args) {
             this.modifier = modifier;
             this.arguments = args;
         }
