@@ -25,10 +25,10 @@ public class BiomeSettings extends Settings {
     public LinkedHashMap<String, GroupedBiomeEntry> removals = new LinkedHashMap<>();
 
     public LinkedHashMap<String, SubBiomeEntry> subBiomes = new LinkedHashMap<>();
-    public LinkedHashMap<String, BiomeEntry> subRemovals = new LinkedHashMap<>();
+    public LinkedHashMap<String, ParentBiomeEntry> subRemovals = new LinkedHashMap<>();
 
     public LinkedHashMap<String, HillBiomeEntry> hillBiomes = new LinkedHashMap<>();
-    public LinkedHashMap<String, BiomeEntry> hillRemovals = new LinkedHashMap<>();
+    public LinkedHashMap<String, ParentBiomeEntry> hillRemovals = new LinkedHashMap<>();
 
     public LinkedHashMap<String, HeightModEntry> heightMods = new LinkedHashMap<>();
     public LinkedHashMap<String, BiomeEntry> heightModRemovals = new LinkedHashMap<>();
@@ -127,12 +127,12 @@ public class BiomeSettings extends Settings {
                 this.biomes.remove(entry.getKey());
             }
         }
-        for (Map.Entry<String, BiomeEntry> entry : toApply.subRemovals.entrySet()) {
+        for (Map.Entry<String, ParentBiomeEntry> entry : toApply.subRemovals.entrySet()) {
             if (this.subBiomes.containsKey(entry.getKey())) {
                 this.subBiomes.remove(entry.getKey());
             }
         }
-        for (Map.Entry<String, BiomeEntry> entry : toApply.hillRemovals.entrySet()) {
+        for (Map.Entry<String, ParentBiomeEntry> entry : toApply.hillRemovals.entrySet()) {
             if (this.hillBiomes.containsKey(entry.getKey())) {
                 this.hillBiomes.remove(entry.getKey());
             }
@@ -184,10 +184,10 @@ public class BiomeSettings extends Settings {
         GroupedBiomeEntry.readGroupedEntryMap(json, this.removals, "biomeremove", GroupedBiomeEntry.class);
 
         IJsonMappable.readJsonableMap(json, this.subBiomes, "subbiomes", SubBiomeEntry.class);
-        IJsonMappable.readJsonableMap(json, this.subRemovals, "subremove", BiomeEntry.class);
+        IJsonMappable.readJsonableMap(json, this.subRemovals, "subremove", ParentBiomeEntry.class);
 
         IJsonMappable.readJsonableMap(json, this.hillBiomes, "hillbiomes", HillBiomeEntry.class);
-        IJsonMappable.readJsonableMap(json, this.hillRemovals, "hillremove", BiomeEntry.class);
+        IJsonMappable.readJsonableMap(json, this.hillRemovals, "hillremove", ParentBiomeEntry.class);
 
         IJsonMappable.readJsonableMap(json, this.heightMods, "heightmods", HeightModEntry.class);
         IJsonMappable.readJsonableMap(json, this.heightModRemovals, "heightmodremoval", BiomeEntry.class);
@@ -527,15 +527,13 @@ public class BiomeSettings extends Settings {
         }
     }
 
-    public static class SubBiomeEntry extends BiomeEntry {
+    public static class ParentBiomeEntry extends BiomeEntry {
         public ResourceLocation parentBiome = null;
-        public double weight = 1.0;
 
         @Override
         public JsonObject toJson() {
             JsonObject o = super.toJson();
             o.addProperty("parent", parentBiome.toString());
-            o.addProperty("weight", weight);
             return o;
         }
 
@@ -545,14 +543,40 @@ public class BiomeSettings extends Settings {
             if (o.has("parent")) {
                 parentBiome = new ResourceLocation(JsonUtil.get(o, "parent", "invalid"));
             }
-            if (o.has("weight")) {
-                weight = JsonUtil.get(o, "weight", 1.0);
-            }
         }
 
         @Override
         public String getMapKey() {
             return this.name + "_" + this.parentBiome;
+        }
+
+        @Override
+        public ParentBiomeEntry copy() {
+            ParentBiomeEntry copy = new ParentBiomeEntry();
+
+            copy.name = new ResourceLocation(this.name.toString());
+            copy.parentBiome = new ResourceLocation(this.parentBiome.toString());
+
+            return copy;
+        }
+    }
+
+    public static class SubBiomeEntry extends ParentBiomeEntry {
+        public double weight = 1.0;
+
+        @Override
+        public JsonObject toJson() {
+            JsonObject o = super.toJson();
+            o.addProperty("weight", weight);
+            return o;
+        }
+
+        @Override
+        public void fromJson(JsonObject o) {
+            super.fromJson(o);
+            if (o.has("weight")) {
+                weight = JsonUtil.get(o, "weight", 1.0);
+            }
         }
 
         @Override
@@ -567,14 +591,12 @@ public class BiomeSettings extends Settings {
         }
     }
 
-    public static class HillBiomeEntry extends BiomeEntry {
-        public ResourceLocation parentBiome = null;
+    public static class HillBiomeEntry extends ParentBiomeEntry {
         public double height = 1.0;
 
         @Override
         public JsonObject toJson() {
             JsonObject o = super.toJson();
-            o.addProperty("parent", parentBiome.toString());
             o.addProperty("height", height);
             return o;
         }
@@ -582,17 +604,9 @@ public class BiomeSettings extends Settings {
         @Override
         public void fromJson(JsonObject o) {
             super.fromJson(o);
-            if (o.has("parent")) {
-                parentBiome = new ResourceLocation(JsonUtil.get(o, "parent", "invalid"));
-            }
             if (o.has("height")) {
                 height = JsonUtil.get(o, "height", 0.25);
             }
-        }
-
-        @Override
-        public String getMapKey() {
-            return this.name + "_" + this.parentBiome;
         }
 
         @Override
