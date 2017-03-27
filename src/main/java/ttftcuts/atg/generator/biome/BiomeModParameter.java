@@ -32,12 +32,12 @@ public abstract class BiomeModParameter<T> {
 
         @Override
         public void writeToJson(JsonObject json, String tag, Object value) {
-            json.addProperty(tag, MathUtil.clamp(lowerLimit,upperLimit, (int)value));
+            json.addProperty(tag, MathUtil.clamp((int)value, lowerLimit,upperLimit));
         }
 
         @Override
         public Integer readFromJson(JsonObject json, String tag) {
-            return MathUtil.clamp(lowerLimit, upperLimit, JsonUtil.get(json, tag, this.defaultValue));
+            return MathUtil.clamp(JsonUtil.get(json, tag, this.defaultValue), lowerLimit, upperLimit);
         }
     }
 
@@ -57,12 +57,12 @@ public abstract class BiomeModParameter<T> {
 
         @Override
         public void writeToJson(JsonObject json, String tag, Object value) {
-            json.addProperty(tag, MathUtil.clamp(lowerLimit,upperLimit, (double)value));
+            json.addProperty(tag, MathUtil.clamp((double)value, lowerLimit,upperLimit));
         }
 
         @Override
         public Double readFromJson(JsonObject json, String tag) {
-            return MathUtil.clamp(lowerLimit, upperLimit, JsonUtil.get(json, tag, this.defaultValue));
+            return MathUtil.clamp(JsonUtil.get(json, tag, this.defaultValue), lowerLimit, upperLimit);
         }
     }
 

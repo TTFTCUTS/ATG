@@ -33,6 +33,7 @@ public abstract class ATGBiomes {
     public static Biome GRAVEL_BEACH_SNOWY;
 
     public static void init() {
+        HeightModifiers.init();
 
         SHRUBLAND = register("shrubland", new BiomeShrubland(), true, Type.PLAINS, Type.SPARSE);
         WOODLAND = register("woodland", new BiomeWoodland(), false, Type.FOREST);
@@ -59,10 +60,17 @@ public abstract class ATGBiomes {
     }
 
     public static abstract class HeightModifiers {
-        public static final IBiomeHeightModifier DUNES = ATG.globalRegistry.registerHeightModifier(new HeightModDunes(), "dunes");
-        public static final IBiomeHeightModifier ISLAND = ATG.globalRegistry.registerHeightModifier(new HeightModMushroomIsland(), "island");
-        public static final IBiomeHeightModifier MESA = ATG.globalRegistry.registerHeightModifier(new HeightModMesa(), "mesa");
-        public static final IBiomeHeightModifier PLATEAU = ATG.globalRegistry.registerHeightModifier(new HeightModPlateaus(), "plateau");
+        public static IBiomeHeightModifier DUNES;
+        public static IBiomeHeightModifier ISLAND;
+        public static IBiomeHeightModifier MESA;
+        public static IBiomeHeightModifier PLATEAU;
+
+        public static void init() {
+            DUNES = ATG.globalRegistry.registerHeightModifier(new HeightModDunes(), "dunes");
+            ISLAND = ATG.globalRegistry.registerHeightModifier(new HeightModMushroomIsland(), "island");
+            MESA = ATG.globalRegistry.registerHeightModifier(new HeightModMesa(), "mesa");
+            PLATEAU = ATG.globalRegistry.registerHeightModifier(new HeightModPlateaus(), "plateau");
+        }
     }
 
     public static abstract class BiomeBlocks {

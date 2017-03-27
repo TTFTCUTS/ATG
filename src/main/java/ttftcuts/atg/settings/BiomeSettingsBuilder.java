@@ -2,6 +2,7 @@ package ttftcuts.atg.settings;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
+import ttftcuts.atg.ATG;
 import ttftcuts.atg.generator.biome.BiomeRegistry.EnumBiomeCategory;
 
 public class BiomeSettingsBuilder {

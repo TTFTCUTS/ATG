@@ -7,6 +7,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
+import ttftcuts.atg.settings.ChunkGeneratorSettings;
+import ttftcuts.atg.settings.WorldSettings;
 import ttftcuts.atg.util.GeneralUtil;
 import ttftcuts.atg.util.Kernel;
 import ttftcuts.atg.util.MathUtil;
@@ -16,7 +18,6 @@ import java.util.Map;
 
 public class ChunkProviderATG extends ChunkProviderBasic {
 
-
     public static final int BLEND_RADIUS = 5;
     public static final Kernel BLEND_KERNEL = new Kernel(BLEND_RADIUS, (int x, int z) -> {
         double dist = Math.sqrt(x*x+z*z);
@@ -24,8 +25,11 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         return MathUtil.smoothstep( dist / BLEND_RADIUS ) * 0.5 + 0.5;
     });
 
+    protected ChunkGeneratorSettings settings;
+
     public ChunkProviderATG(World world) {
         super(world);
+        settings = WorldSettings.loadWorldSettings(world.getWorldInfo().getGeneratorOptions()).genSettings;
     }
 
     // CORRECT THE DAMN TEMPERATURE CURVE

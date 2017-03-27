@@ -15,6 +15,8 @@ import net.minecraft.world.gen.layer.IntCache;
 import ttftcuts.atg.generator.biome.BiomeBlobs;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.generator.biome.BiomeRegistry.BiomeGroup;
+import ttftcuts.atg.settings.BiomeSettings;
+import ttftcuts.atg.settings.WorldSettings;
 import ttftcuts.atg.util.MathUtil;
 
 
@@ -34,6 +36,7 @@ public class BiomeProviderATG extends BiomeProvider {
     //------ Biome gen fields ---------------------------------------------------------
 
     protected World world;
+    protected BiomeSettings settings;
     protected Random fuzz;
     public BiomeRegistry biomeRegistry;
 
@@ -42,6 +45,7 @@ public class BiomeProviderATG extends BiomeProvider {
     public BiomeProviderATG(World world)
     {
         this.world = world;
+        this.settings = WorldSettings.loadWorldSettings(world.getWorldInfo().getGeneratorOptions()).biomeSettings;
 
         this.noise = new CoreNoise(world.getSeed());
 
@@ -50,6 +54,7 @@ public class BiomeProviderATG extends BiomeProvider {
         this.biomesToSpawnIn = Lists.newArrayList(allowedBiomes);
 
         this.biomeRegistry = new BiomeRegistry();
+        this.biomeRegistry.populate(this.settings);
 
         // TODO: Set things based on the world info, like biome lists etc
     }

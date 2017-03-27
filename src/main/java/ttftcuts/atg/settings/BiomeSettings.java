@@ -619,6 +619,11 @@ public class BiomeSettings extends Settings {
 
             return copy;
         }
+
+        @Override
+        public String getMapKey() {
+            return this.name + "_" + this.parentBiome +"_"+ this.height;
+        }
     }
 
     public static class HeightModEntry extends BiomeEntry {

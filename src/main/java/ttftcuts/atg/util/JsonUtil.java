@@ -3,12 +3,15 @@ package ttftcuts.atg.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.javaws.exceptions.InvalidArgumentException;
 import ttftcuts.atg.ATG;
 
 import java.util.Map;
 
 public abstract class JsonUtil {
+    public static final JsonParser PARSER = new JsonParser();
+
     public static <T> T get(JsonObject json, String tag, T fallback) {
         if (!json.has(tag) || json.get(tag) == null) {
             ATG.logger.warn("Json parsing: tag " +tag+ " is empty");

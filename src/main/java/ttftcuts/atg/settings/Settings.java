@@ -10,9 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class Settings {
-    public static final JsonParser PARSER = new JsonParser();
-
-
     public String writeToJson() {
         JsonObject json = new JsonObject();
 
@@ -23,7 +20,7 @@ public abstract class Settings {
 
     public Settings readFromJson(String input) {
 
-        this.readData(PARSER.parse(input).getAsJsonObject());
+        this.readData(JsonUtil.PARSER.parse(input).getAsJsonObject());
 
         return this;
     }
