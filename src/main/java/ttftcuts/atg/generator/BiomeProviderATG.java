@@ -12,6 +12,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeCache;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.layer.IntCache;
+import ttftcuts.atg.ATG;
 import ttftcuts.atg.generator.biome.BiomeBlobs;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.generator.biome.BiomeRegistry.BiomeGroup;
@@ -45,7 +46,7 @@ public class BiomeProviderATG extends BiomeProvider {
     public BiomeProviderATG(World world)
     {
         this.world = world;
-        this.settings = WorldSettings.loadWorldSettings(world.getWorldInfo().getGeneratorOptions()).biomeSettings;
+        this.settings = WorldSettings.loadWorldSettings(world).biomeSettings;
 
         this.noise = new CoreNoise(world.getSeed());
 

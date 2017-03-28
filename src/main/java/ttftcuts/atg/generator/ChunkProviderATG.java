@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
+import ttftcuts.atg.ATG;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.settings.ChunkGeneratorSettings;
 import ttftcuts.atg.settings.WorldSettings;
@@ -29,7 +30,8 @@ public class ChunkProviderATG extends ChunkProviderBasic {
 
     public ChunkProviderATG(World world) {
         super(world);
-        settings = WorldSettings.loadWorldSettings(world.getWorldInfo().getGeneratorOptions()).genSettings;
+
+        settings = WorldSettings.loadWorldSettings(world).genSettings;
     }
 
     // CORRECT THE DAMN TEMPERATURE CURVE

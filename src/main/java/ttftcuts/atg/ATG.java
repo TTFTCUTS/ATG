@@ -2,11 +2,10 @@ package ttftcuts.atg;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ttftcuts.atg.compat.ModCompat;
 import ttftcuts.atg.generator.GlobalRegistry;
 import ttftcuts.atg.generator.biome.VillageBlocks;
 
@@ -18,7 +17,8 @@ public class ATG
 
     public static final Logger logger = LogManager.getLogger(MODID);
 
-    public static final GlobalRegistry globalRegistry = new GlobalRegistry();
+    public static GlobalRegistry globalRegistry = new GlobalRegistry();;
+    public static ModCompat modCompat = new ModCompat();
 
     @Mod.Instance(MODID)
     public static ATG instance;
@@ -40,5 +40,16 @@ public class ATG
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
 
+    }
+
+    // IMC stuff
+    @Mod.EventHandler
+    public void loadComplete(FMLLoadCompleteEvent event) {
+        modCompat.processIMC(FMLInterModComms.fetchRuntimeMessages(this));
+    }
+
+    @Mod.EventHandler
+    public void handleIMC(FMLInterModComms.IMCEvent event) {
+        modCompat.processIMC(event.getMessages());
     }
 }

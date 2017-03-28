@@ -1,6 +1,12 @@
 package ttftcuts.atg.settings;
 
 import com.google.gson.JsonObject;
+import net.minecraft.world.World;
+import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import ttftcuts.atg.ATG;
 import ttftcuts.atg.util.JsonUtil;
 
 public class WorldSettings extends Settings {
@@ -50,9 +56,19 @@ public class WorldSettings extends Settings {
         return copy;
     }
 
-    public static WorldSettings loadWorldSettings(String generatorSettings) {
+    public static WorldSettings loadWorldSettings(World world) {
+        WorldInfo worldInfo = world.getWorldInfo();
+        String generatorSettings = worldInfo.getGeneratorOptions();
+
         if (generatorSettings.isEmpty()) {
-            return new DefaultWorldSettings();
+            WorldSettings settings = new DefaultWorldSettings();
+
+            // TODO: add default modifier packs here
+
+            // If the options are empty, force them to the default value to match behaviour with provided settings
+            setGeneratorOptions(world, worldInfo, settings);
+
+            return settings;
         }
 
         WorldSettings settings = new WorldSettings();
@@ -64,5 +80,12 @@ public class WorldSettings extends Settings {
         }
 
         return settings;
+    }
+
+    private static void setGeneratorOptions(World world, WorldInfo worldInfo, WorldSettings settings) {
+        if (!world.isRemote) {
+            ATG.logger.info("Setting empty generatorOptions to current defaults");
+            ObfuscationReflectionHelper.setPrivateValue(WorldInfo.class, worldInfo, settings.writeToJson(), "generatorOptions");
+        }
     }
 }
