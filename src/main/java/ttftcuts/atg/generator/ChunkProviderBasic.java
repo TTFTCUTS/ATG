@@ -145,7 +145,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
 
         this.fillChunk(x,z,chunkprimer);
 
-        Biome[] biomes = this.world.getBiomeProvider().loadBlockGeneratorData((Biome[])null, x * 16, z * 16, 16, 16);
+        Biome[] biomes = this.world.getBiomeProvider().getBiomes((Biome[])null, x * 16, z * 16, 16, 16);
         this.replaceBiomeBlocks(x,z, chunkprimer, biomes);
 
         this.generateFeatures(x,z, chunkprimer);
@@ -183,7 +183,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
         int blockX = x * 16;
         int blockZ = z * 16;
         BlockPos blockpos = new BlockPos(blockX, 0, blockZ);
-        Biome biome = this.world.getBiomeGenForCoords(blockpos.add(16, 0, 16));
+        Biome biome = this.world.getBiome(blockpos.add(16, 0, 16));
         this.random.setSeed(this.world.getSeed());
         long randX = this.random.nextLong() / 2L * 2L + 1L;
         long randZ = this.random.nextLong() / 2L * 2L + 1L;
@@ -267,7 +267,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
 
     @Override
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) {
-        Biome biome = this.world.getBiomeGenForCoords(pos);
+        Biome biome = this.world.getBiome(pos);
 
         for (MapGenStructure structure : this.structureGenerators)
         {
@@ -314,7 +314,7 @@ public class ChunkProviderBasic implements IChunkGenerator {
     }
 
     public boolean canSnowAt(World world, BlockPos pos, boolean checkLight) {
-        Biome biome = world.getBiomeGenForCoords(pos);
+        Biome biome = world.getBiome(pos);
         float f = this.getFloatTemperature(biome, pos);
 
         if (f > 0.15F)

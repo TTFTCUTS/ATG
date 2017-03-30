@@ -11,12 +11,14 @@ public class BiomeModule {
     public String name;
     public String owner;
     public boolean active = false;
+    public final boolean startsEnabled;
 
-    public BiomeModule(String name, String owner, BiomeSettings settings, boolean active) {
+    public BiomeModule(String name, String owner, BiomeSettings settings, boolean startsEnabled) {
         this.name = name;
         this.owner = owner;
         this.settings = settings;
-        this.active = active;
+        this.startsEnabled = startsEnabled;
+        this.active = false;
     }
 
     public static void fromIMC(FMLInterModComms.IMCMessage message) {
@@ -45,7 +47,7 @@ public class BiomeModule {
             return;
         }
 
-        BiomeModule module = new BiomeModule(tag.getString("name"), message.getSender(), settings, tag.getBoolean("active"));
+        BiomeModule module = new BiomeModule(tag.getString("name"), message.getSender(), settings, tag.getBoolean("enabled"));
 
         // TODO: get the active state of the module from config
 
