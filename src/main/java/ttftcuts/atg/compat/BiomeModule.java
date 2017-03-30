@@ -49,8 +49,12 @@ public class BiomeModule {
 
         BiomeModule module = new BiomeModule(tag.getString("name"), message.getSender(), settings, tag.getBoolean("enabled"));
 
-        // TODO: get the active state of the module from config
+        module.active = module.getConfigState();
 
         ATG.globalRegistry.biomeModules.add(module);
+    }
+
+    public boolean getConfigState() {
+        return false;
     }
 }
