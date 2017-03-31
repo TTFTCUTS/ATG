@@ -7,9 +7,23 @@ import ttftcuts.atg.generator.biome.BiomeRegistry.EnumBiomeCategory;
 
 public class BiomeSettingsBuilder {
     public final BiomeSettings settings;
+    public String prefix = null;
+
+    public BiomeSettingsBuilder(BiomeSettings settings, String prefix) {
+        this.settings = settings;
+        this.prefix = prefix;
+    }
 
     public BiomeSettingsBuilder(BiomeSettings settings) {
-        this.settings = settings;
+        this(settings, null);
+    }
+
+    private ResourceLocation biomeName(String input) {
+        if (this.prefix != null && input.indexOf(':') == -1) {
+            input = this.prefix + ":" + input;
+        }
+
+        return new ResourceLocation(input);
     }
 
     // Getting groups
@@ -40,20 +54,26 @@ public class BiomeSettingsBuilder {
     // Biome replacement
     public void replaceBiome(String toReplace, String replaceWith) {
         BiomeSettings.BiomeReplacement def = new BiomeSettings.BiomeReplacement();
-        def.name = new ResourceLocation(replaceWith);
-        def.replace = new ResourceLocation(toReplace);
+        def.name = biomeName(replaceWith);
+        def.replace = biomeName(toReplace);
 
         this.settings.replacements.put(def.getMapKey(),def);
     }
     public void replaceBiome(Biome toReplace, Biome replaceWith) {
         this.replaceBiome(toReplace.getRegistryName().toString(), replaceWith.getRegistryName().toString());
     }
+    public void replaceBiome(String toReplace, Biome replaceWith) {
+        this.replaceBiome(toReplace, replaceWith.getRegistryName().toString());
+    }
+    public void replaceBiome(Biome toReplace, String replaceWith) {
+        this.replaceBiome(toReplace.getRegistryName().toString(), replaceWith);
+    }
 
     // Adding sub biomes
     public void addSubBiome(String parent, String biome, double weight) {
         BiomeSettings.SubBiomeEntry def = new BiomeSettings.SubBiomeEntry();
-        def.name = new ResourceLocation(biome);
-        def.parentBiome = new ResourceLocation(parent);
+        def.name = biomeName(biome);
+        def.parentBiome = biomeName(parent);
         def.weight = weight;
 
         if (this.settings.subBiomes.containsKey(def.getMapKey())) {
@@ -71,24 +91,42 @@ public class BiomeSettingsBuilder {
     public void addSubBiome(Biome parent, Biome biome) {
         this.addSubBiome(parent, biome, 1.0);
     }
+    public void addSubBiome(String parent, Biome biome, double weight) {
+        this.addSubBiome(parent, biome.getRegistryName().toString(), weight);
+    }
+    public void addSubBiome(String parent, Biome biome) {
+        this.addSubBiome(parent, biome, 1.0);
+    }
+    public void addSubBiome(Biome parent, String biome, double weight) {
+        this.addSubBiome(parent.getRegistryName().toString(), biome, weight);
+    }
+    public void addSubBiome(Biome parent, String biome) {
+        this.addSubBiome(parent, biome, 1.0);
+    }
 
     // Removing sub biomes
     public void removeSubBiome(String parent, String biome) {
         BiomeSettings.ParentBiomeEntry def = new BiomeSettings.ParentBiomeEntry();
-        def.name = new ResourceLocation(biome);
-        def.parentBiome = new ResourceLocation(parent);
+        def.name = biomeName(biome);
+        def.parentBiome = biomeName(parent);
 
         this.settings.subRemovals.put(def.getMapKey(), def);
     }
     public void removeSubBiome(Biome parent, Biome biome) {
         this.removeSubBiome(parent.getRegistryName().toString(), biome.getRegistryName().toString());
     }
+    public void removeSubBiome(String parent, Biome biome) {
+        this.removeSubBiome(parent, biome.getRegistryName().toString());
+    }
+    public void removeSubBiome(Biome parent, String biome) {
+        this.removeSubBiome(parent.getRegistryName().toString(), biome);
+    }
 
     // Adding hill biomes
     public void addHillBiome(String parent, String biome, double height) {
         BiomeSettings.HillBiomeEntry def = new BiomeSettings.HillBiomeEntry();
-        def.name = new ResourceLocation(biome);
-        def.parentBiome = new ResourceLocation(parent);
+        def.name = biomeName(biome);
+        def.parentBiome = biomeName(parent);
         def.height = height;
 
         this.settings.hillBiomes.put(def.getMapKey(), def);
@@ -96,23 +134,35 @@ public class BiomeSettingsBuilder {
     public void addHillBiome(Biome parent, Biome biome, double height) {
         this.addHillBiome(parent.getRegistryName().toString(), biome.getRegistryName().toString(), height);
     }
+    public void addHillBiome(String parent, Biome biome, double height) {
+        this.addHillBiome(parent, biome.getRegistryName().toString(), height);
+    }
+    public void addHillBiome(Biome parent, String biome, double height) {
+        this.addHillBiome(parent.getRegistryName().toString(), biome, height);
+    }
 
     // Removing hill biomes
     public void removeHillBiome(String parent, String biome) {
         BiomeSettings.ParentBiomeEntry def = new BiomeSettings.ParentBiomeEntry();
-        def.name = new ResourceLocation(biome);
-        def.parentBiome = new ResourceLocation(parent);
+        def.name = biomeName(biome);
+        def.parentBiome = biomeName(parent);
 
         this.settings.hillRemovals.put(def.getMapKey(), def);
     }
     public void removeHillBiome(Biome parent, Biome biome) {
         this.removeHillBiome(parent.getRegistryName().toString(), biome.getRegistryName().toString());
     }
+    public void removeHillBiome(String parent, Biome biome) {
+        this.removeHillBiome(parent, biome.getRegistryName().toString());
+    }
+    public void removeHillBiome(Biome parent, String biome) {
+        this.removeHillBiome(parent.getRegistryName().toString(), biome);
+    }
 
     // Adding biome height mods
     public HeightModDetails addHeightModifier(String biome, String mod) {
         BiomeSettings.HeightModEntry def = new BiomeSettings.HeightModEntry();
-        def.name = new ResourceLocation(biome);
+        def.name = biomeName(biome);
         def.heightMod = mod;
 
         this.settings.heightMods.put(def.getMapKey(), def);
@@ -126,7 +176,7 @@ public class BiomeSettingsBuilder {
     // Removing biome height mods
     public void removeHeightModifier(String biome) {
         BiomeSettings.BiomeEntry def = new BiomeSettings.BiomeEntry();
-        def.name = new ResourceLocation(biome);
+        def.name = biomeName(biome);
 
         this.settings.heightModRemovals.put(def.getMapKey(), def);
     }
@@ -150,7 +200,7 @@ public class BiomeSettingsBuilder {
             BiomeSettings.BiomeDefinition def = new BiomeSettings.BiomeDefinition();
             def.category = this.category;
             def.group = this.group;
-            def.name = new ResourceLocation(biome);
+            def.name = biomeName(biome);
             def.weight = weight;
 
             BiomeSettings settings = BiomeSettingsBuilder.this.settings;
@@ -177,7 +227,7 @@ public class BiomeSettingsBuilder {
             BiomeSettings.GroupedBiomeEntry def = new BiomeSettings.GroupedBiomeEntry();
             def.category = this.category;
             def.group = this.group;
-            def.name = new ResourceLocation(biome);
+            def.name = biomeName(biome);
 
             BiomeSettingsBuilder.this.settings.removals.put(def.getMapKey(), def);
 

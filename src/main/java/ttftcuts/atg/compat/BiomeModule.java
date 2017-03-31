@@ -1,8 +1,10 @@
 package ttftcuts.atg.compat;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import ttftcuts.atg.ATG;
+import ttftcuts.atg.configuration.ConfigHandler;
 import ttftcuts.atg.settings.BiomeSettings;
 
 public class BiomeModule {
@@ -49,12 +51,6 @@ public class BiomeModule {
 
         BiomeModule module = new BiomeModule(tag.getString("name"), message.getSender(), settings, tag.getBoolean("enabled"));
 
-        module.active = module.getConfigState();
-
         ATG.globalRegistry.biomeModules.add(module);
-    }
-
-    public boolean getConfigState() {
-        return false;
     }
 }

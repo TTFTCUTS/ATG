@@ -15,6 +15,7 @@ import ttftcuts.atg.generator.ChunkProviderATG;
 import ttftcuts.atg.generator.ChunkProviderBasic;
 import ttftcuts.atg.settings.BiomeSettings;
 import ttftcuts.atg.settings.DefaultBiomeSettings;
+import ttftcuts.atg.util.GeneralUtil;
 
 public class WorldTypeATG extends WorldType {
     public WorldTypeATG(String name) {
@@ -36,7 +37,7 @@ public class WorldTypeATG extends WorldType {
         // testing time
         ATG.logger.info("wheee");
 
-        BiomeSettings testsettings = new DefaultBiomeSettings();
+        /*BiomeSettings testsettings = new DefaultBiomeSettings();
 
         BiomeSettings testammendment = new BiomeSettings();
         BiomeSettings.BiomeReplacement testreplace = new BiomeSettings.BiomeReplacement();
@@ -51,7 +52,9 @@ public class WorldTypeATG extends WorldType {
 
         BiomeSettings test2 = new BiomeSettings().readFromJson(json);
         String json2 = test2.writeToJson();
-        ATG.logger.info("Json 2: "+json2);
+        ATG.logger.info("Json 2: "+json2);*/
+
+        GeneralUtil.printBiomeInformation();
     }
 
     @Override

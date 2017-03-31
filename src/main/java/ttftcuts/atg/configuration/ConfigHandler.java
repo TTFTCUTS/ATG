@@ -6,6 +6,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import ttftcuts.atg.ATG;
 
+import javax.annotation.Nullable;
 import java.io.File;
 
 public class ConfigHandler {
@@ -22,6 +23,14 @@ public class ConfigHandler {
 
     private void load() {
 
+
+        this.saveIfDirty();
+    }
+
+    public void saveIfDirty() {
+        if (config.hasChanged()) {
+            config.save();
+        }
     }
 
     @SubscribeEvent

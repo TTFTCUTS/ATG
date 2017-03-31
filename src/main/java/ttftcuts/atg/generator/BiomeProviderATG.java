@@ -57,7 +57,7 @@ public class BiomeProviderATG extends BiomeProvider {
         this.biomeRegistry = new BiomeRegistry();
         this.biomeRegistry.populate(this.settings);
 
-        // TODO: Set things based on the world info, like biome lists etc
+        // TODO: Set things based on the world settings
     }
 
     //------ BiomeProvder functionality ---------------------------------------------------------

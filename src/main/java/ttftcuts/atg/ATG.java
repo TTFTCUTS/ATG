@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.event.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ttftcuts.atg.compat.ModCompat;
+import ttftcuts.atg.configuration.ConfigHandler;
 import ttftcuts.atg.generator.GlobalRegistry;
 import ttftcuts.atg.generator.biome.VillageBlocks;
 
@@ -19,6 +20,7 @@ public class ATG
 
     public static GlobalRegistry globalRegistry = new GlobalRegistry();;
     public static ModCompat modCompat = new ModCompat();
+    public static ConfigHandler config;
 
     @Mod.Instance(MODID)
     public static ATG instance;
@@ -26,6 +28,8 @@ public class ATG
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        config = new ConfigHandler(event.getSuggestedConfigurationFile());
+
         new WorldTypeATG("atg");
 
         ATGBiomes.init();

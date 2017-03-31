@@ -2,6 +2,7 @@ package ttftcuts.atg.generator;
 
 import ttftcuts.atg.ATG;
 import ttftcuts.atg.compat.BiomeModule;
+import ttftcuts.atg.compat.builtin.ProvidedBiomeModule;
 import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 
 import java.util.ArrayList;

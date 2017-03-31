@@ -14,7 +14,7 @@ import ttftcuts.atg.util.JsonUtil;
 
 import java.util.*;
 
-public class BiomeSettings extends Settings {
+public class BiomeSettings extends Settings implements Comparable<BiomeSettings> {
 
     public LinkedHashMap<String, GroupDefinition> groups = new LinkedHashMap<>();
     public LinkedHashMap<String, GroupEntry> groupRemovals = new LinkedHashMap<>();
@@ -693,5 +693,14 @@ public class BiomeSettings extends Settings {
 
             return copy;
         }
+    }
+
+    // ##### Sorting #####
+
+    // TODO: Get these sorted in a sensible manner for the module list
+
+    @Override
+    public int compareTo(BiomeSettings o) {
+        return 0;
     }
 }
