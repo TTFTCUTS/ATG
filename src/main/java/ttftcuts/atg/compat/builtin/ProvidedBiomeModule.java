@@ -12,5 +12,6 @@ public class ProvidedBiomeModule extends BiomeModule {
         this.modid = modid;
 
         ATG.modCompat.builtInBiomeModules.add(this);
+        ATG.logger.info("Created built-in biome module: {} for {}", this.name, this.modid);
     }
 }

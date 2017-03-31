@@ -3,6 +3,7 @@ package ttftcuts.atg.compat;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInterModComms.*;
 import ttftcuts.atg.ATG;
+import ttftcuts.atg.compat.builtin.BOPModule;
 import ttftcuts.atg.compat.builtin.ProvidedBiomeModule;
 
 import java.util.*;
@@ -12,9 +13,20 @@ public class ModCompat {
 
     public List<ProvidedBiomeModule> builtInBiomeModules = new ArrayList<>();
 
-    public ModCompat() {
-
+    public void preInit() {
+        ATG.logger.info("Mod compat preInit");
     }
+
+    public void init() {
+        ATG.logger.info("Mod compat init");
+    }
+
+    public void postInit() {
+        ATG.logger.info("Mod compat postInit");
+        new BOPModule();
+    }
+
+    // ########## Registration ##########
 
     public void registerBuiltInModules() {
         for (ProvidedBiomeModule module : builtInBiomeModules) {
@@ -22,6 +34,7 @@ public class ModCompat {
                 if (messageSenders.containsKey(module.modid) && messageSenders.get(module.modid).contains("biomeModule")) {
                     continue;
                 }
+                ATG.logger.info("Registering built-in biome module: {} for {}", module.name, module.modid);
                 ATG.globalRegistry.biomeModules.add(module);
             }
         }

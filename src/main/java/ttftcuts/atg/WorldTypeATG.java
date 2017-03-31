@@ -15,6 +15,7 @@ import ttftcuts.atg.generator.ChunkProviderATG;
 import ttftcuts.atg.generator.ChunkProviderBasic;
 import ttftcuts.atg.settings.BiomeSettings;
 import ttftcuts.atg.settings.DefaultBiomeSettings;
+import ttftcuts.atg.settings.DefaultWorldSettings;
 import ttftcuts.atg.util.GeneralUtil;
 
 public class WorldTypeATG extends WorldType {
@@ -54,7 +55,12 @@ public class WorldTypeATG extends WorldType {
         String json2 = test2.writeToJson();
         ATG.logger.info("Json 2: "+json2);*/
 
-        GeneralUtil.printBiomeInformation();
+        //GeneralUtil.printBiomeInformation();
+
+        DefaultWorldSettings testsettings = new DefaultWorldSettings();
+        testsettings.applyDefaultModuleStack();
+
+        ATG.logger.info(testsettings.writeToJson());
     }
 
     @Override

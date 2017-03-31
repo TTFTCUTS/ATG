@@ -33,23 +33,26 @@ public class ATG
         new WorldTypeATG("atg");
 
         ATGBiomes.init();
+        modCompat.preInit();
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
         MinecraftForge.TERRAIN_GEN_BUS.register(new VillageBlocks());
+        modCompat.init();
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
-
+        modCompat.postInit();
     }
 
     // IMC stuff
     @Mod.EventHandler
     public void loadComplete(FMLLoadCompleteEvent event) {
         modCompat.processIMC(FMLInterModComms.fetchRuntimeMessages(this));
+        modCompat.registerBuiltInModules();
     }
 
     @Mod.EventHandler

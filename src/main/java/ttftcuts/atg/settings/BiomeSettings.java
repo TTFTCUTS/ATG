@@ -43,7 +43,7 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
                 for (Iterator<Map.Entry<String, BiomeDefinition>> iter = this.biomes.entrySet().iterator(); iter.hasNext(); ) {
                     Map.Entry<String, BiomeDefinition> entry = iter.next();
                     BiomeDefinition def = entry.getValue();
-                    if (def.name == rep.replace) {
+                    if (def.name.equals(rep.replace)) {
                         def.name = rep.name;
                         toReAdd.add(def);
                         iter.remove();
@@ -60,11 +60,11 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
                 for (Iterator<Map.Entry<String, SubBiomeEntry>> iter = this.subBiomes.entrySet().iterator(); iter.hasNext(); ) {
                     Map.Entry<String, SubBiomeEntry> entry = iter.next();
                     SubBiomeEntry def = entry.getValue();
-                    if (def.name == rep.replace || def.parentBiome == rep.replace) {
-                        if (def.name == rep.replace) {
+                    if (def.name.equals(rep.replace) || def.parentBiome.equals(rep.replace)) {
+                        if (def.name.equals(rep.replace)) {
                             def.name = rep.name;
                         }
-                        if (def.parentBiome == rep.replace) {
+                        if (def.parentBiome.equals(rep.replace)) {
                             def.parentBiome = rep.name;
                         }
                         toReAdd.add(def);
@@ -82,11 +82,11 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
                 for (Iterator<Map.Entry<String, HillBiomeEntry>> iter = this.hillBiomes.entrySet().iterator(); iter.hasNext(); ) {
                     Map.Entry<String, HillBiomeEntry> entry = iter.next();
                     HillBiomeEntry def = entry.getValue();
-                    if (def.name == rep.replace || def.parentBiome == rep.replace) {
-                        if (def.name == rep.replace) {
+                    if (def.name.equals(rep.replace) || def.parentBiome.equals(rep.replace)) {
+                        if (def.name.equals(rep.replace)) {
                             def.name = rep.name;
                         }
-                        if (def.parentBiome == rep.replace) {
+                        if (def.parentBiome.equals(rep.replace)) {
                             def.parentBiome = rep.name;
                         }
                         toReAdd.add(def);
@@ -104,7 +104,7 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
                 for (Iterator<Map.Entry<String, HeightModEntry>> iter = this.heightMods.entrySet().iterator(); iter.hasNext(); ) {
                     Map.Entry<String, HeightModEntry> entry = iter.next();
                     HeightModEntry def = entry.getValue();
-                    if (def.name == rep.replace) {
+                    if (def.name.equals(rep.replace)) {
                         def.name = rep.name;
                         toReAdd.add(def);
                         iter.remove();

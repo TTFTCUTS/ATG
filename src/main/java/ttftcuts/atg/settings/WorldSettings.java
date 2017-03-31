@@ -7,7 +7,11 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import ttftcuts.atg.ATG;
+import ttftcuts.atg.compat.BiomeModule;
 import ttftcuts.atg.util.JsonUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorldSettings extends Settings {
 
@@ -61,9 +65,9 @@ public class WorldSettings extends Settings {
         String generatorSettings = worldInfo.getGeneratorOptions();
 
         if (generatorSettings.isEmpty()) {
-            WorldSettings settings = new DefaultWorldSettings();
+            DefaultWorldSettings settings = new DefaultWorldSettings();
 
-            // TODO: add default modifier packs here
+            settings.applyDefaultModuleStack();
 
             // If the options are empty, force them to the default value to match behaviour with provided settings
             setGeneratorOptions(world, worldInfo, settings);
