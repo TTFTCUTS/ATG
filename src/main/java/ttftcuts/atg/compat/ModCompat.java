@@ -13,16 +13,11 @@ public class ModCompat {
 
     public List<ProvidedBiomeModule> builtInBiomeModules = new ArrayList<>();
 
-    public void preInit() {
-        ATG.logger.info("Mod compat preInit");
-    }
+    public void preInit() {}
 
-    public void init() {
-        ATG.logger.info("Mod compat init");
-    }
+    public void init() {}
 
     public void postInit() {
-        ATG.logger.info("Mod compat postInit");
         new BOPModule();
     }
 
