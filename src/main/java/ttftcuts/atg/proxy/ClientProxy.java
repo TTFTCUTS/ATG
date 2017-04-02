@@ -1,9 +1,6 @@
 package ttftcuts.atg.proxy;
 
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.*;
 import ttftcuts.atg.tweaks.GrassColours;
 
 public class ClientProxy extends CommonProxy {
@@ -26,5 +23,15 @@ public class ClientProxy extends CommonProxy {
     public void loadComplete(FMLLoadCompleteEvent event) {
         super.loadComplete(event);
         GrassColours.init();
+    }
+
+    @Override
+    public void serverStarting(FMLServerStartingEvent event) {
+        //GrassColours.grassCaches.clear();
+    }
+
+    @Override
+    public void serverStopped(FMLServerStoppedEvent event) {
+        GrassColours.grassCaches.clear();
     }
 }

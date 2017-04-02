@@ -1,16 +1,21 @@
 package ttftcuts.atg.tweaks;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeColorHelper;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import ttftcuts.atg.ATG;
+import ttftcuts.atg.util.CoordCache;
+import ttftcuts.atg.util.CoordPair;
 import ttftcuts.atg.util.GeneralUtil;
 
 import java.lang.reflect.*;
@@ -32,6 +37,7 @@ public class GrassColours {
         } catch(Throwable e) {
             e.printStackTrace();
         }
+        MinecraftForge.EVENT_BUS.register(new Listener());
     }
 
     public static void doImmenseEvil() throws Exception {
@@ -89,7 +95,11 @@ public class GrassColours {
                 World world = Minecraft.getMinecraft().world;
 
                 if (world != null && GeneralUtil.isWorldATG(world)) {
-                    return getGrassColour(world, biome, pos);
+                    // probe the current world biomes to eliminate most cases of it being the wrong one (I hope)
+                    Biome probe = world.getBiome(pos);
+                    if (probe == biome) {
+                        return getGrassColour(world, biome, pos);
+                    }
                 }
 
                 if (wrappedResolver != null) {
@@ -102,7 +112,25 @@ public class GrassColours {
         }
     }
 
+    public static class GrassCacheEntry extends CoordPair {
+        public Biome biome = null;
+
+        public GrassCacheEntry(int x, int z) {
+            super(x, z);
+        }
+    }
+
+    public static Map<Integer, CoordCache<GrassCacheEntry>> grassCaches = new HashMap<>();
+
     public static int getGrassColour(World world, Biome biome, BlockPos pos) {
+        CoordCache<GrassCacheEntry> grassCache;
+        int dim = world.provider.getDimension();
+        if (grassCaches.containsKey(dim)) {
+            grassCache = grassCaches.get(dim);
+        } else {
+            grassCache = new CoordCache<>(256);
+            grassCaches.put(dim, grassCache);
+        }
 
         int rad = 5;
         int divisor = (rad*2 + 1);
@@ -114,11 +142,24 @@ public class GrassColours {
 
         Map<Biome, Integer> biomeColours = new HashMap<>();
         Biome ib;
-        int col;
+        int col,x,z;
 
         for (BlockPos.MutableBlockPos ipos : BlockPos.getAllInBoxMutable(pos.add(-rad, 0, -rad), pos.add(rad, 0, rad)))
         {
-            ib = world.getBiome(ipos);
+            x = ipos.getX();
+            z = ipos.getZ();
+            GrassCacheEntry entry = grassCache.get(x,z);
+            if (entry == null) {
+                entry = new GrassCacheEntry(x,z);
+                grassCache.put(x,z,entry);
+            }
+            if (entry.biome != null) {
+                ib = entry.biome;
+            } else {
+                ib = world.getBiome(ipos);
+                entry.biome = ib;
+            }
+
             if (biomeColours.containsKey(ib)) {
                 col = biomeColours.get(ib);
             } else {
@@ -132,5 +173,36 @@ public class GrassColours {
         }
 
         return (r / divisor & 255) << 16 | (g / divisor & 255) << 8 | b / divisor & 255;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static class Listener {
+
+        @SubscribeEvent
+        public void login(PlayerEvent.PlayerLoggedInEvent event) {
+            clearCache(event);
+        }
+
+        @SubscribeEvent
+        public void logout(PlayerEvent.PlayerLoggedOutEvent event) {
+            clearCache(event);
+        }
+
+        @SubscribeEvent
+        public void changedim(PlayerEvent.PlayerChangedDimensionEvent event) {
+            clearCache(event);
+        }
+
+        @SubscribeEvent
+        public void respawn(PlayerEvent.PlayerRespawnEvent event) {
+            clearCache(event);
+        }
+
+        public void clearCache(PlayerEvent event) {
+            if (event.player.world.isRemote && event.player == Minecraft.getMinecraft().player) {
+                ATG.logger.info("Clearing grass colour biome cache");
+                //grassCache.clear();
+            }
+        }
     }
 }

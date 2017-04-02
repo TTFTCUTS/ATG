@@ -26,4 +26,12 @@ public class CommonProxy {
         ATG.modCompat.processIMC(FMLInterModComms.fetchRuntimeMessages(this));
         ATG.modCompat.registerBuiltInModules();
     }
+
+    public void serverStarting(FMLServerStartingEvent event) {
+
+    }
+
+    public void serverStopped(FMLServerStoppedEvent event) {
+
+    }
 }

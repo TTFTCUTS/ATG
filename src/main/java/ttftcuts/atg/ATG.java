@@ -63,4 +63,14 @@ public class ATG
     public void handleIMC(FMLInterModComms.IMCEvent event) {
         modCompat.processIMC(event.getMessages());
     }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        proxy.serverStarting(event);
+    }
+
+    @Mod.EventHandler
+    public void serverStopped(FMLServerStoppedEvent event) {
+        proxy.serverStopped(event);
+    }
 }
