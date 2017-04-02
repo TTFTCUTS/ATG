@@ -19,6 +19,10 @@ public abstract class GeneralUtil {
         return null;
     }
 
+    public static boolean isWorldATG(World world) {
+        return world.getWorldType() == ATG.worldType;
+    }
+
     public static String padString(String in, char pad, int toLength, boolean clip) {
         if (in.length() < toLength) {
             for (int i=in.length(); i< toLength; i++) {
