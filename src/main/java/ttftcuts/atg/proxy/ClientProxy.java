@@ -27,11 +27,11 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void serverStarting(FMLServerStartingEvent event) {
-        //GrassColours.grassCaches.clear();
+        GrassColours.clearCache();
     }
 
     @Override
     public void serverStopped(FMLServerStoppedEvent event) {
-        GrassColours.grassCaches.clear();
+        GrassColours.clearCache();
     }
 }

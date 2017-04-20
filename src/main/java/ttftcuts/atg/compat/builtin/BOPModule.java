@@ -31,7 +31,7 @@ public class BOPModule extends ProvidedBiomeModule {
         // plains
         b.getGroup(EnumBiomeCategory.LAND, "Plains")
                 .addBiome("flower_field", very_uncommon)
-                .addBiome("grassland")
+                .addBiome("grassland", very_rare)
                 .addBiome("lavender_fields", uncommon)
                 .addBiome("prairie", less_common);
 
@@ -143,6 +143,11 @@ public class BOPModule extends ProvidedBiomeModule {
 
 
         //------ Sub-biomes ---------------------------------------------------------
+
+        double mutation = 1.0/16.0;
+
+
+        double clearing = 0.1;
 
         //------ Hill biomes ---------------------------------------------------------
 

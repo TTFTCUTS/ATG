@@ -1,5 +1,8 @@
 package ttftcuts.atg.tweaks;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
@@ -7,6 +10,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeColorHelper;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -17,18 +21,22 @@ import ttftcuts.atg.ATG;
 import ttftcuts.atg.util.CoordCache;
 import ttftcuts.atg.util.CoordPair;
 import ttftcuts.atg.util.GeneralUtil;
+import ttftcuts.atg.util.MathUtil;
 
 import java.lang.reflect.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SideOnly(Side.CLIENT)
 public class GrassColours {
     private static final String[] GRASS_COLOR = {"a", "field_180291_a", "GRASS_COLOR"};
     private static final String[] COLOR_RESOLVER = {"ais$a", "net.minecraft.world.biome.BiomeColorHelper$ColorResolver"};
     private static final String[] GET_COLOR_AT_POS = {"a", "func_180283_a", "getColorAtPos"};
+
+    public static LoadingCache<GrassCacheKey, Biome> grassCache;
 
     public static void init() {
         ATG.logger.info("ATTEMPTING TO COMMIT GREAT EVIL:");
@@ -38,6 +46,17 @@ public class GrassColours {
             e.printStackTrace();
         }
         MinecraftForge.EVENT_BUS.register(new Listener());
+
+        grassCache = CacheBuilder.newBuilder()
+            .maximumSize(2048)
+            .build(
+                new CacheLoader<GrassCacheKey, Biome>() {
+                    @Override
+                    public Biome load(GrassCacheKey key) {
+                        return DimensionManager.getWorld(key.dim).getBiome(new BlockPos(key.x, 63, key.z));
+                    }
+                }
+            );
     }
 
     public static void doImmenseEvil() throws Exception {
@@ -108,31 +127,45 @@ public class GrassColours {
 
                 return 0xFF00FF;
             }
-            return null;
+            return method.invoke(this.wrappedResolver, args);
         }
     }
 
-    public static class GrassCacheEntry extends CoordPair {
-        public Biome biome = null;
+    public static class GrassCacheKey {
+        public final int x;
+        public final int z;
+        public final int dim;
 
-        public GrassCacheEntry(int x, int z) {
-            super(x, z);
+        public GrassCacheKey(int x, int z, int dim) {
+            this.x = x;
+            this.z = z;
+            this.dim = dim;
+        }
+
+        public GrassCacheKey(World world, BlockPos pos) {
+            this(pos.getX(), pos.getZ(), world.provider.getDimension());
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof GrassCacheKey)) { return false; }
+            GrassCacheKey o = (GrassCacheKey)other;
+            return this.x == o.x && this.z == o.z && this.dim == o.dim;
+        }
+
+        @Override
+        public int hashCode() {
+            return (this.dim << 13) ^ MathUtil.coordHash(this.x, this.z);
         }
     }
 
-    public static Map<Integer, CoordCache<GrassCacheEntry>> grassCaches = new HashMap<>();
+    public static void clearCache() {
+        ATG.logger.info("Clearing grass colour biome cache");
+        grassCache.invalidateAll();
+    }
 
     public static int getGrassColour(World world, Biome biome, BlockPos pos) {
-        CoordCache<GrassCacheEntry> grassCache;
-        int dim = world.provider.getDimension();
-        if (grassCaches.containsKey(dim)) {
-            grassCache = grassCaches.get(dim);
-        } else {
-            grassCache = new CoordCache<>(256);
-            grassCaches.put(dim, grassCache);
-        }
-
-        int rad = 5;
+        int rad = 6;
         int divisor = (rad*2 + 1);
         divisor *= divisor;
 
@@ -146,19 +179,7 @@ public class GrassColours {
 
         for (BlockPos.MutableBlockPos ipos : BlockPos.getAllInBoxMutable(pos.add(-rad, 0, -rad), pos.add(rad, 0, rad)))
         {
-            x = ipos.getX();
-            z = ipos.getZ();
-            GrassCacheEntry entry = grassCache.get(x,z);
-            if (entry == null) {
-                entry = new GrassCacheEntry(x,z);
-                grassCache.put(x,z,entry);
-            }
-            if (entry.biome != null) {
-                ib = entry.biome;
-            } else {
-                ib = world.getBiome(ipos);
-                entry.biome = ib;
-            }
+            ib = grassCache.getUnchecked(new GrassCacheKey(world, ipos));
 
             if (biomeColours.containsKey(ib)) {
                 col = biomeColours.get(ib);
@@ -188,20 +209,9 @@ public class GrassColours {
             clearCache(event);
         }
 
-        @SubscribeEvent
-        public void changedim(PlayerEvent.PlayerChangedDimensionEvent event) {
-            clearCache(event);
-        }
-
-        @SubscribeEvent
-        public void respawn(PlayerEvent.PlayerRespawnEvent event) {
-            clearCache(event);
-        }
-
         public void clearCache(PlayerEvent event) {
             if (event.player.world.isRemote && event.player == Minecraft.getMinecraft().player) {
-                ATG.logger.info("Clearing grass colour biome cache");
-                //grassCache.clear();
+                GrassColours.clearCache();
             }
         }
     }
