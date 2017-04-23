@@ -18,6 +18,7 @@ public class BiomeRegistry {
     public Map<Biome, Double> subWeightTotals;
     public Map<Biome, LinkedHashMap<Biome, Double>> hillBiomes; // sub lists are assumed to be ordered lowest to highest!
     public Map<Biome, HeightModRegistryEntry> heightMods;
+    public Map<Biome, Double> smoothingOverrides;
 
     public BiomeRegistry() {
         this.biomeGroups = new HashMap<EnumBiomeCategory, Map<String, BiomeGroup>>();
@@ -25,6 +26,7 @@ public class BiomeRegistry {
         this.subWeightTotals = new HashMap<Biome, Double>();
         this.hillBiomes = new HashMap<Biome, LinkedHashMap<Biome, Double>>();
         this.heightMods = new HashMap<Biome, HeightModRegistryEntry>();
+        this.smoothingOverrides = new HashMap<Biome, Double>();
 
         for (EnumBiomeCategory category : EnumBiomeCategory.values()) {
             this.biomeGroups.put(category, new HashMap<String, BiomeGroup>());
@@ -98,6 +100,16 @@ public class BiomeRegistry {
             Biome biome = Biome.REGISTRY.getObject(def.name);
 
             this.addHeightModifier(biome, mod, def.parameters);
+        }
+
+        // Biome height smoothing
+        for (BiomeSettings.SmoothingEntry def : settings.smoothing.values()) {
+            if (!Biome.REGISTRY.containsKey(def.name)) {
+                continue;
+            }
+            Biome biome = Biome.REGISTRY.getObject(def.name);
+
+            this.setSmoothingFactor(biome, def.smoothing);
         }
     }
 
@@ -206,6 +218,17 @@ public class BiomeRegistry {
 
     public HeightModRegistryEntry getHeightModifier(Biome biome) {
         return this.heightMods.get(biome);
+    }
+
+    public void setSmoothingFactor(Biome biome, double smoothing) {
+        this.smoothingOverrides.put(biome, smoothing);
+    }
+
+    public double getSmoothingFactor(Biome biome) {
+        if (this.smoothingOverrides.containsKey(biome)) {
+            return this.smoothingOverrides.get(biome);
+        }
+        return 1.0;
     }
 
     //------ BiomeGroup type enum ---------------------------------------------------------

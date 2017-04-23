@@ -33,6 +33,8 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
     public LinkedHashMap<String, HeightModEntry> heightMods = new LinkedHashMap<>();
     public LinkedHashMap<String, BiomeEntry> heightModRemovals = new LinkedHashMap<>();
 
+    public LinkedHashMap<String, SmoothingEntry> smoothing = new LinkedHashMap<>();
+
     public void apply(BiomeSettings toApply) {
 
         // replacement... the hardest part
@@ -166,6 +168,7 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
 
         this.hillBiomes.putAll(toApply.hillBiomes); // overwrite hill biome heights too
         this.heightMods.putAll(toApply.heightMods); // and the height mods
+        this.smoothing.putAll(toApply.smoothing); // aaaand the smoothing too
     }
 
     @Override
@@ -191,6 +194,8 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
 
         IJsonMappable.readJsonableMap(json, this.heightMods, "heightmods", HeightModEntry.class);
         IJsonMappable.readJsonableMap(json, this.heightModRemovals, "heightmodremoval", BiomeEntry.class);
+
+        IJsonMappable.readJsonableMap(json, this.smoothing, "smoothing", SmoothingEntry.class);
     }
 
     @Override
@@ -211,6 +216,8 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
 
         IJsonMappable.writeJsonableMap(json, this.heightMods, "heightmods");
         IJsonMappable.writeJsonableMap(json, this.heightModRemovals, "heightmodremove");
+
+        IJsonMappable.writeJsonableMap(json, this.smoothing, "smoothing");
     }
 
     @Override
@@ -233,6 +240,8 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
 
         IJsonMappable.copyMap(this.heightMods, copy.heightMods);
         IJsonMappable.copyMap(this.heightModRemovals, copy.heightModRemovals);
+
+        IJsonMappable.copyMap(this.smoothing, copy.smoothing);
 
         return copy;
     }
@@ -690,6 +699,35 @@ public class BiomeSettings extends Settings implements Comparable<BiomeSettings>
             copy.name = new ResourceLocation(this.name.toString());
             copy.heightMod = this.heightMod;
             copy.parameters.putAll(this.parameters);
+
+            return copy;
+        }
+    }
+
+    public static class SmoothingEntry extends BiomeEntry {
+        public double smoothing = 1.0;
+
+        @Override
+        public JsonObject toJson() {
+            JsonObject o = super.toJson();
+            o.addProperty("s", smoothing);
+            return o;
+        }
+
+        @Override
+        public void fromJson(JsonObject o) {
+            super.fromJson(o);
+            if (o.has("s")) {
+                smoothing = JsonUtil.get(o, "s", 1.0);
+            }
+        }
+
+        @Override
+        public SmoothingEntry copy() {
+            SmoothingEntry copy = new SmoothingEntry();
+
+            copy.name = new ResourceLocation(this.name.toString());
+            copy.smoothing = this.smoothing;
 
             return copy;
         }

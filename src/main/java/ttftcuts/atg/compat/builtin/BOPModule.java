@@ -208,6 +208,14 @@ public class BOPModule extends ProvidedBiomeModule {
         b.addHeightModifier("flower_island", "island");
 
         b.addHeightModifier("overgrown_cliffs", "plateau");
-        b.addHeightModifier("glacier", "offset").setParameter("height", 10);
+        b.addHeightModifier("glacier", "offset")
+                .setParameter("height", 20)
+                .setParameter("tapered", true)
+                .setParameter("taperstart", 140)
+                .setParameter("taperend", 220)
+                .setParameter("taperheight", 4);
+        
+        //------ Height smoothing ---------------------------------------------------------
+        b.setSmoothing("glacier", 0.4);
     }
 }

@@ -88,6 +88,11 @@ public class ChunkProviderATG extends ChunkProviderBasic {
     }
 
     public double getBiomeNoiseBlend(int x, int z, double height, BiomeProviderATG provider) {
+
+        Biome mainBiome = provider.getBestBiomeCached(x, z);;
+
+        // get aggregate height from around
+
         int ix,iz;
         Biome biome;
         BiomeRegistry.HeightModRegistryEntry heightmod;
@@ -113,8 +118,8 @@ public class ChunkProviderATG extends ChunkProviderBasic {
                             modheight = height;
                         } else {
                             smoothing = 1.0;
-                            if (biome.getRegistryName().toString().equals("biomesoplenty:glacier")) {
-                                smoothing = 0.5;
+                            if (mainBiome != biome) {
+                                smoothing = provider.biomeRegistry.getSmoothingFactor(biome);
                             }
 
                             modheight = height * (1.0 - smoothing) + heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments) * smoothing;
@@ -127,19 +132,14 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         }
 
         // get the height for the specific biome for smoothing overrides
-
-        biome = provider.getBestBiomeCached(x, z);
-        heightmod = provider.biomeRegistry.getHeightModifier(biome);
-        smoothing = 1.0;
-        if (biome.getRegistryName().toString().equals("biomesoplenty:glacier")) {
-            smoothing = 0.5;
-        }
+        heightmod = provider.biomeRegistry.getHeightModifier(mainBiome);
+        smoothing = provider.biomeRegistry.getSmoothingFactor(mainBiome);
 
         double baseheight = height;
         if (heightmod != null) {
             baseheight = heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments);
         }
 
-        return baseheight * (1.0 - smoothing) + noise * smoothing;
+        return baseheight + (noise - baseheight) * smoothing; //* (1.0 - smoothing) + noise * smoothing;
     }
 }

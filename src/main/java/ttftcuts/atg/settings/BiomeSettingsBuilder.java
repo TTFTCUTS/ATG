@@ -184,6 +184,15 @@ public class BiomeSettingsBuilder {
         this.removeHeightModifier(biome.getRegistryName().toString());
     }
 
+    // Set height smoothing
+    public void setSmoothing(String biome, double factor) {
+        BiomeSettings.SmoothingEntry def = new BiomeSettings.SmoothingEntry();
+        def.name = biomeName(biome);
+        def.smoothing = factor;
+
+        this.settings.smoothing.put(def.getMapKey(), def);
+    }
+
     // ########## group class ##########
 
     public class GroupDetails {

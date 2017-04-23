@@ -81,4 +81,21 @@ public abstract class BiomeModParameter<T> {
             return JsonUtil.get(json, tag, this.defaultValue);
         }
     }
+
+    public static class BooleanParameter extends BiomeModParameter<Boolean> {
+        public final boolean defaultValue;
+
+        public BooleanParameter(boolean value) {
+            super(value);
+            this.defaultValue = value;
+        }
+
+        @Override public void writeToJson(JsonObject json, String tag, Object value) {
+            json.addProperty(tag, (boolean)value);
+        }
+
+        @Override public Boolean readFromJson(JsonObject json, String tag) {
+            return JsonUtil.get(json, tag, this.defaultValue);
+        }
+    }
 }
