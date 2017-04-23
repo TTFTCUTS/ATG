@@ -160,7 +160,7 @@ public class GrassColours {
     }
 
     public static void clearCache() {
-        ATG.logger.info("Clearing grass colour biome cache");
+        //ATG.logger.info("Clearing grass colour biome cache");
         grassCache.invalidateAll();
     }
 

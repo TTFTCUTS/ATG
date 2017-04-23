@@ -16,10 +16,7 @@ import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.common.BiomeManager;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import ttftcuts.atg.biome.*;
-import ttftcuts.atg.biome.heightmods.HeightModDunes;
-import ttftcuts.atg.biome.heightmods.HeightModMesa;
-import ttftcuts.atg.biome.heightmods.HeightModMushroomIsland;
-import ttftcuts.atg.biome.heightmods.HeightModPlateaus;
+import ttftcuts.atg.biome.heightmods.*;
 import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 
 public abstract class ATGBiomes {
@@ -64,12 +61,14 @@ public abstract class ATGBiomes {
         public static IBiomeHeightModifier ISLAND;
         public static IBiomeHeightModifier MESA;
         public static IBiomeHeightModifier PLATEAU;
+        public static IBiomeHeightModifier OFFSET;
 
         public static void init() {
             DUNES = ATG.globalRegistry.registerHeightModifier(new HeightModDunes(), "dunes");
             ISLAND = ATG.globalRegistry.registerHeightModifier(new HeightModMushroomIsland(), "island");
             MESA = ATG.globalRegistry.registerHeightModifier(new HeightModMesa(), "mesa");
             PLATEAU = ATG.globalRegistry.registerHeightModifier(new HeightModPlateaus(), "plateau");
+            OFFSET = ATG.globalRegistry.registerHeightModifier(new HeightModOffset(), "offset");
         }
     }
 

@@ -94,7 +94,7 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         double k;
 
         double noise = 0.0;
-        double modheight;
+        double modheight, smoothing;
 
         Map<Biome, Double> heights = new HashMap<Biome, Double>();
 
@@ -112,7 +112,12 @@ public class ChunkProviderATG extends ChunkProviderBasic {
                         if (heightmod == null) {
                             modheight = height;
                         } else {
-                            modheight = heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments);
+                            smoothing = 1.0;
+                            if (biome.getRegistryName().toString().equals("biomesoplenty:glacier")) {
+                                smoothing = 0.5;
+                            }
+
+                            modheight = height * (1.0 - smoothing) + heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments) * smoothing;
                         }
                         noise += modheight * k;
                         heights.put(biome, modheight);
@@ -121,6 +126,20 @@ public class ChunkProviderATG extends ChunkProviderBasic {
             }
         }
 
-        return noise;
+        // get the height for the specific biome for smoothing overrides
+
+        biome = provider.getBestBiomeCached(x, z);
+        heightmod = provider.biomeRegistry.getHeightModifier(biome);
+        smoothing = 1.0;
+        if (biome.getRegistryName().toString().equals("biomesoplenty:glacier")) {
+            smoothing = 0.5;
+        }
+
+        double baseheight = height;
+        if (heightmod != null) {
+            baseheight = heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments);
+        }
+
+        return baseheight * (1.0 - smoothing) + noise * smoothing;
     }
 }

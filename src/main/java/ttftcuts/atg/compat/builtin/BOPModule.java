@@ -1,5 +1,6 @@
 package ttftcuts.atg.compat.builtin;
 
+import net.minecraft.init.Biomes;
 import ttftcuts.atg.ATGBiomes;
 import ttftcuts.atg.generator.biome.BiomeRegistry.EnumBiomeCategory;
 import ttftcuts.atg.settings.BiomeSettingsBuilder;
@@ -8,8 +9,6 @@ public class BOPModule extends ProvidedBiomeModule {
 
     public BOPModule() {
         super("Biomes'O'Plenty Integration", "BiomesOPlenty");
-
-        final double island = 0.02;
 
         final double less_common = 0.5;
         double uncommon = 0.3;
@@ -32,7 +31,7 @@ public class BOPModule extends ProvidedBiomeModule {
         b.getGroup(EnumBiomeCategory.LAND, "Plains")
                 .addBiome("flower_field", very_uncommon)
                 .addBiome("grassland", very_rare)
-                .addBiome("lavender_fields", uncommon)
+                .addBiome("lavender_fields", very_uncommon)
                 .addBiome("prairie", less_common);
 
 
@@ -59,7 +58,8 @@ public class BOPModule extends ProvidedBiomeModule {
 
         // ice plains
         b.getGroup(EnumBiomeCategory.LAND, "Ice Plains")
-                .addBiome("cold_desert", less_common);
+                .addBiome("cold_desert", less_common)
+                .addBiome("arctic", less_common);
 
 
         // jungle
@@ -102,8 +102,7 @@ public class BOPModule extends ProvidedBiomeModule {
         // woodland
         b.getGroup(EnumBiomeCategory.LAND, "Woodland")
                 .addBiome("cherry_blossom_grove", rare)
-                .addBiome("eucalyptus_forest", uncommon)
-                .addBiome("grove", less_common)
+                .addBiome("eucalyptus_forest", rare)
                 .addBiome("mystic_grove", very_rare);
 
 
@@ -134,26 +133,81 @@ public class BOPModule extends ProvidedBiomeModule {
                 .addBiome("kelp_forest", uncommon);
 
 
+        final double island = 0.0025;
         // deep ocean
         b.getGroup(EnumBiomeCategory.OCEAN, "Deep Ocean")
                 .addBiome("mangrove", island)
                 .addBiome("origin_island", island)
                 .addBiome("tropical_island", island)
-                .addBiome("flower_island", island);
+                .addBiome("flower_island", island)
+                .addBiome("volcanic_island", island);
 
 
         //------ Sub-biomes ---------------------------------------------------------
 
-        double mutation = 1.0/16.0;
+        final double mutation = 1.0/16.0;
+
+        b.addSubBiome(Biomes.FOREST, "cherry_blossom_grove", mutation);
+        b.addSubBiome(Biomes.ICE_PLAINS, "glacier", mutation);
+        b.addSubBiome("cold_desert", "glacier", mutation);
+        b.addSubBiome(Biomes.DESERT, "oasis", mutation);
+        b.addSubBiome(Biomes.ICE_MOUNTAINS, "alps", 0.5);
 
 
-        double clearing = 0.1;
+        final double clearing = 0.1;
+
+        b.addSubBiome("flower_fields", Biomes.PLAINS, clearing);
+        b.addSubBiome("flower_fields", "shrubland", clearing);
+        b.addSubBiome("flower_fields", "woodland", clearing);
+        b.addSubBiome("lavender_fields", Biomes.PLAINS, clearing);
+        b.addSubBiome("lavender_fields", "shrubland", clearing);
+        b.addSubBiome("lavender_fields", "woodland", clearing);
+        b.addSubBiome("prairie", "shrubland", clearing);
+        b.addSubBiome("prairie", "woodland", clearing);
+        b.addSubBiome(Biomes.PLAINS, "orchard", clearing * 0.5);
+
+        b.addSubBiome(Biomes.FOREST, "grove", clearing * 0.5);
+        b.addSubBiome(Biomes.FOREST, "dead_forest", clearing * 0.2);
+        b.addSubBiome(Biomes.FOREST_HILLS, "grove", clearing * 0.2);
+        b.addSubBiome(Biomes.FOREST_HILLS, "dead_forest", clearing * 0.2);
+
+        b.addSubBiome("seasonal_forest", Biomes.PLAINS, clearing);
+        b.addSubBiome("seasonal_forest", "woodland", clearing);
+        b.addSubBiome("seasonal_forest", "shrubland", clearing);
+        b.addSubBiome("seasonal_forest", "dead_forest", clearing * 0.2);
+
+        b.addSubBiome("temperate_rainforest", Biomes.PLAINS, clearing * 0.5);
+        b.addSubBiome("temperate_rainforest", "woodland", clearing * 0.5);
+        b.addSubBiome("temperate_rainforest", "shrubland", clearing * 0.5);
+        b.addSubBiome("temperate_rainforest", "grove", clearing * 0.5);
+
+        b.addSubBiome("boreal_forest", Biomes.PLAINS, clearing * 2);
+        b.addSubBiome("maple_woods", Biomes.PLAINS, clearing * 2);
+        b.addSubBiome("shield", Biomes.PLAINS, clearing);
+        b.addSubBiome("shield", "grove", clearing);
+
+        b.addSubBiome("snowy_coniferous_forest", Biomes.ICE_PLAINS, clearing * 2);
+        b.addSubBiome("snowy_forest", Biomes.ICE_PLAINS, clearing * 2);
+
+        b.addSubBiome(Biomes.FOREST_HILLS, "mountain_foothills", 1.0);
 
         //------ Hill biomes ---------------------------------------------------------
+
+        double hills = 128/255.0;
+        double upperhills = 170/255.0;
+        double mountain = 192/255.0;
+
+        b.addHillBiome("mountain_foothills", "mountain_peaks", upperhills);
+        b.addHillBiome("mountain_foothills", "alps", mountain);
+
+        b.addHillBiome("mountain_foothills", "alps", upperhills);
 
         //------ Height mods ---------------------------------------------------------
         b.addHeightModifier("origin_island", "island");
         b.addHeightModifier("tropical_island", "island");
         b.addHeightModifier("flower_island", "island");
+
+        b.addHeightModifier("overgrown_cliffs", "plateau");
+        b.addHeightModifier("glacier", "offset").setParameter("height", 10);
     }
 }
