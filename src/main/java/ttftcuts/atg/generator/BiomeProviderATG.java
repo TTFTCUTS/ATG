@@ -277,7 +277,12 @@ public class BiomeProviderATG extends BiomeProvider {
                 || (height < CoreNoise.BEACH_MAX && swamp > 0.0))) {
             category = BiomeRegistry.EnumBiomeCategory.SWAMP;
         } else if (height < CoreNoise.BEACH_MAX) {
-            category = BiomeRegistry.EnumBiomeCategory.BEACH;
+            // curse you, clay!
+            if (height - (heightfuzz * 0.5) < CoreNoise.BEACH_MIN) {
+                category = BiomeRegistry.EnumBiomeCategory.OCEAN;
+            } else {
+                category = BiomeRegistry.EnumBiomeCategory.BEACH;
+            }
         }
 
         Map<String, BiomeGroup> biomeset = this.biomeRegistry.biomeGroups.get(category);

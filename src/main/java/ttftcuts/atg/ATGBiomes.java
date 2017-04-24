@@ -6,7 +6,6 @@ import net.minecraft.block.BlockOldLog;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenBlockBlob;
 import net.minecraft.world.gen.feature.WorldGenSavannaTree;
@@ -65,7 +64,7 @@ public abstract class ATGBiomes {
 
         public static void init() {
             DUNES = ATG.globalRegistry.registerHeightModifier(new HeightModDunes(), "dunes");
-            ISLAND = ATG.globalRegistry.registerHeightModifier(new HeightModMushroomIsland(), "island");
+            ISLAND = ATG.globalRegistry.registerHeightModifier(new HeightModIsland(), "island");
             MESA = ATG.globalRegistry.registerHeightModifier(new HeightModMesa(), "mesa");
             PLATEAU = ATG.globalRegistry.registerHeightModifier(new HeightModPlateaus(), "plateau");
             OFFSET = ATG.globalRegistry.registerHeightModifier(new HeightModOffset(), "offset");

@@ -45,11 +45,7 @@ public class HeightModPlateaus implements IBiomeHeightModifier {
          * 1: LOLHUEG plateaus
          */
 
-        int variant = 0;
-
-        if(args != null && args.containsKey("variant")) {
-            variant = (int)args.get("variant");
-        }
+        int variant = BiomeModParameter.get("variant", args, 0);
 
         int stepsize = 16;
         double magnitude = 0.045;

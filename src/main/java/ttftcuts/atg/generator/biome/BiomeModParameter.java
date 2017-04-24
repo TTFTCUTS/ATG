@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import ttftcuts.atg.util.JsonUtil;
 import ttftcuts.atg.util.MathUtil;
 
+import java.util.Map;
+
 public abstract class BiomeModParameter<T> {
     public final T defaultValue;
 
@@ -13,6 +15,15 @@ public abstract class BiomeModParameter<T> {
 
     public abstract void writeToJson(JsonObject json, String tag, Object value);
     public abstract T readFromJson(JsonObject json, String tag);
+
+    // ########## U for Utility?! Wheee! ##########
+
+    public static <U> U get(String name, Map<String, Object> args, U fallback) {
+        if (args != null && args.containsKey(name)) {
+            return (U)args.get(name);
+        }
+        return fallback;
+    }
 
     // ########## Implementations ##########
 

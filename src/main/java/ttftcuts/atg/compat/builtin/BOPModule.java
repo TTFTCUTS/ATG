@@ -133,7 +133,7 @@ public class BOPModule extends ProvidedBiomeModule {
                 .addBiome("kelp_forest", uncommon);
 
 
-        final double island = 0.0025;
+        final double island = 0.001;
         // deep ocean
         b.getGroup(EnumBiomeCategory.OCEAN, "Deep Ocean")
                 .addBiome("mangrove", island)
@@ -190,6 +190,11 @@ public class BOPModule extends ProvidedBiomeModule {
         b.addSubBiome("snowy_forest", Biomes.ICE_PLAINS, clearing * 2);
 
         b.addSubBiome(Biomes.FOREST_HILLS, "mountain_foothills", 1.0);
+        b.addSubBiome("overgrown_cliffs", Biomes.JUNGLE, 0.2);
+        b.addSubBiome("overgrown_cliffs", "bamboo_forest", 0.1);
+        b.addSubBiome("overgrown_cliffs", ATGBiomes.TROPICAL_SHRUBLAND, 0.1);
+
+        b.addSubBiome(Biomes.JUNGLE_HILLS, "overgrown_cliffs", clearing);
 
         //------ Hill biomes ---------------------------------------------------------
 
@@ -202,10 +207,23 @@ public class BOPModule extends ProvidedBiomeModule {
 
         b.addHillBiome("mountain_foothills", "alps", upperhills);
 
+        b.addHillBiome("seasonal_forest", "mountain_foothills", hills);
+
+        b.addHillBiome("lavender_fields", Biomes.EXTREME_HILLS, upperhills);
+        b.addHillBiome("flower_fields", Biomes.EXTREME_HILLS, upperhills);
+        b.addHillBiome("prairie", Biomes.EXTREME_HILLS, upperhills);
+        b.addHillBiome("grassland", Biomes.EXTREME_HILLS, upperhills);
+
         //------ Height mods ---------------------------------------------------------
+        b.addHeightModifier("mangrove", "island")
+                .setParameter("heightoffset", -1)
+                .setParameter("hilliness", 0.25);
         b.addHeightModifier("origin_island", "island");
         b.addHeightModifier("tropical_island", "island");
         b.addHeightModifier("flower_island", "island");
+        b.addHeightModifier("volcanic_island", "island")
+                .setParameter("heightoffset", 1)
+                .setParameter("hilliness", 3.0);
 
         b.addHeightModifier("overgrown_cliffs", "plateau");
         b.addHeightModifier("glacier", "offset")
@@ -214,7 +232,7 @@ public class BOPModule extends ProvidedBiomeModule {
                 .setParameter("taperstart", 140)
                 .setParameter("taperend", 220)
                 .setParameter("taperheight", 4);
-        
+
         //------ Height smoothing ---------------------------------------------------------
         b.setSmoothing("glacier", 0.4);
     }

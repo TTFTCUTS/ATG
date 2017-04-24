@@ -47,11 +47,7 @@ public class HeightModMesa implements IBiomeHeightModifier {
          * 2: bryce style sprires
          */
 
-        int variant = 0;
-
-        if(args != null && args.containsKey("variant")) {
-            variant = (int)args.get("variant");
-        }
+        int variant = BiomeModParameter.get("variant", args, 0);
 
         int nx = variant == 1 ? x / 2 + 37492 : x;
         int nz = variant == 1 ? z / 2 + 85477 : z;

@@ -22,6 +22,7 @@ public class CoreNoise {
     public static final double SEA_LEVEL = 63 / 255D;
     public static final double SWAMP_MAX = 77 / 255D;
     public static final double BEACH_MAX = 66 / 255D;
+    public static final double BEACH_MIN = 58 / 255D;
     public static final double COAST_MIN = 51 / 255D;
 
     public static final double SQUASH_HEIGHT = 0.9;

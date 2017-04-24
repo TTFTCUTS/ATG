@@ -22,30 +22,13 @@ public class HeightModOffset implements IBiomeHeightModifier {
 
     @Override
     public double getModifiedHeight(int x, int z, double height, @Nullable Map<String, Object> args) {
-        int offset = 0;
-        boolean tapered = false;
-        int taperstart = 0;
-        int taperend = 0;
-        int taperheight = 0;
-
-        if(args != null && args.containsKey("height")) {
-            offset = (int)args.get("height");
-        }
-        if(args != null && args.containsKey("tapered")) {
-            tapered = (boolean)args.get("tapered");
-        }
+        int offset = BiomeModParameter.get("height", args, 0);
+        boolean tapered = BiomeModParameter.get("tapered", args, false);
 
         if (tapered) {
-
-            if (args != null && args.containsKey("taperstart")) {
-                taperstart = (int) args.get("taperstart");
-            }
-            if (args != null && args.containsKey("taperend")) {
-                taperend = (int) args.get("taperend");
-            }
-            if (args != null && args.containsKey("taperheight")) {
-                taperheight = (int) args.get("taperheight");
-            }
+            int taperstart = BiomeModParameter.get("taperstart", args, 0);
+            int taperend = BiomeModParameter.get("taperend", args, 0);;
+            int taperheight = BiomeModParameter.get("taperheight", args, 0);;
 
             if (taperstart == taperend) {
                 return height + (offset / 255.0);
