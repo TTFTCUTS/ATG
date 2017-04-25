@@ -10,18 +10,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class HeightModIsland implements IBiomeHeightModifier {
+public class HeightModIsland extends ParamHeightMod {
     protected Noise landNoise;
     protected Noise cliffNoise;
     protected Noise hillNoise;
 
-    protected static final Map<String, BiomeModParameter> PARAMETERS = new HashMap<>();
-    static {
-        PARAMETERS.put("heightoffset", new BiomeModParameter.IntParameter(0, -255, 255));
-        PARAMETERS.put("hilliness", new BiomeModParameter.DoubleParameter(1.0, 0.0, 5.0));
-    }
-
     public HeightModIsland() {
+        parameters.put("heightoffset", new BiomeModParameter.IntParameter(0, -255, 255));
+        parameters.put("hilliness", new BiomeModParameter.DoubleParameter(1.0, 0.0, 5.0));
+
         Random rand = new Random(2893742398423L);
 
         this.landNoise = new OctaveNoise(rand, 50, 4);
@@ -30,14 +27,9 @@ public class HeightModIsland implements IBiomeHeightModifier {
     }
 
     @Override
-    public Map<String, BiomeModParameter> getSettings() {
-        return PARAMETERS;
-    }
-
-    @Override
     public double getModifiedHeight(int x, int z, double height, Map<String,Object> args) {
-        int heightoffset = BiomeModParameter.get("heightoffset", args, 0);
-        double hilliness = BiomeModParameter.get("hilliness", args, 1.0);
+        int heightoffset = this.parameter("heightoffset", args);
+        double hilliness = this.parameter("hilliness", args);
 
         double sealevel = 0.25 + heightoffset / 255.0;
 

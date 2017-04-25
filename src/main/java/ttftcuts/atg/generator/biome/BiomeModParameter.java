@@ -16,13 +16,24 @@ public abstract class BiomeModParameter<T> {
     public abstract void writeToJson(JsonObject json, String tag, Object value);
     public abstract T readFromJson(JsonObject json, String tag);
 
+    public T limitInput(T input) { return input; }
+
     // ########## U for Utility?! Wheee! ##########
 
-    public static <U> U get(String name, Map<String, Object> args, U fallback) {
+    public static <U> U getManual(String name, Map<String, Object> args, U fallback) {
         if (args != null && args.containsKey(name)) {
             return (U)args.get(name);
         }
         return fallback;
+    }
+
+    public static <U> U get(String name, Map<String, Object> args, BiomeModParameter<U> parameter) {
+        return parameter.limitInput(getManual(name, args, parameter.defaultValue));
+    }
+
+    public static <U> U get(String name, Map<String, Object> args, Map<String, BiomeModParameter> parameters) {
+        BiomeModParameter<U> parameter = parameters.get(name);
+        return get(name, args, parameter);
     }
 
     // ########## Implementations ##########
@@ -50,6 +61,17 @@ public abstract class BiomeModParameter<T> {
         public Integer readFromJson(JsonObject json, String tag) {
             return MathUtil.clamp(JsonUtil.get(json, tag, this.defaultValue), lowerLimit, upperLimit);
         }
+
+        @Override
+        public Integer limitInput(Integer input) {
+            return MathUtil.clamp(input, lowerLimit, upperLimit);
+        }
+    }
+
+    public static class VariantParameter extends IntParameter {
+        public VariantParameter(int count) {
+            super(0,0,Math.max(count-1, 0));
+        }
     }
 
     public static class DoubleParameter extends BiomeModParameter<Double> {
@@ -74,6 +96,11 @@ public abstract class BiomeModParameter<T> {
         @Override
         public Double readFromJson(JsonObject json, String tag) {
             return MathUtil.clamp(JsonUtil.get(json, tag, this.defaultValue), lowerLimit, upperLimit);
+        }
+
+        @Override
+        public Double limitInput(Double input) {
+            return MathUtil.clamp(input, lowerLimit, upperLimit);
         }
     }
 

@@ -141,8 +141,6 @@ public class BiomeRegistry {
         } else {
             subs.put(subBiome, subs.get(subBiome) + weight);
         }
-
-        //ATG.logger.info("Sub biomes for "+parent.getBiomeName()+": (total weight: "+this.subWeightTotals.get(parent)+") "+subs);
     }
 
     public Biome getSubBiome(Biome parent, double value) {

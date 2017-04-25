@@ -191,14 +191,20 @@ public class DefaultBiomeSettings extends BiomeSettings {
         b.addHeightModifier(Biomes.DESERT, "dunes");
         b.addHeightModifier(Biomes.MUSHROOM_ISLAND, "island");
         b.addHeightModifier(Biomes.SAVANNA_PLATEAU, "plateau");
-        b.addHeightModifier(Biomes.MUTATED_SAVANNA, "plateau").setParameter("variant", 1);
-        b.addHeightModifier(Biomes.MUTATED_SAVANNA_ROCK, "plateau").setParameter("variant", 1);
+        b.addHeightModifier(Biomes.MUTATED_SAVANNA, "plateau")
+                .setParameter("stepsize", 36)
+                .setParameter("magnitude", 0.2)
+                .setParameter("riftdepth", 0.3);
+        b.addHeightModifier(Biomes.MUTATED_SAVANNA_ROCK, "plateau")
+                .setParameter("stepsize", 36)
+                .setParameter("magnitude", 0.2)
+                .setParameter("riftdepth", 0.3);
         b.addHeightModifier(Biomes.MUTATED_ROOFED_FOREST, "plateau");
 
         b.addHeightModifier(Biomes.MESA, "mesa");
         b.addHeightModifier(Biomes.MESA_ROCK, "mesa").setParameter("variant", 1); // plateau F
         b.addHeightModifier(Biomes.MESA_CLEAR_ROCK, "mesa").setParameter("variant", 1); // plateau
-        b.addHeightModifier(Biomes.MUTATED_MESA, "mesa").setParameter("variant", 2); // bryce
+        b.addHeightModifier(Biomes.MUTATED_MESA, "mesa").setParameter("spires", true); // bryce
         b.addHeightModifier(Biomes.MUTATED_MESA_ROCK, "mesa").setParameter("variant", 1); // plateau F M
         b.addHeightModifier(Biomes.MUTATED_MESA_CLEAR_ROCK, "mesa").setParameter("variant", 1); // plateau M
     }
