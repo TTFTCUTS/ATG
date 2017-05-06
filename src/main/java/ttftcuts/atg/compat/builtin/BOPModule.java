@@ -129,7 +129,7 @@ public class BOPModule extends ProvidedBiomeModule {
 
         // ocean
         b.getGroup(EnumBiomeCategory.OCEAN, "Ocean")
-                .addBiome("coral_reef", very_uncommon)
+                //.addBiome("coral_reef", very_uncommon)
                 .addBiome("kelp_forest", uncommon);
 
 
@@ -186,6 +186,10 @@ public class BOPModule extends ProvidedBiomeModule {
         b.addSubBiome("shield", Biomes.PLAINS, clearing);
         b.addSubBiome("shield", "grove", clearing);
 
+        b.addSubBiome("boreal_forest", "moor", clearing * 0.15);
+        b.addSubBiome("maple_woods", "moor", clearing * 0.15);
+        b.addSubBiome("shield", "moor", clearing * 0.15);
+
         b.addSubBiome("snowy_coniferous_forest", Biomes.ICE_PLAINS, clearing * 2);
         b.addSubBiome("snowy_forest", Biomes.ICE_PLAINS, clearing * 2);
 
@@ -195,6 +199,8 @@ public class BOPModule extends ProvidedBiomeModule {
         b.addSubBiome("overgrown_cliffs", ATGBiomes.TROPICAL_SHRUBLAND, 0.1);
 
         b.addSubBiome(Biomes.JUNGLE_HILLS, "overgrown_cliffs", clearing);
+
+        b.addSubBiome(Biomes.OCEAN, "coral_reef", rare);
 
         //------ Hill biomes ---------------------------------------------------------
 
