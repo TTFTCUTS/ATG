@@ -8,7 +8,7 @@ import ttftcuts.atg.settings.BiomeSettingsBuilder;
 public class BOPModule extends ProvidedBiomeModule {
 
     public BOPModule() {
-        super("Biomes'O'Plenty Integration", "BiomesOPlenty");
+        super("Biomes'O'Plenty Integration", "biomesoplenty");
 
         final double less_common = 0.5;
         double uncommon = 0.3;

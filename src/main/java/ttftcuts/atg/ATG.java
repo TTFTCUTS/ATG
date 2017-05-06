@@ -40,8 +40,6 @@ public class ATG
     {
         config = new ConfigHandler(event.getSuggestedConfigurationFile());
 
-        ATGBiomes.init();
-
         MapGenStructureIO.registerStructure(WoodlandMansionATG.Start.class, "ATGMansion");
         worldType = new WorldTypeATG("atg");
 
