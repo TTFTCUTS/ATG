@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import ttftcuts.atg.ATG;
 
 import java.util.Map;
@@ -26,13 +25,13 @@ public abstract class JsonUtil {
             val = getValue(element, fallback);
         } catch (IllegalStateException|ClassCastException e) {
             ATG.logger.warn("Incorrect value type: " +fallback.getClass()+", falling back to " +fallback);
-        } catch (InvalidArgumentException e) {
+        } catch (IllegalArgumentException e) {
             ATG.logger.warn("Unhandled fallback type: " +fallback.getClass());
         }
         return val;
     }
 
-    private static <T> T getValue(JsonElement element, T compared) throws IllegalStateException, ClassCastException, InvalidArgumentException {
+    private static <T> T getValue(JsonElement element, T compared) throws IllegalStateException, ClassCastException, IllegalArgumentException {
         if (compared instanceof Double) {
             return (T)(new Double(element.getAsDouble()));
         }
@@ -52,7 +51,7 @@ public abstract class JsonUtil {
             return (T)(new Boolean(element.getAsBoolean()));
         }
 
-        throw new InvalidArgumentException(null);
+        throw new IllegalArgumentException();
     }
 
     public static JsonObject getAsObject(JsonObject json, String tag) {
