@@ -1,5 +1,6 @@
 package ttftcuts.atg.biome.heightmods;
 
+import ttftcuts.atg.generator.biome.BiomeModParameter;
 import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 import ttftcuts.atg.noise.Noise;
 import ttftcuts.atg.noise.OctaveNoise;
@@ -8,15 +9,20 @@ import ttftcuts.atg.noise.TailoredNoise;
 import ttftcuts.atg.util.MathUtil;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class HeightModPlateaus implements IBiomeHeightModifier {
+public class HeightModPlateaus extends ParamHeightMod {
     protected Noise plateaunoise;
     protected Noise roughness;
     protected Noise rifts;
 
     public HeightModPlateaus() {
+        parameters.put("stepsize", new BiomeModParameter.IntParameter(16, 1, 255));
+        parameters.put("magnitude", new BiomeModParameter.DoubleParameter(0.045, 0.0, 1.0));
+        parameters.put("riftdepth", new BiomeModParameter.DoubleParameter(0.05, 0.0, 1.0));
+
         Random rand = new Random(37813873749245L);
 
         this.plateaunoise = new TailoredNoise(rand, 200, 0.5, 50, 0.2, 20, 0.1, 8, 0.01);
@@ -24,29 +30,18 @@ public class HeightModPlateaus implements IBiomeHeightModifier {
         this.rifts = new RidgeNoise(rand, 150, 4);
     }
 
-    @Override public double getModifiedHeight(int x, int z, double height, @Nullable Map<String, Object> args) {
+    @Override
+    public double getModifiedHeight(int x, int z, double height, @Nullable Map<String, Object> args) {
 
         /**
-         * Variants:
-         * 0: moderate plateaus
-         * 1: LOLHUEG plateaus
+         * Parameter Values:
+         * normal (default): 16, 0.045, 0.05
+         * savanna M craziness: 36, 0.2, 0.3
          */
 
-        int variant = 0;
-
-        if(args != null && args.containsKey("variant")) {
-            variant = (int)args.get("variant");
-        }
-
-        int stepsize = 16;
-        double magnitude = 0.045;
-        double riftdepth = 0.05;
-
-        if (variant == 1) {
-            stepsize = 36;
-            magnitude = 0.2;
-            riftdepth = 0.3;
-        }
+        int stepsize = this.parameter("stepsize", args);
+        double magnitude = this.parameter("magnitude", args);
+        double riftdepth = this.parameter("riftdepth", args);
 
         double plateau = this.plateaunoise.getValue(x,z);
         double rough = this.roughness.getValue(x,z);

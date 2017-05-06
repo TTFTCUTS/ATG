@@ -12,9 +12,12 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeCache;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.layer.IntCache;
+import ttftcuts.atg.ATG;
 import ttftcuts.atg.generator.biome.BiomeBlobs;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
 import ttftcuts.atg.generator.biome.BiomeRegistry.BiomeGroup;
+import ttftcuts.atg.settings.BiomeSettings;
+import ttftcuts.atg.settings.WorldSettings;
 import ttftcuts.atg.util.MathUtil;
 
 
@@ -34,6 +37,7 @@ public class BiomeProviderATG extends BiomeProvider {
     //------ Biome gen fields ---------------------------------------------------------
 
     protected World world;
+    protected BiomeSettings settings;
     protected Random fuzz;
     public BiomeRegistry biomeRegistry;
 
@@ -42,6 +46,7 @@ public class BiomeProviderATG extends BiomeProvider {
     public BiomeProviderATG(World world)
     {
         this.world = world;
+        this.settings = WorldSettings.loadWorldSettings(world).biomeSettings;
 
         this.noise = new CoreNoise(world.getSeed());
 
@@ -50,8 +55,9 @@ public class BiomeProviderATG extends BiomeProvider {
         this.biomesToSpawnIn = Lists.newArrayList(allowedBiomes);
 
         this.biomeRegistry = new BiomeRegistry();
+        this.biomeRegistry.populate(this.settings);
 
-        // TODO: Set things based on the world info, like biome lists etc
+        // TODO: Set things based on the world settings
     }
 
     //------ BiomeProvder functionality ---------------------------------------------------------
@@ -271,7 +277,12 @@ public class BiomeProviderATG extends BiomeProvider {
                 || (height < CoreNoise.BEACH_MAX && swamp > 0.0))) {
             category = BiomeRegistry.EnumBiomeCategory.SWAMP;
         } else if (height < CoreNoise.BEACH_MAX) {
-            category = BiomeRegistry.EnumBiomeCategory.BEACH;
+            // curse you, clay!
+            if (height - (heightfuzz * 0.5) < CoreNoise.BEACH_MIN) {
+                category = BiomeRegistry.EnumBiomeCategory.OCEAN;
+            } else {
+                category = BiomeRegistry.EnumBiomeCategory.BEACH;
+            }
         }
 
         Map<String, BiomeGroup> biomeset = this.biomeRegistry.biomeGroups.get(category);

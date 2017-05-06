@@ -5,234 +5,115 @@ import net.minecraft.world.biome.Biome;
 import ttftcuts.atg.ATG;
 import ttftcuts.atg.ATGBiomes;
 import ttftcuts.atg.generator.CoreNoise;
+import ttftcuts.atg.settings.BiomeSettings;
 import ttftcuts.atg.util.MathUtil;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BiomeRegistry {
 
     public Map<EnumBiomeCategory, Map<String, BiomeGroup>> biomeGroups;
     public Map<Biome, Map<Biome, Double>> subBiomes;
     public Map<Biome, Double> subWeightTotals;
-    public Map<Biome, Map<Biome, Double>> hillBiomes; // sub lists are assumed to be ordered lowest to highest!
-    public Map<Biome, HeightModEntry> heightMods;
+    public Map<Biome, LinkedHashMap<Biome, Double>> hillBiomes; // sub lists are assumed to be ordered lowest to highest!
+    public Map<Biome, HeightModRegistryEntry> heightMods;
+    public Map<Biome, Double> smoothingOverrides;
 
     public BiomeRegistry() {
         this.biomeGroups = new HashMap<EnumBiomeCategory, Map<String, BiomeGroup>>();
         this.subBiomes = new HashMap<Biome, Map<Biome, Double>>();
         this.subWeightTotals = new HashMap<Biome, Double>();
-        this.hillBiomes = new HashMap<Biome, Map<Biome, Double>>();
-        this.heightMods = new HashMap<Biome, HeightModEntry>();
+        this.hillBiomes = new HashMap<Biome, LinkedHashMap<Biome, Double>>();
+        this.heightMods = new HashMap<Biome, HeightModRegistryEntry>();
+        this.smoothingOverrides = new HashMap<Biome, Double>();
 
         for (EnumBiomeCategory category : EnumBiomeCategory.values()) {
             this.biomeGroups.put(category, new HashMap<String, BiomeGroup>());
         }
-
-        this.populate();
     }
 
-    public void populate() {
-        //TODO: Here's where the settings would apply packs of changes or whatever on top of the default, but for now it's all pre-set
+    public void populate(BiomeSettings settings) {
 
-        Random rand = new Random();
+        // Define groups
+        for (BiomeSettings.GroupDefinition def : settings.groups.values()) {
+            if (def.category != EnumBiomeCategory.UNKNOWN) {
+                this.addGroup(def.category, def.name, def.temperature, def.moisture, def.height, def.minHeight, def.maxHeight)
+                    .setBlobSizeModifier(def.blobsize)
+                    .setSubBlobSizeModifier(def.subblobsize);
+            }
+        }
 
-        //------ Land -----------------------
+        // Add biomes to groups
+        for (BiomeSettings.BiomeDefinition def : settings.biomes.values()) {
+            if (def.category == EnumBiomeCategory.UNKNOWN) { continue; }
 
-        // Plains
-        addGroup(EnumBiomeCategory.LAND, "Plains", 0.8, 0.4, 0.35)
-                .addBiome(Biomes.PLAINS);
+            if (!Biome.REGISTRY.containsKey(def.name)) {
+                continue;
+            }
 
-        // Desert
-        addGroup(EnumBiomeCategory.LAND, "Desert", 1.8, 0.2, 0.275)
-                .setBlobSizeModifier(1) // larger blobs, one power of two greater
-                .addBiome(Biomes.DESERT)
-                .addBiome(Biomes.MESA, 0.3);
+            Biome biome = Biome.REGISTRY.getObject(def.name);
 
-        // Forest
-        addGroup(EnumBiomeCategory.LAND, "Forest", 0.7, 0.8, 0.35)
-                .addBiome(Biomes.FOREST)
-                .addBiome(Biomes.BIRCH_FOREST, 0.3)
-                .addBiome(Biomes.ROOFED_FOREST, 0.2);
+            if (this.biomeGroups.get(def.category).containsKey(def.group)) {
+                BiomeGroup group = this.biomeGroups.get(def.category).get(def.group);
 
-        // Taiga
-        addGroup(EnumBiomeCategory.LAND, "Taiga", 0.05, 0.7, 0.4) // height 0.5
-                .addBiome(Biomes.COLD_TAIGA);
+                group.addBiome(biome, def.weight);
+            }
+        }
 
-        // Ice Plains
-        addGroup(EnumBiomeCategory.LAND, "Ice Plains", 0.0, 0.45, 0.3)
-                .addBiome(Biomes.ICE_PLAINS);
+        // Sub-biomes
+        for (BiomeSettings.SubBiomeEntry def : settings.subBiomes.values()) {
+            if (!Biome.REGISTRY.containsKey(def.name) || !Biome.REGISTRY.containsKey(def.parentBiome)) {
+                continue;
+            }
 
-        // Jungle
-        addGroup(EnumBiomeCategory.LAND, "Jungle", 1.75, 0.75, 0.325)
-                .addBiome(Biomes.JUNGLE);
+            Biome biome = Biome.REGISTRY.getObject(def.name);
+            Biome parent = Biome.REGISTRY.getObject(def.parentBiome);
 
-        // Shrubland
-        addGroup(EnumBiomeCategory.LAND, "Shrubland", 0.77, 0.53, 0.35)
-                .addBiome(ATGBiomes.SHRUBLAND);
+            this.addSubBiome(parent, biome, def.weight);
+        }
 
-        // Boreal Forest
-        addGroup(EnumBiomeCategory.LAND, "Boreal Forest", 0.4, 0.8, 0.4) // temp 0.25, height 0.35
-                .addBiome(Biomes.TAIGA)
-                .addBiome(Biomes.REDWOOD_TAIGA, 0.4);
+        // Hill biomes
+        for (BiomeSettings.HillBiomeEntry def : settings.hillBiomes.values()) {
+            if (!Biome.REGISTRY.containsKey(def.name) || !Biome.REGISTRY.containsKey(def.parentBiome)) {
+                continue;
+            }
 
-        // Tundra
-        addGroup(EnumBiomeCategory.LAND, "Tundra", 0.25, 0.45, 0.325)
-                .addBiome(ATGBiomes.TUNDRA);
+            Biome biome = Biome.REGISTRY.getObject(def.name);
+            Biome parent = Biome.REGISTRY.getObject(def.parentBiome);
 
-        // Savanna
-        addGroup(EnumBiomeCategory.LAND, "Savanna", 1.7, 0.55, 0.275)
-                .setSubBlobSizeModifier(1)
-                .addBiome(Biomes.SAVANNA);
+            this.addHillBiome(parent, biome, def.height);
+        }
 
-        // Tropical Shrubland
-        addGroup(EnumBiomeCategory.LAND, "Tropical Shrubland", 1.75, 0.65, 0.35)
-                .addBiome(ATGBiomes.TROPICAL_SHRUBLAND);
+        // Scary eldritch hill biome sub-map sorting call. Feed it a blood sacrifice every full moon for best effect.
+        this.hillBiomes.replaceAll((k, v) -> v.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1,v2)->v1, LinkedHashMap::new)));
 
-        // Woodland
-        addGroup(EnumBiomeCategory.LAND, "Woodland", 0.7, 0.67, 0.3)
-                .addBiome(ATGBiomes.WOODLAND);
+        // Biome height modifiers
+        for (BiomeSettings.HeightModEntry def : settings.heightMods.values()) {
+            if (!Biome.REGISTRY.containsKey(def.name)) {
+                continue;
+            }
+            IBiomeHeightModifier mod = ATG.globalRegistry.getHeightModifier(def.heightMod);
+            if (mod == null) {
+                continue;
+            }
+            Biome biome = Biome.REGISTRY.getObject(def.name);
 
-        // Dry Scrubland
-        addGroup(EnumBiomeCategory.LAND, "Dry Scrubland", 1.8, 0.35, 0.325)
-                .addBiome(ATGBiomes.SCRUBLAND);
+            this.addHeightModifier(biome, mod, def.parameters);
+        }
 
-        //------ Beach -----------------------
+        // Biome height smoothing
+        for (BiomeSettings.SmoothingEntry def : settings.smoothing.values()) {
+            if (!Biome.REGISTRY.containsKey(def.name)) {
+                continue;
+            }
+            Biome biome = Biome.REGISTRY.getObject(def.name);
 
-        // Beach
-        addGroup(EnumBiomeCategory.BEACH, "Beach", 0.6, 0.4, 0.25) // 0.8, 0.4, 0.25
-                .addBiome(Biomes.BEACH);
-
-        // Stone Beach
-        addGroup(EnumBiomeCategory.BEACH, "Cold Beach", 0.34, 0.5, 0.25) // 0.25, 0.4, 0.25
-                .addBiome(ATGBiomes.GRAVEL_BEACH);
-
-        // Cold Beach
-        addGroup(EnumBiomeCategory.BEACH, "Snowy Beach", 0.0, 0.5, 0.26) // 0.0, 0.4, 0.25
-                .addBiome(ATGBiomes.GRAVEL_BEACH_SNOWY);
-
-
-
-        //------ Swamplands -----------------------
-
-        // Swampland
-        addGroup(EnumBiomeCategory.SWAMP, "Swampland", 0.8, 0.9, 0.25)
-                .addBiome(Biomes.SWAMPLAND);
-
-
-
-        //------ Ocean -----------------------
-
-        Double deep = 28.0 / 255.0;
-
-        // Ocean
-        addGroup(EnumBiomeCategory.OCEAN, "Ocean", 0.5, 0.5, 0.25, deep, 1.0)
-                .addBiome(Biomes.OCEAN);
-
-        // Deep Ocean
-        addGroup(EnumBiomeCategory.OCEAN, "Deep Ocean", 0.5, 0.5, 0.25, 0.0, deep)
-                .addBiome(Biomes.DEEP_OCEAN)
-                .addBiome(Biomes.MUSHROOM_ISLAND, 0.002);
-
-
-        //------ SUB-BIOMES -----------------------
-
-        // mutations
-        double mutation = 1.0/15.0;
-
-        addSubBiome(Biomes.PLAINS, Biomes.MUTATED_PLAINS, mutation);
-        addSubBiome(Biomes.DESERT, Biomes.MUTATED_DESERT, mutation);
-        addSubBiome(Biomes.EXTREME_HILLS, Biomes.MUTATED_EXTREME_HILLS, mutation);
-        addSubBiome(Biomes.EXTREME_HILLS, Biomes.MUTATED_EXTREME_HILLS_WITH_TREES, mutation);
-        addSubBiome(Biomes.FOREST, Biomes.MUTATED_FOREST, mutation);
-        addSubBiome(Biomes.FOREST, Biomes.ROOFED_FOREST, mutation);
-        addSubBiome(Biomes.FOREST_HILLS, Biomes.MUTATED_FOREST, mutation);
-        addSubBiome(Biomes.ROOFED_FOREST, Biomes.MUTATED_ROOFED_FOREST, mutation);
-        addSubBiome(Biomes.TAIGA, Biomes.MUTATED_TAIGA, mutation);
-        addSubBiome(Biomes.TAIGA, Biomes.FOREST, mutation);
-        addSubBiome(Biomes.ICE_PLAINS, Biomes.MUTATED_ICE_FLATS, mutation);
-        addSubBiome(Biomes.BIRCH_FOREST, Biomes.MUTATED_BIRCH_FOREST, mutation);
-        addSubBiome(Biomes.BIRCH_FOREST_HILLS, Biomes.MUTATED_BIRCH_FOREST_HILLS, mutation);
-        addSubBiome(Biomes.COLD_TAIGA, Biomes.MUTATED_TAIGA_COLD, mutation);
-        addSubBiome(Biomes.REDWOOD_TAIGA, Biomes.MUTATED_REDWOOD_TAIGA, mutation);
-        addSubBiome(Biomes.REDWOOD_TAIGA_HILLS, Biomes.MUTATED_REDWOOD_TAIGA_HILLS, mutation);
-        addSubBiome(Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU, mutation * 0.5);
-        addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA, mutation * 0.15);
-        addSubBiome(Biomes.SAVANNA, Biomes.MUTATED_SAVANNA_ROCK, mutation * 0.15);
-        addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA_ROCK, mutation);
-        addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA_CLEAR_ROCK, mutation);
-
-        // mesa plateaus
-        double mesa_plateaus = 0.25;
-        addSubBiome(Biomes.MESA, Biomes.MESA_ROCK, mesa_plateaus); // plateau F
-        addSubBiome(Biomes.MESA, Biomes.MESA_CLEAR_ROCK, mesa_plateaus); // plateau
-        addSubBiome(Biomes.MESA, Biomes.MUTATED_MESA, mesa_plateaus); // bryce
-
-        // copses and clearings
-        double clearing = 0.10;
-        addSubBiome(Biomes.PLAINS, ATGBiomes.WOODLAND, clearing);
-        addSubBiome(Biomes.PLAINS, ATGBiomes.SHRUBLAND, clearing);
-        addSubBiome(ATGBiomes.SHRUBLAND, ATGBiomes.WOODLAND, clearing);
-        addSubBiome(ATGBiomes.SHRUBLAND, Biomes.FOREST, clearing);
-        addSubBiome(ATGBiomes.TUNDRA, Biomes.TAIGA, clearing);
-        addSubBiome(Biomes.EXTREME_HILLS, Biomes.EXTREME_HILLS_WITH_TREES, clearing);
-
-        addSubBiome(Biomes.FOREST, Biomes.PLAINS, clearing);
-        addSubBiome(Biomes.FOREST, ATGBiomes.WOODLAND, clearing);
-        addSubBiome(Biomes.FOREST, ATGBiomes.SHRUBLAND, clearing);
-        addSubBiome(Biomes.FOREST_HILLS, Biomes.PLAINS, clearing);
-        addSubBiome(Biomes.FOREST_HILLS, ATGBiomes.WOODLAND, clearing);
-        addSubBiome(Biomes.FOREST_HILLS, ATGBiomes.SHRUBLAND, clearing);
-        addSubBiome(Biomes.BIRCH_FOREST, Biomes.PLAINS, clearing);
-        addSubBiome(Biomes.BIRCH_FOREST, ATGBiomes.SHRUBLAND, clearing);
-        addSubBiome(Biomes.BIRCH_FOREST_HILLS, Biomes.PLAINS, clearing);
-        addSubBiome(Biomes.BIRCH_FOREST_HILLS, ATGBiomes.SHRUBLAND, clearing);
-        addSubBiome(Biomes.ROOFED_FOREST, ATGBiomes.WOODLAND, clearing);
-        addSubBiome(Biomes.ROOFED_FOREST, ATGBiomes.SHRUBLAND, clearing);
-        addSubBiome(Biomes.TAIGA, Biomes.PLAINS, clearing*2);
-        addSubBiome(Biomes.TAIGA_HILLS, Biomes.PLAINS, clearing*2);
-        addSubBiome(Biomes.COLD_TAIGA, Biomes.ICE_PLAINS, clearing*2);
-        addSubBiome(Biomes.COLD_TAIGA_HILLS, Biomes.ICE_MOUNTAINS, clearing*2);
-        addSubBiome(Biomes.ICE_MOUNTAINS, Biomes.COLD_TAIGA_HILLS, clearing);
-
-        //------ HILL BIOMES -----------------------
-
-        double hills = 128/255.0;
-        double upperhills = 170/255.0;
-        double mountain = 192/255.0;
-
-        addHillBiome(Biomes.PLAINS, Biomes.EXTREME_HILLS, upperhills);
-        addHillBiome(Biomes.FOREST, Biomes.FOREST_HILLS, hills);
-        addHillBiome(Biomes.BIRCH_FOREST, Biomes.BIRCH_FOREST_HILLS, hills);
-        addHillBiome(Biomes.TAIGA, Biomes.TAIGA_HILLS, hills);
-        addHillBiome(Biomes.COLD_TAIGA, Biomes.COLD_TAIGA_HILLS, hills);
-        addHillBiome(Biomes.COLD_TAIGA, Biomes.ICE_MOUNTAINS, mountain);
-        addHillBiome(Biomes.JUNGLE, Biomes.JUNGLE_HILLS, hills);
-        addHillBiome(Biomes.ICE_PLAINS, Biomes.ICE_MOUNTAINS, mountain);
-        addHillBiome(ATGBiomes.TUNDRA, Biomes.EXTREME_HILLS, upperhills);
-        addHillBiome(ATGBiomes.TUNDRA, Biomes.ICE_MOUNTAINS, mountain);
-        addHillBiome(ATGBiomes.SHRUBLAND, Biomes.EXTREME_HILLS, mountain);
-        addHillBiome(Biomes.DESERT, Biomes.DESERT_HILLS, hills);
-
-
-        //------ HEIGHT MODIFIERS -----------------------
-
-        addHeightModifier(Biomes.DESERT, ATGBiomes.HeightModifiers.DUNES);
-        addHeightModifier(Biomes.MUSHROOM_ISLAND, ATGBiomes.HeightModifiers.ISLAND);
-        addHeightModifier(Biomes.SAVANNA_PLATEAU, ATGBiomes.HeightModifiers.PLATEAU);
-        addHeightModifier(Biomes.MUTATED_SAVANNA, ATGBiomes.HeightModifiers.PLATEAU, 1);
-        addHeightModifier(Biomes.MUTATED_SAVANNA_ROCK, ATGBiomes.HeightModifiers.PLATEAU, 1);
-        addHeightModifier(Biomes.MUTATED_ROOFED_FOREST, ATGBiomes.HeightModifiers.PLATEAU);
-
-        addHeightModifier(Biomes.MESA, ATGBiomes.HeightModifiers.MESA);
-        addHeightModifier(Biomes.MESA_ROCK, ATGBiomes.HeightModifiers.MESA, 1); // plateau F
-        addHeightModifier(Biomes.MESA_CLEAR_ROCK, ATGBiomes.HeightModifiers.MESA, 1); // plateau
-        addHeightModifier(Biomes.MUTATED_MESA, ATGBiomes.HeightModifiers.MESA, 2); // bryce
-        addHeightModifier(Biomes.MUTATED_MESA_ROCK, ATGBiomes.HeightModifiers.MESA, 1); // plateau F M
-        addHeightModifier(Biomes.MUTATED_MESA_CLEAR_ROCK, ATGBiomes.HeightModifiers.MESA, 1); // plateau M
+            this.setSmoothingFactor(biome, def.smoothing);
+        }
     }
+
+    //------ Adding and getting methods ---------------------------------------------------------
 
     public BiomeGroup addGroup(EnumBiomeCategory category, String name, double temperature, double moisture, double height, double minHeight, double maxHeight) {
         BiomeGroup biomeGroup = new BiomeGroup(name, temperature, moisture, height, minHeight, maxHeight);
@@ -260,8 +141,6 @@ public class BiomeRegistry {
         } else {
             subs.put(subBiome, subs.get(subBiome) + weight);
         }
-
-        //ATG.logger.info("Sub biomes for "+parent.getBiomeName()+": (total weight: "+this.subWeightTotals.get(parent)+") "+subs);
     }
 
     public Biome getSubBiome(Biome parent, double value) {
@@ -322,7 +201,7 @@ public class BiomeRegistry {
     }
 
     public void addHeightModifier(Biome biome, IBiomeHeightModifier mod, Map<String,Object> args) {
-        this.heightMods.put(biome, new HeightModEntry(mod, args));
+        this.heightMods.put(biome, new HeightModRegistryEntry(mod, args));
     }
 
     public void addHeightModifier(Biome biome, IBiomeHeightModifier mod) {
@@ -335,13 +214,25 @@ public class BiomeRegistry {
         this.addHeightModifier(biome, mod, args);
     }
 
-    public HeightModEntry getHeightModifier(Biome biome) {
+    public HeightModRegistryEntry getHeightModifier(Biome biome) {
         return this.heightMods.get(biome);
+    }
+
+    public void setSmoothingFactor(Biome biome, double smoothing) {
+        this.smoothingOverrides.put(biome, smoothing);
+    }
+
+    public double getSmoothingFactor(Biome biome) {
+        if (this.smoothingOverrides.containsKey(biome)) {
+            return this.smoothingOverrides.get(biome);
+        }
+        return 1.0;
     }
 
     //------ BiomeGroup type enum ---------------------------------------------------------
 
     public enum EnumBiomeCategory {
+        UNKNOWN(Biomes.PLAINS),
         LAND(Biomes.PLAINS),
         OCEAN(Biomes.OCEAN),
         BEACH(Biomes.BEACH),
@@ -353,6 +244,22 @@ public class BiomeRegistry {
         EnumBiomeCategory(Biome fallback) {
             this.fallback = new BiomeGroup(this.name()+"_fallback", 0.5,0.5,0.25);
             this.fallback.addBiome(fallback);
+        }
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase(Locale.ENGLISH);
+        }
+
+        public static EnumBiomeCategory get(String name) {
+            name = name.toUpperCase(Locale.ENGLISH);
+            EnumBiomeCategory category;
+            try {
+                category = EnumBiomeCategory.valueOf(name);
+            } catch (Exception e) {
+                return null;
+            }
+            return category;
         }
     }
 
@@ -388,9 +295,6 @@ public class BiomeRegistry {
 
             this.offsetx = rand.nextInt();
             this.offsetz = rand.nextInt();
-
-            //this.offsetx = (int)( ( MathUtil.xorShift64( 2846 * MathUtil.xorShift64(salt + 7391834) - salt ) ) % Integer.MAX_VALUE);
-            //this.offsetz = (int)( ( MathUtil.xorShift64( 9672 * MathUtil.xorShift64(salt + 4517384) - salt ) ) % Integer.MAX_VALUE);
 
             this.biomes = new LinkedHashMap<Biome, Double>();
         }
@@ -448,13 +352,13 @@ public class BiomeRegistry {
         }
     }
 
-    //------ HeightModEntry Class ---------------------------------------------------------
+    //------ HeightModRegistryEntry Class ---------------------------------------------------------
 
-    public static class HeightModEntry {
+    public static class HeightModRegistryEntry {
         public final IBiomeHeightModifier modifier;
         public final Map<String,Object> arguments;
 
-        public HeightModEntry(IBiomeHeightModifier modifier, Map<String,Object> args) {
+        public HeightModRegistryEntry(IBiomeHeightModifier modifier, Map<String,Object> args) {
             this.modifier = modifier;
             this.arguments = args;
         }

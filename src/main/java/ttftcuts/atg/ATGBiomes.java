@@ -6,7 +6,6 @@ import net.minecraft.block.BlockOldLog;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenBlockBlob;
 import net.minecraft.world.gen.feature.WorldGenSavannaTree;
@@ -16,10 +15,7 @@ import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.common.BiomeManager;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import ttftcuts.atg.biome.*;
-import ttftcuts.atg.biome.heightmods.HeightModDunes;
-import ttftcuts.atg.biome.heightmods.HeightModMesa;
-import ttftcuts.atg.biome.heightmods.HeightModMushroomIsland;
-import ttftcuts.atg.biome.heightmods.HeightModPlateaus;
+import ttftcuts.atg.biome.heightmods.*;
 import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 
 public abstract class ATGBiomes {
@@ -33,6 +29,7 @@ public abstract class ATGBiomes {
     public static Biome GRAVEL_BEACH_SNOWY;
 
     public static void init() {
+        HeightModifiers.init();
 
         SHRUBLAND = register("shrubland", new BiomeShrubland(), true, Type.PLAINS, Type.SPARSE);
         WOODLAND = register("woodland", new BiomeWoodland(), false, Type.FOREST);
@@ -59,10 +56,19 @@ public abstract class ATGBiomes {
     }
 
     public static abstract class HeightModifiers {
-        public static final IBiomeHeightModifier DUNES = new HeightModDunes();
-        public static final IBiomeHeightModifier ISLAND = new HeightModMushroomIsland();
-        public static final IBiomeHeightModifier MESA = new HeightModMesa();
-        public static final IBiomeHeightModifier PLATEAU = new HeightModPlateaus();
+        public static IBiomeHeightModifier DUNES;
+        public static IBiomeHeightModifier ISLAND;
+        public static IBiomeHeightModifier MESA;
+        public static IBiomeHeightModifier PLATEAU;
+        public static IBiomeHeightModifier OFFSET;
+
+        public static void init() {
+            DUNES = ATG.globalRegistry.registerHeightModifier(new HeightModDunes(), "dunes");
+            ISLAND = ATG.globalRegistry.registerHeightModifier(new HeightModIsland(), "island");
+            MESA = ATG.globalRegistry.registerHeightModifier(new HeightModMesa(), "mesa");
+            PLATEAU = ATG.globalRegistry.registerHeightModifier(new HeightModPlateaus(), "plateau");
+            OFFSET = ATG.globalRegistry.registerHeightModifier(new HeightModOffset(), "offset");
+        }
     }
 
     public static abstract class BiomeBlocks {

@@ -1,5 +1,6 @@
 package ttftcuts.atg.biome.heightmods;
 
+import ttftcuts.atg.generator.biome.BiomeModParameter;
 import ttftcuts.atg.generator.biome.IBiomeHeightModifier;
 import ttftcuts.atg.noise.Noise;
 import ttftcuts.atg.noise.OctaveNoise;
@@ -8,22 +9,27 @@ import ttftcuts.atg.noise.TailoredNoise;
 import ttftcuts.atg.util.MathUtil;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class HeightModMesa implements IBiomeHeightModifier {
+public class HeightModMesa extends ParamHeightMod {
     protected Noise mesanoise;
     protected Noise roughness;
     protected Noise rifts;
     protected Noise spires;
 
     public HeightModMesa() {
+        parameters.put("variant", new BiomeModParameter.VariantParameter(2));
+        parameters.put("spires", new BiomeModParameter.BooleanParameter(false));
+
         Random rand = new Random(329047298523L);
         this.mesanoise = new TailoredNoise(rand, 100, 0.1, 50, 0.5, 20, 0.1, 8, 0.01);
         this.roughness = new OctaveNoise(rand, 30, 3);
         this.rifts = new RidgeNoise(rand, 150, 4);
         this.spires = new OctaveNoise(rand, 10, 3, 0.5, 0.6);
     }
+
     @Override
     public double getModifiedHeight(int x, int z, double height, @Nullable Map<String, Object> args) {
 
@@ -31,14 +37,10 @@ public class HeightModMesa implements IBiomeHeightModifier {
          * Variants
          * 0: normal mesa
          * 1: double size + some height (plateau)
-         * 2: bryce style sprires
          */
 
-        int variant = 0;
-
-        if(args != null && args.containsKey("variant")) {
-            variant = (int)args.get("variant");
-        }
+        int variant = this.parameter("variant", args);
+        boolean hasSpires = this.parameter("spires", args);
 
         int nx = variant == 1 ? x / 2 + 37492 : x;
         int nz = variant == 1 ? z / 2 + 85477 : z;
@@ -46,7 +48,7 @@ public class HeightModMesa implements IBiomeHeightModifier {
         double n = height + (this.mesanoise.getValue(nx,nz) - 0.35) * 0.5;
 
         double spire = 0.0;
-        if (variant == 2) {
+        if (hasSpires) {
             spire = spires.getValue(x,z);
             spire *= spire * spire;// * spire;
             spire = Math.max(0,spire) * 0.2;
@@ -61,7 +63,7 @@ public class HeightModMesa implements IBiomeHeightModifier {
             int h = i * 16 + 8;
 
             n = MathUtil.plateau(n, h - 8, h, h + 8, 5.0, false);
-            if (variant == 2) {
+            if (hasSpires) {
                 spire = MathUtil.plateau(spire, h - 8, h, h + 8, 5.0, false);
             }
         }
@@ -80,7 +82,7 @@ public class HeightModMesa implements IBiomeHeightModifier {
 
         n = Math.max(height-0.01, n- r);
 
-        if (variant == 2) {
+        if (hasSpires) {
             n = MathUtil.polymax(n, spire, 8/255.0);
         }
 

@@ -6,7 +6,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
+import ttftcuts.atg.ATG;
 import ttftcuts.atg.generator.biome.BiomeRegistry;
+import ttftcuts.atg.settings.ChunkGeneratorSettings;
+import ttftcuts.atg.settings.WorldSettings;
 import ttftcuts.atg.util.GeneralUtil;
 import ttftcuts.atg.util.Kernel;
 import ttftcuts.atg.util.MathUtil;
@@ -16,7 +19,6 @@ import java.util.Map;
 
 public class ChunkProviderATG extends ChunkProviderBasic {
 
-
     public static final int BLEND_RADIUS = 5;
     public static final Kernel BLEND_KERNEL = new Kernel(BLEND_RADIUS, (int x, int z) -> {
         double dist = Math.sqrt(x*x+z*z);
@@ -24,8 +26,12 @@ public class ChunkProviderATG extends ChunkProviderBasic {
         return MathUtil.smoothstep( dist / BLEND_RADIUS ) * 0.5 + 0.5;
     });
 
+    protected ChunkGeneratorSettings settings;
+
     public ChunkProviderATG(World world) {
         super(world);
+
+        settings = WorldSettings.loadWorldSettings(world).genSettings;
     }
 
     // CORRECT THE DAMN TEMPERATURE CURVE
@@ -82,13 +88,18 @@ public class ChunkProviderATG extends ChunkProviderBasic {
     }
 
     public double getBiomeNoiseBlend(int x, int z, double height, BiomeProviderATG provider) {
+
+        Biome mainBiome = provider.getBestBiomeCached(x, z);;
+
+        // get aggregate height from around
+
         int ix,iz;
         Biome biome;
-        BiomeRegistry.HeightModEntry heightmod;
+        BiomeRegistry.HeightModRegistryEntry heightmod;
         double k;
 
         double noise = 0.0;
-        double modheight;
+        double modheight, smoothing;
 
         Map<Biome, Double> heights = new HashMap<Biome, Double>();
 
@@ -106,7 +117,12 @@ public class ChunkProviderATG extends ChunkProviderBasic {
                         if (heightmod == null) {
                             modheight = height;
                         } else {
-                            modheight = heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments);
+                            smoothing = 1.0;
+                            if (mainBiome != biome) {
+                                smoothing = provider.biomeRegistry.getSmoothingFactor(biome);
+                            }
+
+                            modheight = height * (1.0 - smoothing) + heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments) * smoothing;
                         }
                         noise += modheight * k;
                         heights.put(biome, modheight);
@@ -115,6 +131,15 @@ public class ChunkProviderATG extends ChunkProviderBasic {
             }
         }
 
-        return noise;
+        // get the height for the specific biome for smoothing overrides
+        heightmod = provider.biomeRegistry.getHeightModifier(mainBiome);
+        smoothing = provider.biomeRegistry.getSmoothingFactor(mainBiome);
+
+        double baseheight = height;
+        if (heightmod != null) {
+            baseheight = heightmod.modifier.getModifiedHeight(x + provider.noise.heightModOffset.x, z + provider.noise.heightModOffset.z, height, heightmod.arguments);
+        }
+
+        return baseheight + (noise - baseheight) * smoothing; //* (1.0 - smoothing) + noise * smoothing;
     }
 }
