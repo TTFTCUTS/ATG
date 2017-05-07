@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -53,7 +54,15 @@ public class GrassColours {
                 new CacheLoader<GrassCacheKey, Biome>() {
                     @Override
                     public Biome load(GrassCacheKey key) {
-                        return DimensionManager.getWorld(key.dim).getBiome(new BlockPos(key.x, 63, key.z));
+                        World world = Minecraft.getMinecraft().world;
+
+                        //ATG.logger.info("Requested ID: "+key.dim+", local world id: "+world.provider.getDimension());
+
+                        if (world.provider.getDimension() == key.dim) {
+                            return world.getBiome(new BlockPos(key.x, 63, key.z));
+                        }
+
+                        return Biomes.DEFAULT;
                     }
                 }
             );
