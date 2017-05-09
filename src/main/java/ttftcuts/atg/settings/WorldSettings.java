@@ -2,9 +2,11 @@ package ttftcuts.atg.settings;
 
 import com.google.gson.JsonObject;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.DerivedWorldInfo;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import ttftcuts.atg.ATG;
 import ttftcuts.atg.compat.BiomeModule;
@@ -70,7 +72,7 @@ public class WorldSettings extends Settings {
             settings.applyDefaultModuleStack();
 
             // If the options are empty, force them to the default value to match behaviour with provided settings
-            setGeneratorOptions(world, worldInfo, settings);
+            //setGeneratorOptions(world, worldInfo, settings);
 
             return settings;
         }
@@ -89,7 +91,19 @@ public class WorldSettings extends Settings {
     private static void setGeneratorOptions(World world, WorldInfo worldInfo, WorldSettings settings) {
         if (!world.isRemote) {
             ATG.logger.info("Setting empty generatorOptions to current defaults");
-            ObfuscationReflectionHelper.setPrivateValue(WorldInfo.class, worldInfo, settings.writeToJson(), "generatorOptions");
+            ATG.logger.info(worldInfo.getClass());
+
+            try {
+                /*if (worldInfo instanceof DerivedWorldInfo) {
+                    DerivedWorldInfo dwi = (DerivedWorldInfo)worldInfo;
+
+                    worldInfo = ReflectionHelper.getPrivateValue(DerivedWorldInfo.class, dwi, "b", "field_76115_a", "delegate");
+                }*/
+
+                ReflectionHelper.setPrivateValue(WorldInfo.class, worldInfo, settings.writeToJson(), "g", "field_82576_c", "generatorOptions");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

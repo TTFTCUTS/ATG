@@ -57,10 +57,10 @@ public class WorldTypeATG extends WorldType {
 
         //GeneralUtil.printBiomeInformation();
 
-        DefaultWorldSettings testsettings = new DefaultWorldSettings();
+        /*DefaultWorldSettings testsettings = new DefaultWorldSettings();
         testsettings.applyDefaultModuleStack();
 
-        ATG.logger.info(testsettings.writeToJson());
+        ATG.logger.info(testsettings.writeToJson());*/
     }
 
     @Override
