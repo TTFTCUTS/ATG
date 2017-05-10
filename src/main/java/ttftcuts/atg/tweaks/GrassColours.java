@@ -11,6 +11,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeColorHelper;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -174,21 +175,24 @@ public class GrassColours {
     }
 
     public static int getGrassColour(World world, Biome biome, BlockPos pos) {
-        int rad = 6;
-        int divisor = (rad*2 + 1);
-        divisor *= divisor;
+        int rad = 5;
+        //int divisor = (rad*2 + 1);
+        //divisor *= divisor;
+
+        int divisor = 0;
 
         int r = 0;
         int g = 0;
         int b = 0;
 
-        Map<Biome, Integer> biomeColours = new HashMap<>();
+        /*Map<Biome, Integer> biomeColours = new HashMap<>();
         Biome ib;
         int col,x,z;
 
         for (BlockPos.MutableBlockPos ipos : BlockPos.getAllInBoxMutable(pos.add(-rad, 0, -rad), pos.add(rad, 0, rad)))
         {
-            ib = grassCache.getUnchecked(new GrassCacheKey(world, ipos));
+            //ib = grassCache.getUnchecked(new GrassCacheKey(world, ipos));
+            ib = world.getBiome(ipos);
 
             if (biomeColours.containsKey(ib)) {
                 col = biomeColours.get(ib);
@@ -200,6 +204,74 @@ public class GrassColours {
             r += (col & 0xFF0000) >> 16;
             g += (col & 0x00FF00) >> 8;
             b += (col & 0x0000FF);
+        }*/
+
+        int chunkx = Math.floorDiv(pos.getX(), 16);
+        int chunkz = Math.floorDiv(pos.getZ(), 16);
+
+        int cx = pos.getX() - chunkx * 16;
+        int cz = pos.getZ() - chunkz * 16;
+
+        if (cx <= rad) {
+            chunkx--;
+            cx += 16;
+        }
+
+        if (cz <= rad) {
+            chunkz--;
+            cz += 16;
+        }
+
+        Chunk[][] chunks = {
+                {world.getChunkFromChunkCoords(chunkx, chunkz), world.getChunkFromChunkCoords(chunkx, chunkz+1)},
+                {world.getChunkFromChunkCoords(chunkx+1, chunkz), world.getChunkFromChunkCoords(chunkx+1, chunkz+1)}
+        };
+
+        // b = iteration coord, i = chunk list coord
+        int bx, bz, ix, iz, col;
+        Chunk chunk;
+        Biome ib;
+
+        BlockPos.MutableBlockPos ipos = new BlockPos.MutableBlockPos();
+
+        for (int x = -rad; x<= rad; x++) {
+            for (int z = -rad; z<= rad; z++) {
+
+
+                bx = cx + x;
+                bz = cz + z;
+                ix = Math.floorDiv(bx, 16);
+                iz = Math.floorDiv(bz, 16);
+
+                if (ix > 0) {
+                    bx -= 16;
+                }
+                if (iz > 0) {
+                    bz -= 16;
+                }
+
+                chunk = chunks[ix][iz];
+
+                if (chunk != null) {
+                    ipos.setPos(pos.getX() + x, 0, pos.getZ() + z);
+
+                    ib = Biome.getBiome(chunk.getBiomeArray()[bz * 16 + bx]);
+                    if (ib == null) {
+                        ib = Biomes.DEFAULT;
+                    }
+                    col = ib.getGrassColorAtPos(ipos);
+
+                    r += (col & 0xFF0000) >> 16;
+                    g += (col & 0x00FF00) >> 8;
+                    b += (col & 0x0000FF);
+
+                    divisor++;
+                }
+            }
+        }
+
+        if (divisor == 0) {
+            return 0xFF00FF;
         }
 
         return (r / divisor & 255) << 16 | (g / divisor & 255) << 8 | b / divisor & 255;
